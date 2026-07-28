@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suzy Command Center — Painel de Ativos</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="suzy-icon">♡</div>
+      <div><h1>Suzy</h1><p>COMMAND CENTER</p></div>
+    </div>
+    <button class="nav active">⌂ Dashboard</button>
+    <button class="nav">⌕ Scanner</button>
+    <button class="nav pink">▥ Ativos</button>
+    <button class="nav">▣ Calendário</button>
+    <button class="nav">▤ Notícias</button>
+    <button class="nav">↔ Operações</button>
+    <button class="nav">☷ Relatórios</button>
+    <button class="nav">▷ Replay</button>
+    <button class="nav">⬡ Academia</button>
+    <button class="nav">♙ Estatísticas</button>
+    <button class="nav">◎ Centro de Missão</button>
+    <button class="nav">♕ Medalhas</button>
+    <button class="nav">♢ Alertas</button>
+    <button class="nav">✈ Telegram</button>
+    <button class="nav">⚙ Configurações</button>
+    <div class="demo-box">🛡 <strong>MODO DEMO</strong></div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div><h2>Painel de Ativos</h2><p>Todos os ativos disponíveis e suas informações em tempo real.</p></div>
+      <div class="top-actions">
+        <div class="clock"><span id="today"></span><strong id="clock"></strong></div>
+        <div class="conn">● <strong>Conexão</strong><span>ONLINE</span></div>
+        <div class="user"><div class="avatar">D</div><div><strong>Danilo</strong><span>Conta Demo</span></div></div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="assets-panel">
+        <div class="panel-head">
+          <h3>⌁ ATIVOS DISPONÍVEIS</h3>
+          <div class="filters">
+            <input id="searchInput" placeholder="Pesquisar por nome ou ticker..." />
+            <select id="categoryFilter">
+              <option value="Todos">Todos</option><option value="OTC">OTC</option><option value="Índice">Índice</option>
+              <option value="Cripto">Cripto</option><option value="Commodities">Commodities</option><option value="Moedas">Moedas</option>
+            </select>
+            <button id="popularBtn">☷ Popular</button><button id="volBtn">⌁ Volatilidade</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Ativo</th><th>Nome</th><th>Preço</th><th>Variação</th><th>Popular</th><th>Volatilidade</th><th>Força</th><th>Favorito</th></tr></thead><tbody id="assetsBody"></tbody></table></div>
+      </div>
+
+      <aside class="right-panel">
+        <div class="side-card">
+          <h3>▣ CONTA DEMO</h3><p>Saldo</p><strong class="green">R$ 10.000,00</strong><p>Lucro do dia</p><strong class="green">+R$ 125,00</strong>
+          <div class="mini-grid"><div><span>Operações</span><strong>15</strong></div><div><span>Taxa de Acerto</span><strong>73%</strong></div></div>
+          <button class="full-btn">⌁ VER RELATÓRIOS</button>
+        </div>
+        <div class="side-card">
+          <h3>⌁ ÚLTIMOS SINAIS</h3>
+          <ul class="signals"><li>↗ EUR/USD (OTC) <span class="green">CALL</span> <small>23:45</small></li><li>🔥 XAU/USD (OTC) <span class="red">PUT</span> <small>23:32</small></li><li>🇬🇧 GBP/USD (OTC) <span class="green">CALL</span> <small>23:15</small></li><li>🇯🇵 USD/JPY (OTC) <span class="red">PUT</span> <small>22:58</small></li><li>₿ BTC/USD (OTC) <span class="green">CALL</span> <small>22:40</small></li></ul>
+          <button class="full-btn">VER TODOS</button>
+        </div>
+        <div class="side-card mission"><h3>◎ MISSÃO DO DIA</h3><p>Meta <span class="green">+R$ 300,00</span></p><p>Limite <span class="red">-R$ 200,00</span></p><p>Máx. Operações <span>5</span></p><hr><strong class="green">STATUS ATIVO</strong></div>
+      </aside>
+    </section>
+
+    <footer class="statusbar"><div>⌁ MERCADO <strong class="green">ABERTO</strong></div><div>🔥 VOLATILIDADE <strong class="orange">ALTA</strong></div><div>▣ PRÓXIMO EVENTO <strong>Payroll EUA</strong><b>00:09:42</b></div><div>🛡 RISCO <strong class="green">ATIVO</strong></div><div>🎙 VOZ DA SUZY <strong class="purple">ATIVADA</strong></div></footer>
+  </main>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
