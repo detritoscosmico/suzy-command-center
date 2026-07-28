@@ -1,0 +1,31 @@
+{
+  "modo": "demo",
+  "aviso": "Preços, variações, popularidade e volatilidade são dados demonstrativos e não representam cotações em tempo real.",
+  "categorias": ["OTC", "Índice", "Cripto", "Commodities", "Moedas"],
+  "ativos": [
+    "US 500 (OTC)",
+    "BTC/USD (OTC)",
+    "USD/DOP (OTC)",
+    "USD/BDT (OTC)",
+    "USD/MYR (OTC)",
+    "USD/JPY",
+    "USD/ARS (OTC)",
+    "USD/VND (OTC)",
+    "XAUUSD (OTC)",
+    "AUS 200 (OTC)",
+    "US 30 (OTC)",
+    "SOL/USD (OTC)",
+    "GER 30",
+    "Dollar Index",
+    "Pound Index",
+    "Australian Dollar Index",
+    "Euro Index",
+    "Canadian Dollar Index",
+    "Yen Index",
+    "US 100",
+    "US 500",
+    "US 30",
+    "JP 225",
+    "UK 100"
+  ]
+}
