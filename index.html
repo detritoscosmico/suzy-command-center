@@ -3,76 +3,189 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suzy Command Center — Painel de Ativos</title>
+  <meta name="description" content="Suzy Command Center: painel demonstrativo para treinamento, registro de operações e gestão de risco." />
+  <title>Suzy Command Center — Demo</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="suzy-icon">♡</div>
+      <div class="suzy-icon">S</div>
       <div><h1>Suzy</h1><p>COMMAND CENTER</p></div>
     </div>
-    <button class="nav active">⌂ Dashboard</button>
-    <button class="nav">⌕ Scanner</button>
-    <button class="nav pink">▥ Ativos</button>
-    <button class="nav">▣ Calendário</button>
-    <button class="nav">▤ Notícias</button>
-    <button class="nav">↔ Operações</button>
-    <button class="nav">☷ Relatórios</button>
-    <button class="nav">▷ Replay</button>
-    <button class="nav">⬡ Academia</button>
-    <button class="nav">♙ Estatísticas</button>
-    <button class="nav">◎ Centro de Missão</button>
-    <button class="nav">♕ Medalhas</button>
-    <button class="nav">♢ Alertas</button>
-    <button class="nav">✈ Telegram</button>
-    <button class="nav">⚙ Configurações</button>
-    <div class="demo-box">🛡 <strong>MODO DEMO</strong></div>
+
+    <nav aria-label="Navegação principal">
+      <button class="nav active" data-view="assets">▥ Ativos</button>
+      <button class="nav" data-view="operations">↔ Operações Demo</button>
+      <button class="nav" data-view="reports">☷ Relatórios</button>
+      <button class="nav" data-view="mission">◎ Centro de Missão</button>
+      <button class="nav nav-muted" disabled>⌕ Scanner — em breve</button>
+      <button class="nav nav-muted" disabled>▣ Calendário — em breve</button>
+      <button class="nav nav-muted" disabled>✈ Telegram — em breve</button>
+    </nav>
+
+    <div class="demo-box">🛡 <strong>MODO DEMO</strong><span>Sem conexão com corretora</span></div>
   </aside>
 
   <main>
     <header class="topbar">
-      <div><h2>Painel de Ativos</h2><p>Todos os ativos disponíveis e suas informações em tempo real.</p></div>
+      <button id="menuBtn" class="menu-btn" aria-label="Abrir menu">☰</button>
+      <div class="page-heading">
+        <h2 id="pageTitle">Painel de Ativos</h2>
+        <p id="pageSubtitle">Cotações e indicadores demonstrativos para treinamento.</p>
+      </div>
       <div class="top-actions">
         <div class="clock"><span id="today"></span><strong id="clock"></strong></div>
-        <div class="conn">● <strong>Conexão</strong><span>ONLINE</span></div>
+        <div class="conn">● <strong>Demo local</strong><span>ONLINE</span></div>
+        <button id="voiceBtn" class="voice-btn">🎙 Ouvir Suzy</button>
         <div class="user"><div class="avatar">D</div><div><strong>Danilo</strong><span>Conta Demo</span></div></div>
       </div>
     </header>
 
-    <section class="content">
-      <div class="assets-panel">
-        <div class="panel-head">
-          <h3>⌁ ATIVOS DISPONÍVEIS</h3>
-          <div class="filters">
-            <input id="searchInput" placeholder="Pesquisar por nome ou ticker..." />
-            <select id="categoryFilter">
-              <option value="Todos">Todos</option><option value="OTC">OTC</option><option value="Índice">Índice</option>
-              <option value="Cripto">Cripto</option><option value="Commodities">Commodities</option><option value="Moedas">Moedas</option>
-            </select>
-            <button id="popularBtn">☷ Popular</button><button id="volBtn">⌁ Volatilidade</button>
-          </div>
-        </div>
-        <div class="table-wrap"><table><thead><tr><th>Ativo</th><th>Nome</th><th>Preço</th><th>Variação</th><th>Popular</th><th>Volatilidade</th><th>Força</th><th>Favorito</th></tr></thead><tbody id="assetsBody"></tbody></table></div>
+    <section id="assetsView" class="view active">
+      <div class="summary-cards">
+        <article class="summary-card"><span>Saldo demo</span><strong id="balanceCard">R$ 10.000,00</strong></article>
+        <article class="summary-card"><span>Resultado do dia</span><strong id="pnlCard">R$ 0,00</strong></article>
+        <article class="summary-card"><span>Operações</span><strong id="opsCard">0 / 5</strong></article>
+        <article class="summary-card"><span>Taxa de acerto</span><strong id="winrateCard">0%</strong></article>
       </div>
 
-      <aside class="right-panel">
-        <div class="side-card">
-          <h3>▣ CONTA DEMO</h3><p>Saldo</p><strong class="green">R$ 10.000,00</strong><p>Lucro do dia</p><strong class="green">+R$ 125,00</strong>
-          <div class="mini-grid"><div><span>Operações</span><strong>15</strong></div><div><span>Taxa de Acerto</span><strong>73%</strong></div></div>
-          <button class="full-btn">⌁ VER RELATÓRIOS</button>
+      <div class="content-grid">
+        <div class="assets-panel">
+          <div class="panel-head">
+            <div><h3>⌁ ATIVOS DISPONÍVEIS</h3><small>Preços e forças são simulados; não representam cotações reais.</small></div>
+            <div class="filters">
+              <input id="searchInput" placeholder="Pesquisar nome ou ticker..." />
+              <select id="categoryFilter">
+                <option value="Todos">Todos</option>
+                <option value="Favoritos">Favoritos</option>
+                <option value="OTC">OTC</option>
+                <option value="Índice">Índice</option>
+                <option value="Cripto">Cripto</option>
+                <option value="Commodities">Commodities</option>
+                <option value="Moedas">Moedas</option>
+              </select>
+              <button id="popularBtn">☷ Popular</button>
+              <button id="volBtn">⌁ Volatilidade</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ativo</th><th>Nome</th><th>Preço demo</th><th>Variação</th><th>Popular</th><th>Força</th><th>Ações</th></tr></thead>
+              <tbody id="assetsBody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="side-card">
-          <h3>⌁ ÚLTIMOS SINAIS</h3>
-          <ul class="signals"><li>↗ EUR/USD (OTC) <span class="green">CALL</span> <small>23:45</small></li><li>🔥 XAU/USD (OTC) <span class="red">PUT</span> <small>23:32</small></li><li>🇬🇧 GBP/USD (OTC) <span class="green">CALL</span> <small>23:15</small></li><li>🇯🇵 USD/JPY (OTC) <span class="red">PUT</span> <small>22:58</small></li><li>₿ BTC/USD (OTC) <span class="green">CALL</span> <small>22:40</small></li></ul>
-          <button class="full-btn">VER TODOS</button>
-        </div>
-        <div class="side-card mission"><h3>◎ MISSÃO DO DIA</h3><p>Meta <span class="green">+R$ 300,00</span></p><p>Limite <span class="red">-R$ 200,00</span></p><p>Máx. Operações <span>5</span></p><hr><strong class="green">STATUS ATIVO</strong></div>
-      </aside>
+
+        <aside class="right-panel">
+          <div class="side-card">
+            <h3>▣ CONTA DEMO</h3>
+            <p>Saldo atual</p><strong id="sideBalance" class="green">R$ 10.000,00</strong>
+            <p>Resultado do dia</p><strong id="sidePnl">R$ 0,00</strong>
+            <div class="mini-grid">
+              <div><span>Operações</span><strong id="sideOps">0</strong></div>
+              <div><span>Taxa de acerto</span><strong id="sideWinrate">0%</strong></div>
+            </div>
+            <button class="full-btn" data-go="reports">VER RELATÓRIOS</button>
+          </div>
+
+          <div class="side-card">
+            <h3>↔ ÚLTIMAS OPERAÇÕES</h3>
+            <ul class="signals" id="recentOps"><li class="empty-state">Nenhuma operação registrada.</li></ul>
+            <button class="full-btn" data-go="operations">REGISTRAR OPERAÇÃO</button>
+          </div>
+
+          <div class="side-card mission">
+            <h3>◎ MISSÃO DO DIA</h3>
+            <p>Meta <span id="missionGain" class="green">R$ 500,00</span></p>
+            <p>Limite <span id="missionLoss" class="red">-R$ 300,00</span></p>
+            <p>Máx. operações <span id="missionMaxOps">5</span></p>
+            <hr>
+            <strong id="missionStatus" class="green">STATUS ATIVO</strong>
+          </div>
+        </aside>
+      </div>
     </section>
 
-    <footer class="statusbar"><div>⌁ MERCADO <strong class="green">ABERTO</strong></div><div>🔥 VOLATILIDADE <strong class="orange">ALTA</strong></div><div>▣ PRÓXIMO EVENTO <strong>Payroll EUA</strong><b>00:09:42</b></div><div>🛡 RISCO <strong class="green">ATIVO</strong></div><div>🎙 VOZ DA SUZY <strong class="purple">ATIVADA</strong></div></footer>
+    <section id="operationsView" class="view">
+      <div class="two-column">
+        <div class="panel">
+          <div class="panel-head"><div><h3>Registrar operação demo</h3><small>O resultado é informado manualmente para alimentar o diário.</small></div></div>
+          <div id="riskBanner" class="risk-banner ok">Suzy pronta. Respeite as regras da missão.</div>
+          <div class="form-grid">
+            <label>Ativo<select id="tradeAsset"></select></label>
+            <label>Direção<select id="tradeDirection"><option>CALL</option><option>PUT</option></select></label>
+            <label>Setup<select id="tradeSetup"><option>Price Action</option><option>Suporte e Resistência</option><option>EMA 9/21</option><option>RSI + Região</option><option>Pullback</option><option>Outro</option></select></label>
+            <label>Valor da entrada<input id="tradeAmount" type="number" min="1" step="1" value="100" /></label>
+          </div>
+          <label class="full-label">Motivo da entrada<input id="tradeReason" maxlength="160" placeholder="Ex.: tendência + região + confirmação de vela" /></label>
+          <div class="trade-actions"><button id="registerWin" class="call">REGISTRAR WIN</button><button id="registerLoss" class="put">REGISTRAR LOSS</button></div>
+          <p id="tradeFeedback" class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="panel">
+          <h3>Regras automáticas</h3>
+          <div class="rule-list">
+            <div><span>Entrada máxima agora</span><strong id="maxEntryRule">R$ 100,00</strong></div>
+            <div><span>Stop loss diário</span><strong id="stopLossRule">R$ 300,00</strong></div>
+            <div><span>Stop gain diário</span><strong id="stopGainRule">R$ 500,00</strong></div>
+            <div><span>Perdas consecutivas</span><strong id="lossStreakRule">0 / 3</strong></div>
+          </div>
+          <p class="notice">A Suzy bloqueia novos registros quando um limite é atingido. Não existe martingale neste painel.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="reportsView" class="view">
+      <div class="panel">
+        <div class="panel-head report-head">
+          <div><h3>Relatório de batalha</h3><small>Dados armazenados somente neste navegador.</small></div>
+          <div class="button-row"><button id="exportCsv">Exportar CSV</button><button id="resetOps" class="danger-outline">Limpar operações</button></div>
+        </div>
+        <div class="report-kpis">
+          <div><span>Total</span><strong id="reportTotal">0</strong></div>
+          <div><span>Wins</span><strong id="reportWins" class="green">0</strong></div>
+          <div><span>Losses</span><strong id="reportLosses" class="red">0</strong></div>
+          <div><span>Resultado</span><strong id="reportPnl">R$ 0,00</strong></div>
+        </div>
+        <div class="table-wrap report-table">
+          <table><thead><tr><th>Data</th><th>Ativo</th><th>Direção</th><th>Setup</th><th>Valor</th><th>Resultado</th><th>P/L</th><th>Motivo</th></tr></thead><tbody id="reportBody"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="missionView" class="view">
+      <div class="two-column">
+        <div class="panel">
+          <h3>Configurar missão</h3>
+          <div class="form-grid">
+            <label>Banca inicial<input id="cfgBank" type="number" min="100" step="100" /></label>
+            <label>Risco por entrada (%)<input id="cfgRisk" type="number" min="0.1" max="5" step="0.1" /></label>
+            <label>Stop loss (%)<input id="cfgStopLoss" type="number" min="0.5" max="20" step="0.5" /></label>
+            <label>Stop gain (%)<input id="cfgStopGain" type="number" min="0.5" max="50" step="0.5" /></label>
+            <label>Máximo de operações<input id="cfgMaxOps" type="number" min="1" max="50" /></label>
+            <label>Máximo de losses seguidos<input id="cfgMaxLosses" type="number" min="1" max="10" /></label>
+          </div>
+          <button id="saveMission" class="primary-btn">SALVAR MISSÃO</button>
+          <p id="missionFeedback" class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="panel">
+          <h3>Progresso do dia</h3>
+          <div class="progress-shell"><div id="missionProgress" class="progress-bar"></div></div>
+          <p id="progressText" class="progress-text">R$ 0,00 de R$ 500,00</p>
+          <div id="suzyAdvice" class="suzy-advice">Danilo, comece devagar. O primeiro objetivo é não perder o controle.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="statusbar">
+      <div>🛡 MODO <strong class="green">DEMO</strong></div>
+      <div>⌁ COTAÇÕES <strong class="orange">SIMULADAS</strong></div>
+      <div>▣ ARMAZENAMENTO <strong>LOCAL</strong></div>
+      <div>⚠ GESTÃO DE RISCO <strong class="green">ATIVA</strong></div>
+      <div>🎙 VOZ DA SUZY <strong class="purple">DISPONÍVEL</strong></div>
+    </footer>
   </main>
 </div>
 <script src="js/app.js"></script>
