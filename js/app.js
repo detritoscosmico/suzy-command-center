@@ -48,7 +48,7 @@ function loadState(){
 function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
 function money(value){return Number(value||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
 function signedMoney(value){const amount=money(Math.abs(value));return value>0?`+${amount}`:value<0?`-${amount}`:amount;}
-function todayKey(date=new Date()){return date.toISOString().slice(0,10);}
+function todayKey(date=new Date()){return SuzyCore.localDateKey(date);}
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"}[char]));}
 function allPnl(){return state.operations.reduce((sum,op)=>sum+Number(op.pnl),0);}
 function dailyOperations(){const key=todayKey();return state.operations.filter(op=>op.dateKey===key);}
