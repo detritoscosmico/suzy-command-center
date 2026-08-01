@@ -51,33 +51,15 @@ function signedMoney(value){const amount=money(Math.abs(value));return value>0?`
 function todayKey(date=new Date()){return SuzyCore.localDateKey(date);}
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"}[char]));}
 function allPnl(){return state.operations.reduce((sum,op)=>sum+Number(op.pnl),0);}
-function dailyOperations(){const key=todayKey();return state.operations.filter(op=>op.dateKey===key);}
-function consecutiveLosses(ops=dailyOperations()){
- let count=0;
- for(let i=ops.length-1;i>=0;i--){if(ops[i].result==="LOSS")count++;else break;}
- return count;
-}
 function getStats(){
- const daily=dailyOperations();
- const wins=daily.filter(op=>op.result==="WIN").length;
- const losses=daily.filter(op=>op.result==="LOSS").length;
- const dailyPnl=daily.reduce((sum,op)=>sum+Number(op.pnl),0);
- const balance=state.initialBank+allPnl();
- return{daily,wins,losses,total:daily.length,dailyPnl,balance,winrate:daily.length?Math.round(wins/daily.length*100):0,lossStreak:consecutiveLosses(daily)};
+ return SuzyCore.calculateStats({operations:state.operations,initialBank:state.initialBank,dateKey:todayKey()});
 }
 function getLimits(stats=getStats()){
- return{maxEntry:Math.max(1,stats.balance*(state.riskPct/100)),stopLoss:state.initialBank*(state.stopLossPct/100),stopGain:state.initialBank*(state.stopGainPct/100)};
+ return SuzyCore.calculateLimits({balance:stats.balance,initialBank:state.initialBank,riskPct:state.riskPct,stopLossPct:state.stopLossPct,stopGainPct:state.stopGainPct});
 }
 function getRiskState(amount=0){
  const stats=getStats();const limits=getLimits(stats);
- let reason="";
- if(stats.dailyPnl<=-limits.stopLoss)reason="Stop loss diário atingido.";
- else if(stats.dailyPnl>=limits.stopGain)reason="Stop gain diário atingido. Proteja o resultado.";
- else if(stats.total>=state.maxOps)reason="Limite máximo de operações atingido.";
- else if(stats.lossStreak>=state.maxLosses)reason="Limite de perdas consecutivas atingido.";
- else if(amount<=0)reason="Informe um valor de entrada válido.";
- else if(amount>limits.maxEntry)reason=`Entrada acima do limite de ${money(limits.maxEntry)}.`;
- return{blocked:Boolean(reason),reason,stats,limits};
+ return SuzyCore.evaluateRisk({stats,limits,maxOps:state.maxOps,maxLosses:state.maxLosses,amount,formatMoney:money});
 }
 
 function renderAssets(){
