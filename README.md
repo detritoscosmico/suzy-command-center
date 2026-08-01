@@ -28,6 +28,8 @@ Também é possível abrir `index.html` diretamente no navegador.
 - Voz da Suzy pelo recurso de fala do navegador.
 - Persistência via `localStorage`.
 - Layout responsivo para computador e celular.
+- Fechamento diário baseado na data local do dispositivo.
+- Testes automatizados e validação pelo GitHub Actions.
 
 ## Estrutura
 
@@ -37,9 +39,13 @@ suzy-command-center/
 ├── css/
 │   └── style.css
 ├── js/
-│   └── app.js
+│   ├── app.js
+│   └── core.js
 ├── dados/
 │   └── ativos.json
+├── test/
+│   └── core.test.js
+├── package.json
 └── README.md
 ```
 
@@ -53,8 +59,8 @@ suzy-command-center/
 
 ## Próximas etapas recomendadas
 
-1. Separar os ativos para um arquivo JSON consumido pelo frontend.
-2. Adicionar testes automatizados das regras de risco.
+1. Consumir o catálogo JSON no frontend mantendo compatibilidade com abertura direta.
+2. Ampliar os testes automatizados das regras de risco.
 3. Criar backend Flask com SQLite para histórico persistente.
 4. Implementar calendário econômico por fonte autorizada.
 5. Criar alertas via Telegram sem execução de ordens.
