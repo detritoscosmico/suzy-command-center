@@ -151,6 +151,47 @@
       .slice(0, limit);
   }
 
+  function generateDemoCandles(options = {}) {
+    const basePrice = Number(options.basePrice);
+    if (!Number.isFinite(basePrice) || basePrice <= 0) return [];
+
+    const count = clampInteger(options.count, 10, 100, 48);
+    const intervalMinutes = clampInteger(options.intervalMinutes, 1, 60, 1);
+    const random = typeof options.random === "function" ? options.random : Math.random;
+    const endTime = Number.isFinite(Number(options.endTime)) ? Number(options.endTime) : Date.now();
+    const volatility = basePrice * 0.0015;
+    const candles = [];
+    let previousClose = basePrice;
+
+    for (let index = 0; index < count; index += 1) {
+      const open = previousClose;
+      const close = Math.max(basePrice * 0.1, open + (random() - 0.48) * volatility);
+      const wickUp = random() * volatility * 0.55;
+      const wickDown = random() * volatility * 0.55;
+      const high = Math.max(open, close) + wickUp;
+      const low = Math.max(0.00000001, Math.min(open, close) - wickDown);
+      const time = endTime - (count - 1 - index) * intervalMinutes * 60000;
+
+      candles.push({ time, open, high, low, close });
+      previousClose = close;
+    }
+
+    return candles;
+  }
+
+  function calculateEma(values = [], period = 9) {
+    const safePeriod = clampInteger(period, 1, 200, 9);
+    const multiplier = 2 / (safePeriod + 1);
+    let previous = null;
+
+    return values.map(value => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return previous;
+      previous = previous === null ? number : number * multiplier + previous * (1 - multiplier);
+      return previous;
+    });
+  }
+
   return {
     localDateKey,
     consecutiveLosses,
@@ -161,6 +202,8 @@
     serializeCsv,
     normalizeAsset,
     normalizeCatalog,
-    analyzeDemoAssets
+    analyzeDemoAssets,
+    generateDemoCandles,
+    calculateEma
   };
 });
