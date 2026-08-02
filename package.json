@@ -1,9 +1,15 @@
 {
   "name": "suzy-command-center",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "scripts": {
-    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js && node --check js/replay-core.js && node --check js/replay.js && node --check js/academy2-core.js && node --check js/academia2.js && node --check js/simulator-core.js && node --check js/simulador.js && node --check js/journal-core.js && node --check js/diario.js",
-    "test": "node --test"
+    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js && node --check js/replay-core.js && node --check js/replay.js && node --check js/academy2-core.js && node --check js/academia2.js && node --check js/simulator-core.js && node --check js/simulador.js && node --check js/journal-core.js && node --check js/diario.js && node --check playwright.config.js && node --check test/e2e/server.js && node --check test/e2e/critical-flows.spec.js",
+    "test": "npm run test:unit",
+    "test:unit": "node --test",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
   }
 }
