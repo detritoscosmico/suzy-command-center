@@ -14,7 +14,7 @@
       <div>
         <span>SUZY COMMAND CENTER</span>
         <h1>Conta local protegida</h1>
-        <p>Autenticação e persistência em SQLite para o diário profissional. O servidor funciona somente no seu computador.</p>
+        <p>Autenticação, recuperação por chave única e persistência em SQLite para o diário profissional.</p>
       </div>
     </section>
 
@@ -24,7 +24,7 @@
       <form id="setupForm" hidden>
         <span class="eyebrow">PRIMEIRO ACESSO</span>
         <h2>Criar conta local</h2>
-        <p>Esta etapa aparece apenas enquanto o banco ainda não possui usuário.</p>
+        <p>Ao criar a conta, uma chave de recuperação será exibida uma única vez. Guarde-a fora do computador.</p>
         <label>Usuário
           <input id="setupUsername" autocomplete="username" minlength="3" maxlength="32" required placeholder="danilo" />
         </label>
@@ -47,6 +47,27 @@
           <input id="loginPassword" type="password" autocomplete="current-password" maxlength="128" required />
         </label>
         <button type="submit">ENTRAR</button>
+        <button id="showRecoveryForm" class="secondary" type="button">RECUPERAR COM CHAVE</button>
+      </form>
+
+      <form id="recoveryForm" hidden>
+        <span class="eyebrow">RECUPERAÇÃO LOCAL</span>
+        <h2>Definir nova senha</h2>
+        <p>Use a chave salva anteriormente. A chave utilizada será invalidada e substituída.</p>
+        <label>Usuário
+          <input id="recoveryUsername" autocomplete="username" maxlength="32" required />
+        </label>
+        <label>Chave de recuperação
+          <input id="recoveryKey" type="password" autocomplete="off" maxlength="80" required placeholder="SUZY-..." />
+        </label>
+        <label>Nova senha
+          <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+        </label>
+        <label>Confirmar nova senha
+          <input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+        </label>
+        <button type="submit">RECUPERAR CONTA</button>
+        <button id="cancelRecovery" class="secondary" type="button">VOLTAR AO LOGIN</button>
       </form>
 
       <section id="sessionPanel" class="session-panel" hidden>
@@ -58,6 +79,32 @@
           <a href="diario.html">ABRIR DIÁRIO PROFISSIONAL</a>
           <a href="index.html">ABRIR COMMAND CENTER</a>
           <button id="logoutButton" type="button">SAIR</button>
+        </div>
+
+        <div class="account-panel">
+          <span class="eyebrow">SEGURANÇA DA CONTA</span>
+          <h3>Senha e recuperação</h3>
+          <p id="recoveryStatus" class="storage-note">Verificando chave de recuperação...</p>
+
+          <form id="recoveryKeyForm" class="nested-form">
+            <label>Senha atual
+              <input id="recoveryCurrentPassword" type="password" autocomplete="current-password" maxlength="128" required />
+            </label>
+            <button type="submit">GERAR OU TROCAR CHAVE DE RECUPERAÇÃO</button>
+          </form>
+
+          <form id="changePasswordForm" class="nested-form">
+            <label>Senha atual
+              <input id="changeCurrentPassword" type="password" autocomplete="current-password" maxlength="128" required />
+            </label>
+            <label>Nova senha
+              <input id="changeNewPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+            </label>
+            <label>Confirmar nova senha
+              <input id="changeNewPasswordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+            </label>
+            <button type="submit">ALTERAR SENHA E ROTACIONAR CHAVE</button>
+          </form>
         </div>
 
         <div class="storage-panel">
@@ -72,7 +119,19 @@
             <button id="downloadBackup" type="button">BAIXAR DO BANCO</button>
             <button id="clearRemoteJournal" class="danger" type="button">LIMPAR HISTÓRICO REMOTO</button>
           </div>
-          <p class="storage-note">Nesta fase, a transferência é manual por backup JSON. A sincronização automática dentro do diário será a etapa seguinte.</p>
+          <p class="storage-note">O Diário Profissional também oferece sincronização direta com o SQLite.</p>
+        </div>
+      </section>
+
+      <section id="recoveryKeyPanel" class="recovery-key-panel" hidden aria-live="polite">
+        <span class="eyebrow">GUARDE AGORA</span>
+        <h2>Nova chave de recuperação</h2>
+        <p>Esta chave será exibida somente nesta tela. Sem a senha e sem esta chave, não existe recuperação automática.</p>
+        <code id="recoveryKeyValue">—</code>
+        <div class="recovery-key-actions">
+          <button id="copyRecoveryKey" type="button">COPIAR</button>
+          <button id="downloadRecoveryKey" type="button">BAIXAR TXT</button>
+          <button id="dismissRecoveryKey" class="danger" type="button">JÁ GUARDEI</button>
         </div>
       </section>
 
@@ -80,12 +139,13 @@
     </section>
 
     <section class="security-card">
-      <h2>Limites deste modo</h2>
+      <h2>Proteções e limites</h2>
       <ul>
         <li>Funciona apenas com <code>npm run serve:secure</code>.</li>
+        <li>Senhas são derivadas com PBKDF2; a chave de recuperação é armazenada somente como hash.</li>
+        <li>Alterar ou recuperar a senha encerra todas as sessões anteriores.</li>
         <li>O GitHub Pages continua sendo uma demonstração pública sem backend.</li>
         <li>O banco fica em <code>data/suzy-local.sqlite3</code> e não é enviado ao GitHub.</li>
-        <li>A sincronização transfere o diário deste navegador para a conta local.</li>
       </ul>
     </section>
   </main>
