@@ -7,6 +7,7 @@ const publicPages = [
   { path: "/replay.html", heading: "Laboratório de Replay — Nível 1" },
   { path: "/simulador.html", heading: "Simulador de Ordens e Custos" },
   { path: "/diario.html", heading: "Diário Profissional do Trader" },
+  { path: "/calendario.html", heading: "Calendário Econômico Educacional" },
   { path: "/login.html", heading: "Conta local protegida" }
 ];
 
@@ -33,6 +34,15 @@ test("mantém o diário funcional sem backend no modo estático", async ({ page 
   await expect(page.locator("#syncStatus")).toHaveText("Somente neste navegador");
   await expect(page.locator("#syncToServer")).toBeDisabled();
   await expect(page.locator("#restoreFromServer")).toBeDisabled();
+});
+
+test("carrega cenário artificial no calendário", async ({ page }) => {
+  await page.goto("/calendario.html");
+  await page.locator("#loadDemo").click();
+  await expect(page.locator("#calendarMode")).toHaveText("EXEMPLO ARTIFICIAL");
+  await expect(page.locator("#summaryTotal")).toHaveText("3");
+  await expect(page.locator("#calendarBody tr")).toHaveCount(3);
+  await expect(page.locator("#importFeedback")).toContainText("não representam divulgações reais");
 });
 
 test("registra uma operação demo no Command Center", async ({ page }, testInfo) => {
