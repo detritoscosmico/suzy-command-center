@@ -1,6 +1,6 @@
 # SUZY COMMAND CENTER
 
-Central demonstrativa para treinamento, registro de operações, gestão de risco e formação estruturada de traders. O projeto funciona no navegador e salva os dados localmente.
+Central demonstrativa para treinamento, registro de operações, gestão de risco e formação estruturada de traders. O projeto funciona no navegador e mantém os dados localmente.
 
 ## Executar no VS Code
 
@@ -10,42 +10,29 @@ Central demonstrativa para treinamento, registro de operações, gestão de risc
 4. Clique com o botão direito em `index.html`.
 5. Selecione **Open with Live Server**.
 
-Também é possível abrir os arquivos diretamente no navegador.
+Também é possível abrir os arquivos HTML diretamente no navegador.
 
-## Academia Suzy — Nível 1
+## Módulos de formação
 
-Abra:
+### Academia Suzy — Nível 1
 
-```text
-academia.html
-```
+Arquivo: `academia.html`
 
-A primeira trilha contém seis aulas sobre mentalidade, mercados, candles, gestão de risco, playbook e validação. As aulas são sequenciais, possuem exercícios, verificação obrigatória e avaliação final com nota mínima de 70%.
+Seis aulas sobre mentalidade, mercados, candles, gestão de risco, playbook e validação. As aulas são sequenciais, possuem exercícios, verificação obrigatória e avaliação final com nota mínima de 70%.
 
-## Academia Suzy — Nível 2
+### Academia Suzy — Nível 2
 
-Abra:
+Arquivo: `academia-nivel2.html`
 
-```text
-academia-nivel2.html
-```
+Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliação final com nota mínima de 75%. Abrange estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist e playbook.
 
-A formação aplicada inclui estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist técnico e construção de playbook. São oito aulas sequenciais, cinco exercícios práticos e avaliação final com nota mínima de 75%.
+### Laboratório de Replay
 
-## Laboratório de Replay
-
-Abra:
-
-```text
-replay.html
-```
-
-O laboratório inclui:
+Arquivo: `replay.html`
 
 - cenário artificial com 120 candles;
 - importação local de históricos CSV autorizados;
 - validação de timestamp e OHLC;
-- suporte a cabeçalhos em português e inglês;
 - limite de 2 MB e 5.000 linhas;
 - descarte de linhas inválidas e timestamps duplicados;
 - candles futuros ocultos;
@@ -58,118 +45,83 @@ O laboratório inclui:
 
 O formato de importação está documentado em `docs/importacao-historico-replay.md`.
 
-## Simulador de Ordens e Custos
+### Simulador de Ordens e Custos
 
-Abra:
-
-```text
-simulador.html
-```
-
-O simulador educacional inclui:
+Arquivo: `simulador.html`
 
 - ordens a mercado, limite e stop de entrada;
 - compra no ask e venda no bid;
-- spread configurável;
-- slippage configurável;
-- comissão cobrada na entrada e na saída;
+- spread, slippage e comissão configuráveis;
 - valor monetário por ponto;
-- stop e alvo definidos antes da entrada;
+- stop e alvo definidos antecipadamente;
 - processamento por candles artificiais;
-- melhoria de preço em ordens limite quando aplicável;
-- slippage adverso em ordens stop e saídas por stop;
-- critério conservador quando stop e alvo aparecem no mesmo candle;
+- melhoria de preço em ordens limite;
+- slippage adverso em ordens stop;
 - resultado bruto, custos e resultado líquido;
-- taxa de acerto e média líquida da sessão;
-- diário e exportação CSV protegida;
-- persistência local da sessão.
+- taxa de acerto, diário e exportação CSV protegida.
 
-As regras e limitações estão documentadas em `docs/simulador-custos-operacionais.md`.
+As regras estão documentadas em `docs/simulador-custos-operacionais.md`.
 
-## Diário Profissional
+### Diário Profissional
 
-Abra:
+Arquivo: `diario.html`
 
-```text
-diario.html
-```
-
-O diário profissional inclui:
-
-- registro de data, ativo, mercado, sessão, timeframe e direção;
-- setup, resultado em `R` e qualidade da execução;
+- ativo, mercado, sessão, timeframe, direção e setup;
+- resultado em `R` e qualidade da execução;
 - aderência ao plano;
-- emoção antes e depois;
-- classificação de erros de processo;
-- contexto, justificativa e lição aprendida;
+- emoções antes e depois;
+- erros de processo, contexto e lição aprendida;
 - expectativa, profit factor e drawdown máximo;
 - curva acumulada em `R`;
 - desempenho por setup, ativo, sessão e timeframe;
-- filtros por período, ativo, setup, sessão e resultado;
+- filtros por período e resultado;
 - ranking de erros recorrentes;
-- exportação CSV protegida;
-- backup completo em JSON;
-- persistência local.
+- exportação CSV e backup JSON.
 
-A metodologia e as limitações estão documentadas em `docs/diario-profissional.md`.
+A metodologia está documentada em `docs/diario-profissional.md`.
 
 ## Recursos atuais
 
-- Academia Suzy — Nível 1.
-- Academia Suzy — Nível 2.
-- Laboratório de replay com dados artificiais ou históricos importados.
-- Simulador de ordens com spread, comissão e slippage.
+- Academia Suzy — Níveis 1 e 2.
+- Replay com dados artificiais ou históricos importados.
+- Simulador de ordens com custos operacionais.
 - Diário profissional com estatísticas avançadas.
 - Catálogo estruturado em JSON com fallback local.
 - Scanner demonstrativo e gráfico de velas artificiais.
 - Registro manual de WIN e LOSS.
-- Gestão de risco com entrada máxima, stop diário e limite operacional.
+- Gestão de risco com entrada máxima, stop diário e limites operacionais.
 - Relatórios e exportação CSV protegida contra fórmulas.
 - Voz da Suzy pelo navegador.
-- Persistência via `localStorage`.
+- Persistência por `localStorage`.
 - Layout responsivo para computador e celular.
-- Testes automatizados e GitHub Actions.
+- Testes unitários e testes de integração no navegador.
+- Validação contínua pelo GitHub Actions.
 
 ## Estrutura
 
 ```text
 suzy-command-center/
+├── .github/workflows/quality.yml
 ├── academia.html
 ├── academia-nivel2.html
 ├── diario.html
 ├── index.html
 ├── replay.html
 ├── simulador.html
+├── playwright.config.js
 ├── assets/
-│   └── suzy-avatar.webp
 ├── css/
-│   ├── academia.css
-│   ├── academia2.css
-│   ├── base.css
-│   ├── diario.css
-│   ├── replay.css
-│   ├── simulador.css
-│   └── style.css
+├── dados/
 ├── docs/
 │   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
-│   └── simulador-custos-operacionais.md
+│   ├── simulador-custos-operacionais.md
+│   └── testes-integracao-interface.md
 ├── js/
-│   ├── academia.js
-│   ├── academia2.js
-│   ├── academy-core.js
-│   ├── academy2-core.js
-│   ├── app.js
-│   ├── core.js
-│   ├── diario.js
-│   ├── journal-core.js
-│   ├── replay-core.js
-│   ├── replay.js
-│   ├── simulator-core.js
-│   └── simulador.js
-├── dados/
-│   └── ativos.json
 ├── test/
+│   ├── e2e/
+│   │   ├── critical-flows.spec.js
+│   │   └── server.js
 │   ├── academy.test.js
 │   ├── academy2.test.js
 │   ├── core.test.js
@@ -182,10 +134,38 @@ suzy-command-center/
 
 ## Testes
 
+Instale as dependências e o navegador de testes:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Verificação de sintaxe:
+
 ```bash
 npm run check
-npm test
 ```
+
+Testes unitários:
+
+```bash
+npm run test:unit
+```
+
+Testes de integração em Chromium desktop e celular:
+
+```bash
+npm run test:e2e
+```
+
+Abrir o relatório HTML:
+
+```bash
+npm run test:e2e:report
+```
+
+A cobertura e as limitações estão documentadas em `docs/testes-integracao-interface.md`.
 
 ## Limitações atuais
 
@@ -196,14 +176,15 @@ npm test
 - Não executa ordens reais ou automáticas.
 - A origem e a licença dos históricos importados são responsabilidade do usuário.
 - O simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos.
-- O diário ainda não possui sincronização, importação do backup JSON ou anexos de imagem.
+- O diário ainda não possui sincronização, restauração de backup JSON ou anexos de imagem.
+- Os testes de navegador usam apenas Chromium.
 
 ## Próximas etapas recomendadas
 
-1. Adicionar testes de integração da interface no navegador.
-2. Criar backend com autenticação e histórico persistente.
+1. Criar backend com autenticação e histórico persistente.
+2. Implementar sincronização e restauração segura do backup do diário.
 3. Implementar calendário econômico por fonte autorizada.
-4. Adicionar sincronização e recuperação de backup do diário.
+4. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
 
 ## Aviso
 

@@ -155,7 +155,7 @@
     const basePrice = Number(options.basePrice);
     if (!Number.isFinite(basePrice) || basePrice <= 0) return [];
 
-    const count = clampInteger(options.count, 10, 100, 48);
+    const count = clampInteger(options.count, 10, 500, 48);
     const intervalMinutes = clampInteger(options.intervalMinutes, 1, 60, 1);
     const random = typeof options.random === "function" ? options.random : Math.random;
     const endTime = Number.isFinite(Number(options.endTime)) ? Number(options.endTime) : Date.now();
