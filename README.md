@@ -10,10 +10,12 @@ Central demonstrativa para treinamento, registro de operações e gestão de ris
 4. Clique com o botão direito em `index.html`.
 5. Selecione **Open with Live Server**.
 
-Também é possível abrir `index.html` diretamente no navegador.
+Também é possível abrir `index.html` diretamente no navegador. Nesse modo, o sistema usa o catálogo local de segurança; pelo Live Server, carrega e valida `dados/ativos.json`.
 
 ## Recursos atuais
 
+- Catálogo estruturado em JSON com fallback para abertura direta.
+- Validação e normalização dos ativos antes da exibição.
 - Catálogo com OTC, Forex, índices, criptomoedas e ouro.
 - EUR/USD, GBP/USD, USD/JPY, BTC, ETH, XLM, SOL e outros ativos.
 - Busca, categorias, favoritos e ordenação.
@@ -23,18 +25,22 @@ Também é possível abrir `index.html` diretamente no navegador.
 - Risco máximo por entrada.
 - Stop loss e stop gain diários.
 - Limite de operações e de perdas consecutivas.
-- Relatório completo e exportação CSV.
+- Relatório completo e exportação CSV protegida contra fórmulas.
 - Configuração da missão diária.
 - Voz da Suzy pelo recurso de fala do navegador.
 - Persistência via `localStorage`.
 - Layout responsivo para computador e celular.
 - Fechamento diário baseado na data local do dispositivo.
-- Testes automatizados das datas e travas de risco, com validação pelo GitHub Actions.
+- Testes automatizados das datas, catálogo, exportação e travas de risco.
+- Validação contínua pelo GitHub Actions.
 
 ## Estrutura
 
 ```text
 suzy-command-center/
+├── .github/
+│   └── workflows/
+│       └── quality.yml
 ├── index.html
 ├── css/
 │   └── style.css
@@ -49,6 +55,12 @@ suzy-command-center/
 └── README.md
 ```
 
+## Funcionamento do catálogo
+
+Quando o projeto é servido pelo Live Server ou outro servidor HTTP, o frontend busca `dados/ativos.json`. Cada entrada passa por validação de ticker, nome, preço, casas decimais, categoria, popularidade e força.
+
+Se o arquivo estiver indisponível, inválido ou o projeto for aberto diretamente por `file://`, o painel continua funcionando com um catálogo local de segurança. O fallback não transforma os valores em cotações reais; todo o conteúdo permanece demonstrativo.
+
 ## Limitações atuais
 
 - Não existe autenticação.
@@ -59,12 +71,11 @@ suzy-command-center/
 
 ## Próximas etapas recomendadas
 
-1. Consumir o catálogo JSON no frontend mantendo compatibilidade com abertura direta.
-2. Adicionar testes de integração da interface no navegador.
-3. Criar backend Flask com SQLite para histórico persistente.
-4. Implementar calendário econômico por fonte autorizada.
-5. Criar alertas via Telegram sem execução de ordens.
-6. Empacotar uma versão desktop após estabilizar o sistema.
+1. Adicionar testes de integração da interface no navegador.
+2. Criar backend Flask com SQLite para histórico persistente.
+3. Implementar calendário econômico por fonte autorizada.
+4. Criar alertas via Telegram sem execução de ordens.
+5. Empacotar uma versão desktop após estabilizar o sistema.
 
 ## Aviso
 
