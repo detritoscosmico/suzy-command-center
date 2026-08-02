@@ -1,6 +1,6 @@
 # SUZY COMMAND CENTER
 
-Central demonstrativa para treinamento, registro de operações, gestão de risco e formação básica de traders. O projeto funciona no navegador e salva os dados localmente.
+Central demonstrativa para treinamento, registro de operações, gestão de risco e formação estruturada de traders. O projeto funciona no navegador e salva os dados localmente.
 
 ## Executar no VS Code
 
@@ -20,20 +20,31 @@ Abra:
 academia.html
 ```
 
-A primeira trilha de formação contém:
+A primeira trilha contém seis aulas sobre mentalidade, mercados, candles, gestão de risco, playbook e validação. As aulas são sequenciais, possuem exercícios, verificação obrigatória e avaliação final com nota mínima de 70%.
 
-- mentalidade e postura profissional;
-- mercados, liquidez, volatilidade e alavancagem;
-- candles e estrutura de mercado;
-- gestão de risco e drawdown;
-- plano e playbook operacional;
-- validação, backtest e conta demo;
-- exercícios por aula;
-- verificação obrigatória antes de liberar a próxima etapa;
-- avaliação final com nota mínima de 70%;
-- progresso salvo no `localStorage`.
+## Academia Suzy — Nível 2
 
-O registro de conclusão é interno e não representa certificação profissional ou regulatória.
+Abra:
+
+```text
+academia-nivel2.html
+```
+
+A formação aplicada inclui:
+
+- estrutura e contexto de mercado;
+- suporte, resistência e zonas;
+- tendência, pullback e continuidade;
+- candles como gatilho contextual;
+- EMA, RSI e indicadores como filtros;
+- confluência e checklist verificável;
+- invalidação e relação risco-retorno;
+- construção e validação do playbook técnico;
+- laboratório de classificação de cenários artificiais;
+- checklist com critérios obrigatórios e bloqueadores;
+- oito aulas sequenciais;
+- avaliação final com 12 questões e nota mínima de 75%;
+- progresso e melhor nota salvos no `localStorage`.
 
 ## Laboratório de Replay — Nível 1
 
@@ -43,63 +54,57 @@ Abra:
 replay.html
 ```
 
-O laboratório prático inclui:
+O laboratório inclui:
 
 - cenário artificial com 120 candles;
 - candles futuros ocultos;
 - avanço candle a candle;
 - entradas compradas e vendidas;
-- stop definido antes da entrada;
-- relação risco-retorno configurável;
-- fechamento automático por stop ou alvo;
-- critério conservador quando stop e alvo são tocados na mesma vela;
+- stop e alvo definidos antes da entrada;
+- fechamento automático;
 - resultado em múltiplos de risco (`R`);
-- expectativa, win rate e drawdown da sessão;
-- diário do replay e exportação CSV protegida;
+- expectativa, win rate e drawdown;
+- diário e exportação CSV protegida;
 - persistência local da sessão.
 
-Os candles são artificiais e não representam mercado ao vivo, recomendação ou sinal operacional.
+Todos os cenários são artificiais e não representam mercado ao vivo, recomendação ou sinal operacional.
 
 ## Recursos atuais
 
 - Academia Suzy — Nível 1 com seis aulas e avaliação final.
+- Academia Suzy — Nível 2 com oito aulas, prática técnica e avaliação final.
 - Laboratório de replay candle a candle com diário e métricas em R.
-- Catálogo estruturado em JSON com fallback para abertura direta.
-- Validação e normalização dos ativos antes da exibição.
-- Catálogo com OTC, Forex, índices, criptomoedas e ouro.
-- Busca, categorias, favoritos e ordenação.
-- Cotações demonstrativas com pequenas variações simuladas.
-- Scanner demo com ranking de força, popularidade e variação simulada.
-- Gráfico responsivo de velas japonesas com cenários artificiais, M1/M5/M15 e EMA 9/21.
+- Catálogo estruturado em JSON com fallback local.
+- Scanner demonstrativo e gráfico de velas artificiais.
 - Registro manual de WIN e LOSS.
-- Banca e resultado atualizados automaticamente.
-- Risco máximo por entrada.
-- Stop loss e stop gain diários.
-- Limite de operações e de perdas consecutivas.
-- Relatório completo e exportação CSV protegida contra fórmulas.
-- Configuração da missão diária.
-- Voz da Suzy pelo recurso de fala do navegador.
+- Gestão de risco com entrada máxima, stop diário e limite operacional.
+- Relatórios e exportação CSV protegida contra fórmulas.
+- Voz da Suzy pelo navegador.
 - Persistência via `localStorage`.
 - Layout responsivo para computador e celular.
-- Testes automatizados e validação contínua pelo GitHub Actions.
+- Testes automatizados e GitHub Actions.
 
 ## Estrutura
 
 ```text
 suzy-command-center/
 ├── academia.html
+├── academia-nivel2.html
 ├── index.html
 ├── replay.html
 ├── assets/
 │   └── suzy-avatar.webp
 ├── css/
 │   ├── academia.css
+│   ├── academia2.css
 │   ├── base.css
 │   ├── replay.css
 │   └── style.css
 ├── js/
 │   ├── academia.js
+│   ├── academia2.js
 │   ├── academy-core.js
+│   ├── academy2-core.js
 │   ├── app.js
 │   ├── core.js
 │   ├── replay-core.js
@@ -108,6 +113,7 @@ suzy-command-center/
 │   └── ativos.json
 ├── test/
 │   ├── academy.test.js
+│   ├── academy2.test.js
 │   ├── core.test.js
 │   └── replay.test.js
 ├── package.json
@@ -129,16 +135,16 @@ npm test
 - Não há conexão com corretora.
 - Não executa ordens reais ou automáticas.
 - O replay usa candles artificiais e ainda não importa históricos autorizados.
-- A formação ainda não inclui simulador completo de ordens, diário avançado ou estatísticas por setup.
+- Ainda não existe simulador completo com spread, comissão e slippage.
+- O diário avançado e as estatísticas por setup ainda não foram implementados.
 
 ## Próximas etapas recomendadas
 
-1. Criar o Nível 2 — análise técnica aplicada.
-2. Permitir importação validada de históricos autorizados para replay.
-3. Adicionar simulador de ordens com spread, comissão e slippage.
-4. Criar diário profissional e estatísticas avançadas.
-5. Adicionar testes de integração da interface no navegador.
-6. Criar backend com autenticação e histórico persistente.
+1. Permitir importação validada de históricos autorizados para replay.
+2. Adicionar simulador de ordens com spread, comissão e slippage.
+3. Criar diário profissional e estatísticas avançadas.
+4. Adicionar testes de integração da interface no navegador.
+5. Criar backend com autenticação e histórico persistente.
 
 ## Aviso
 
