@@ -1,0 +1,24 @@
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+
+# Dados locais e bancos
+*.db
+*.sqlite
+*.sqlite3
+data/
+logs/
+backups/
+
+# Dependências e arquivos temporários
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Sistema e editor
+.DS_Store
+Thumbs.db
+.vscode/
