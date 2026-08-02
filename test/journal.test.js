@@ -12,22 +12,22 @@ const {
 
 function entry(overrides = {}) {
   return {
-    id: overrides.id || Math.random().toString(36),
-    timestamp: overrides.timestamp || "2026-08-01T12:00:00.000Z",
-    asset: overrides.asset || "EUR/USD",
-    market: overrides.market || "Forex",
-    session: overrides.session || "Londres",
-    timeframe: overrides.timeframe || "M5",
-    direction: overrides.direction || "LONG",
-    setup: overrides.setup || "Pullback",
+    id: overrides.id ?? Math.random().toString(36),
+    timestamp: overrides.timestamp ?? "2026-08-01T12:00:00.000Z",
+    asset: overrides.asset ?? "EUR/USD",
+    market: overrides.market ?? "Forex",
+    session: overrides.session ?? "Londres",
+    timeframe: overrides.timeframe ?? "M5",
+    direction: overrides.direction ?? "LONG",
+    setup: overrides.setup ?? "Pullback",
     rMultiple: overrides.rMultiple ?? 1,
     followedPlan: overrides.followedPlan ?? true,
     quality: overrides.quality ?? 4,
-    emotionBefore: overrides.emotionBefore || "Calmo",
-    emotionAfter: overrides.emotionAfter || "Neutro",
-    errorType: overrides.errorType || "Nenhum",
-    context: overrides.context || "Estrutura favorável",
-    lesson: overrides.lesson || "Repetir processo"
+    emotionBefore: overrides.emotionBefore ?? "Calmo",
+    emotionAfter: overrides.emotionAfter ?? "Neutro",
+    errorType: overrides.errorType ?? "Nenhum",
+    context: overrides.context ?? "Estrutura favorável",
+    lesson: overrides.lesson ?? "Repetir processo"
   };
 }
 
