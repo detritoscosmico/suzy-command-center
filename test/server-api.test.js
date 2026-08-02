@@ -43,6 +43,7 @@ test("configura conta, autentica e persiste diário em SQLite", async t => {
   assert.equal(result.response.status, 201);
   assert.equal(result.payload.authenticated, true);
   assert.equal(result.payload.username, "danilo");
+  assert.match(result.payload.recoveryKey, /^SUZY-/);
   const cookie = sessionCookie(result.response);
   const csrfToken = result.payload.csrfToken;
 
@@ -157,4 +158,101 @@ test("rejeita nova configuração e payload de diário inválido", async t => {
     body: JSON.stringify({ entries: [{ asset: "EUR/USD" }] })
   });
   assert.equal(result.response.status, 400);
+});
+
+test("altera e recupera senha rotacionando chave e sessões", async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "suzy-password-"));
+  const app = createApplication({
+    rootDir: path.resolve(__dirname, ".."),
+    dbPath: path.join(tempDir, "suzy.sqlite3"),
+    port: 0
+  });
+  const address = await app.start();
+  t.after(async () => {
+    await app.close();
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  let result = await jsonRequest(address.url, "/api/auth/setup", {
+    method: "POST",
+    body: JSON.stringify({ username: "danilo", password: "SenhaInicial2026Segura" })
+  });
+  const firstCookie = sessionCookie(result.response);
+  const firstCsrf = result.payload.csrfToken;
+  const firstRecoveryKey = result.payload.recoveryKey;
+
+  result = await jsonRequest(address.url, "/api/auth/change-password", {
+    method: "POST",
+    headers: { Cookie: firstCookie, "X-CSRF-Token": firstCsrf },
+    body: JSON.stringify({ currentPassword: "senha-errada", newPassword: "SenhaNova2026Segura" })
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/auth/change-password", {
+    method: "POST",
+    headers: { Cookie: firstCookie, "X-CSRF-Token": firstCsrf },
+    body: JSON.stringify({ currentPassword: "SenhaInicial2026Segura", newPassword: "SenhaNova2026Segura" })
+  });
+  assert.equal(result.response.status, 200);
+  const secondCookie = sessionCookie(result.response);
+  const secondRecoveryKey = result.payload.recoveryKey;
+  assert.notEqual(secondRecoveryKey, firstRecoveryKey);
+
+  result = await jsonRequest(address.url, "/api/journal", {
+    method: "GET",
+    headers: { Cookie: firstCookie }
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username: "danilo", password: "SenhaInicial2026Segura" })
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/auth/recover", {
+    method: "POST",
+    body: JSON.stringify({
+      username: "danilo",
+      recoveryKey: firstRecoveryKey,
+      newPassword: "SenhaFinal2026Segura"
+    })
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/auth/recover", {
+    method: "POST",
+    body: JSON.stringify({
+      username: "danilo",
+      recoveryKey: secondRecoveryKey,
+      newPassword: "SenhaFinal2026Segura"
+    })
+  });
+  assert.equal(result.response.status, 200);
+  const thirdCookie = sessionCookie(result.response);
+  assert.notEqual(result.payload.recoveryKey, secondRecoveryKey);
+
+  result = await jsonRequest(address.url, "/api/journal", {
+    method: "GET",
+    headers: { Cookie: secondCookie }
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/journal", {
+    method: "GET",
+    headers: { Cookie: thirdCookie }
+  });
+  assert.equal(result.response.status, 200);
+
+  result = await jsonRequest(address.url, "/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username: "danilo", password: "SenhaNova2026Segura" })
+  });
+  assert.equal(result.response.status, 401);
+
+  result = await jsonRequest(address.url, "/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username: "danilo", password: "SenhaFinal2026Segura" })
+  });
+  assert.equal(result.response.status, 200);
 });

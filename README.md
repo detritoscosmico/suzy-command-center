@@ -34,7 +34,7 @@ O terminal informa um endereço semelhante a:
 http://127.0.0.1:8787
 ```
 
-Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e depois use `http://127.0.0.1:8787/diario.html` para sincronizar o histórico diretamente com o SQLite.
+Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e guarde a chave de recuperação exibida. Depois use `http://127.0.0.1:8787/diario.html` para sincronizar o histórico diretamente com o SQLite.
 
 O banco padrão fica em:
 
@@ -42,7 +42,7 @@ O banco padrão fica em:
 data/suzy-local.sqlite3
 ```
 
-A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md` e `docs/sincronizacao-direta-diario.md`.
+A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md`, `docs/recuperacao-senha-local.md` e `docs/sincronizacao-direta-diario.md`.
 
 ## Módulos de formação
 
@@ -124,6 +124,10 @@ No modo local seguro, essa página oferece:
 
 - criação da primeira conta;
 - login e logout;
+- alteração de senha mediante confirmação da senha atual;
+- recuperação por chave aleatória mostrada uma única vez;
+- rotação manual da chave de recuperação;
+- encerramento de sessões antigas após troca ou recuperação;
 - sessão com cookie HttpOnly;
 - importação manual de backup JSON como recurso adicional;
 - exportação do histórico persistido;
@@ -134,10 +138,12 @@ No modo local seguro, essa página oferece:
 
 - servidor vinculado somente a `127.0.0.1`;
 - senha derivada com PBKDF2-HMAC-SHA256 e salt aleatório;
+- chave de recuperação armazenada somente como hash SHA-256;
 - token de sessão armazenado apenas como hash;
 - cookie `HttpOnly` e `SameSite=Strict`;
 - proteção CSRF para alterações;
-- limitação de tentativas de login;
+- limitação de tentativas de login, recuperação e ações sensíveis;
+- invalidação de todas as sessões após troca ou recuperação de senha;
 - validação de payload e limites de tamanho;
 - cabeçalhos CSP, antiframe e `nosniff`;
 - proteção contra leitura de arquivos fora da raiz do projeto;
@@ -150,6 +156,7 @@ No modo local seguro, essa página oferece:
 - simulador de ordens com custos operacionais;
 - diário profissional com estatísticas avançadas;
 - autenticação individual no modo local;
+- alteração e recuperação segura da senha local;
 - sincronização direta do diário com SQLite;
 - restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local;
@@ -184,6 +191,7 @@ suzy-command-center/
 │   ├── backend-local-seguro.md
 │   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
+│   ├── recuperacao-senha-local.md
 │   ├── simulador-custos-operacionais.md
 │   ├── sincronizacao-direta-diario.md
 │   └── testes-integracao-interface.md
@@ -244,7 +252,7 @@ npm run test:e2e:report
 - o GitHub Pages não executa o backend local;
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
-- não existe recuperação de senha;
+- sem a senha e sem uma chave de recuperação válida, não existe recuperação automática;
 - o banco local não é criptografado em repouso;
 - não há feed real de preços ou calendário econômico oficial;
 - não há conexão com corretora;
@@ -255,10 +263,10 @@ npm run test:e2e:report
 
 ## Próximas etapas recomendadas
 
-1. Criar alteração e recuperação segura de senha local.
-2. Implementar calendário econômico por fonte autorizada.
-3. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
-4. Adicionar histórico de versões e lixeira ao diário.
+1. Implementar calendário econômico por fonte autorizada.
+2. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
+3. Adicionar histórico de versões e lixeira ao diário.
+4. Criar trilha de psicologia, disciplina e avaliação comportamental.
 
 ## Aviso
 

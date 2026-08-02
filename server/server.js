@@ -5,12 +5,15 @@ const { URL } = require("node:url");
 const { SuzyDatabase } = require("./database.js");
 const {
   constantTimeTextEqual,
+  generateRecoveryKey,
   hashPassword,
+  hashRecoveryKey,
   parseCookies,
   serializeCookie,
   validatePassword,
   validateUsername,
-  verifyPassword
+  verifyPassword,
+  verifyRecoveryKey
 } = require("./security.js");
 const { normalizeJournalPayload } = require("./validation.js");
 
@@ -118,7 +121,9 @@ function createApplication(options = {}) {
   const dbPath = path.resolve(options.dbPath || process.env.SUZY_DB_PATH || path.join(rootDir, "data", "suzy-local.sqlite3"));
   const secureCookie = options.secureCookie ?? process.env.SUZY_HTTPS === "1";
   const database = new SuzyDatabase(dbPath);
-  const limiter = createRateLimiter();
+  const loginLimiter = createRateLimiter();
+  const recoveryLimiter = createRateLimiter();
+  const passwordLimiter = createRateLimiter();
   let listeningPort = configuredPort;
 
   function sessionFromRequest(request) {
@@ -164,6 +169,24 @@ function createApplication(options = {}) {
     return auth;
   }
 
+  function createFreshSession(response, userId) {
+    database.deleteSessionsForUser(userId);
+    const session = database.createSession(userId);
+    setSessionCookie(response, session.token, session.ttlSeconds);
+    return session;
+  }
+
+  function passwordResponse(user, session, recoveryKey = null) {
+    return {
+      authenticated: true,
+      username: user.username,
+      csrfToken: session.csrfToken,
+      expiresAt: session.expiresAt,
+      recoveryConfigured: true,
+      recoveryKey
+    };
+  }
+
   async function handleApi(request, response, pathname, allowedOrigins) {
     if (!isSameOrigin(request, allowedOrigins)) {
       return sendJson(response, 403, { error: "Origem não autorizada." });
@@ -179,12 +202,14 @@ function createApplication(options = {}) {
 
     if (request.method === "GET" && pathname === "/api/auth/status") {
       const { session } = sessionFromRequest(request);
+      const user = session ? database.findUserById(session.userId) : null;
       return sendJson(response, 200, {
         configured: database.countUsers() > 0,
         authenticated: Boolean(session),
         username: session?.username || null,
         csrfToken: session?.csrfToken || null,
-        expiresAt: session?.expiresAt || null
+        expiresAt: session?.expiresAt || null,
+        recoveryConfigured: Boolean(user?.recoveryKeyHash)
       });
     }
 
@@ -199,43 +224,35 @@ function createApplication(options = {}) {
       if (!passwordResult.valid) return sendJson(response, 400, { error: passwordResult.message });
 
       const password = hashPassword(body.password);
+      const recoveryKey = generateRecoveryKey();
       const user = database.createUser({
         username: usernameResult.username,
         passwordSalt: password.salt,
         passwordHash: password.hash,
-        passwordIterations: password.iterations
+        passwordIterations: password.iterations,
+        recoveryKeyHash: hashRecoveryKey(recoveryKey)
       });
       const session = database.createSession(user.id);
       setSessionCookie(response, session.token, session.ttlSeconds);
-      return sendJson(response, 201, {
-        authenticated: true,
-        username: user.username,
-        csrfToken: session.csrfToken,
-        expiresAt: session.expiresAt
-      });
+      return sendJson(response, 201, passwordResponse(user, session, recoveryKey));
     }
 
     if (request.method === "POST" && pathname === "/api/auth/login") {
-      const limiterKey = requestAddress(request);
-      if (limiter.blocked(limiterKey)) {
+      const limiterKey = `${requestAddress(request)}:login`;
+      if (loginLimiter.blocked(limiterKey)) {
         return sendJson(response, 429, { error: "Muitas tentativas. Aguarde 15 minutos." });
       }
       const body = await readJsonBody(request);
       const username = validateUsername(body.username).username;
       const user = database.findUserByUsername(username);
       if (!user || !verifyPassword(body.password, user)) {
-        limiter.fail(limiterKey);
+        loginLimiter.fail(limiterKey);
         return sendJson(response, 401, { error: "Usuário ou senha inválidos." });
       }
-      limiter.clear(limiterKey);
+      loginLimiter.clear(limiterKey);
       const session = database.createSession(user.id);
       setSessionCookie(response, session.token, session.ttlSeconds);
-      return sendJson(response, 200, {
-        authenticated: true,
-        username: user.username,
-        csrfToken: session.csrfToken,
-        expiresAt: session.expiresAt
-      });
+      return sendJson(response, 200, passwordResponse(user, session));
     }
 
     if (request.method === "POST" && pathname === "/api/auth/logout") {
@@ -244,6 +261,85 @@ function createApplication(options = {}) {
       database.deleteSession(auth.token);
       clearSessionCookie(response);
       return sendJson(response, 200, { authenticated: false });
+    }
+
+    if (request.method === "POST" && pathname === "/api/auth/recovery-key") {
+      const auth = requireSession(request, response, true);
+      if (!auth) return;
+      const limiterKey = `${auth.session.userId}:sensitive`;
+      if (passwordLimiter.blocked(limiterKey)) {
+        return sendJson(response, 429, { error: "Muitas tentativas. Aguarde 15 minutos." });
+      }
+      const body = await readJsonBody(request);
+      const user = database.findUserById(auth.session.userId);
+      if (!user || !verifyPassword(body.currentPassword, user)) {
+        passwordLimiter.fail(limiterKey);
+        return sendJson(response, 401, { error: "Senha atual inválida." });
+      }
+      passwordLimiter.clear(limiterKey);
+      const recoveryKey = generateRecoveryKey();
+      database.setRecoveryKeyHash(user.id, hashRecoveryKey(recoveryKey));
+      return sendJson(response, 200, { recoveryConfigured: true, recoveryKey });
+    }
+
+    if (request.method === "POST" && pathname === "/api/auth/change-password") {
+      const auth = requireSession(request, response, true);
+      if (!auth) return;
+      const limiterKey = `${auth.session.userId}:sensitive`;
+      if (passwordLimiter.blocked(limiterKey)) {
+        return sendJson(response, 429, { error: "Muitas tentativas. Aguarde 15 minutos." });
+      }
+      const body = await readJsonBody(request);
+      const user = database.findUserById(auth.session.userId);
+      if (!user || !verifyPassword(body.currentPassword, user)) {
+        passwordLimiter.fail(limiterKey);
+        return sendJson(response, 401, { error: "Senha atual inválida." });
+      }
+      const passwordResult = validatePassword(body.newPassword);
+      if (!passwordResult.valid) return sendJson(response, 400, { error: passwordResult.message });
+      if (verifyPassword(body.newPassword, user)) {
+        return sendJson(response, 400, { error: "A nova senha deve ser diferente da senha atual." });
+      }
+
+      passwordLimiter.clear(limiterKey);
+      const password = hashPassword(body.newPassword);
+      const recoveryKey = generateRecoveryKey();
+      database.updatePassword(user.id, {
+        passwordSalt: password.salt,
+        passwordHash: password.hash,
+        passwordIterations: password.iterations,
+        recoveryKeyHash: hashRecoveryKey(recoveryKey)
+      });
+      const session = createFreshSession(response, user.id);
+      return sendJson(response, 200, passwordResponse(user, session, recoveryKey));
+    }
+
+    if (request.method === "POST" && pathname === "/api/auth/recover") {
+      const limiterKey = `${requestAddress(request)}:recovery`;
+      if (recoveryLimiter.blocked(limiterKey)) {
+        return sendJson(response, 429, { error: "Muitas tentativas. Aguarde 15 minutos." });
+      }
+      const body = await readJsonBody(request);
+      const username = validateUsername(body.username).username;
+      const user = database.findUserByUsername(username);
+      const validRecovery = user?.recoveryKeyHash && verifyRecoveryKey(body.recoveryKey, user.recoveryKeyHash);
+      const passwordResult = validatePassword(body.newPassword);
+      if (!validRecovery || !passwordResult.valid || verifyPassword(body.newPassword, user)) {
+        recoveryLimiter.fail(limiterKey);
+        return sendJson(response, 401, { error: "Dados de recuperação inválidos ou nova senha não permitida." });
+      }
+
+      recoveryLimiter.clear(limiterKey);
+      const password = hashPassword(body.newPassword);
+      const recoveryKey = generateRecoveryKey();
+      database.updatePassword(user.id, {
+        passwordSalt: password.salt,
+        passwordHash: password.hash,
+        passwordIterations: password.iterations,
+        recoveryKeyHash: hashRecoveryKey(recoveryKey)
+      });
+      const session = createFreshSession(response, user.id);
+      return sendJson(response, 200, passwordResponse(user, session, recoveryKey));
     }
 
     if (request.method === "GET" && pathname === "/api/journal") {
