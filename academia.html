@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Academia Suzy Nível 1: formação introdutória em fundamentos, risco, gráficos e processo de trading." />
+  <title>Academia Suzy — Nível 1</title>
+  <link rel="stylesheet" href="css/academia.css" />
+</head>
+<body>
+  <div class="academy-shell">
+    <aside class="academy-sidebar">
+      <a class="academy-brand" href="index.html" aria-label="Voltar ao Suzy Command Center">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div>
+          <strong>SUZY</strong>
+          <span>ACADEMIA TRADER</span>
+        </div>
+      </a>
+
+      <div class="level-badge">NÍVEL 1 • FUNDAMENTOS</div>
+
+      <div class="sidebar-progress">
+        <div><span>Progresso</span><strong id="courseProgressText">0 de 6 aulas</strong></div>
+        <div class="progress-track"><div id="courseProgressBar" class="progress-fill"></div></div>
+      </div>
+
+      <nav id="lessonList" class="lesson-list" aria-label="Aulas do curso"></nav>
+
+      <div class="sidebar-actions">
+        <a href="index.html">← Voltar ao Command Center</a>
+        <button id="resetCourse" type="button">Reiniciar progresso</button>
+      </div>
+    </aside>
+
+    <main class="academy-main">
+      <section class="academy-hero">
+        <div>
+          <span class="hero-kicker">FORMAÇÃO ESTRUTURADA</span>
+          <h1>Academia Suzy — Fundamentos</h1>
+          <p>Uma trilha prática para desenvolver leitura de mercado, disciplina, gestão de risco e processo operacional antes de qualquer exposição real.</p>
+        </div>
+        <div class="hero-warning">
+          <strong>AMBIENTE EDUCACIONAL</strong>
+          <span>Sem promessa de lucro, sem ordens reais e sem certificação regulatória.</span>
+        </div>
+      </section>
+
+      <section class="academy-kpis" aria-label="Resumo do progresso">
+        <article><span>Progresso</span><strong id="progressPercent">0%</strong></article>
+        <article><span>Aulas concluídas</span><strong id="completedLessons">0/6</strong></article>
+        <article><span>Melhor nota</span><strong id="bestScore">0%</strong></article>
+        <article><span>Status</span><strong id="courseStatus">EM FORMAÇÃO</strong></article>
+      </section>
+
+      <div class="academy-layout">
+        <article id="lessonContent" class="lesson-card"></article>
+
+        <aside class="academy-right">
+          <section class="assessment-card">
+            <span class="card-label">AVALIAÇÃO FINAL</span>
+            <h2>Prova de fundamentos</h2>
+            <p>10 questões. Nota mínima de 70%. A prova é liberada após a conclusão das seis aulas.</p>
+            <button id="openAssessment" class="academy-primary" disabled>CONCLUA AS 6 AULAS</button>
+          </section>
+
+          <section class="formation-card">
+            <span class="card-label">PRÓXIMOS NÍVEIS</span>
+            <ol>
+              <li><strong>Nível 2:</strong> análise técnica aplicada</li>
+              <li><strong>Nível 3:</strong> replay e backtesting</li>
+              <li><strong>Nível 4:</strong> diário e estatística</li>
+              <li><strong>Nível 5:</strong> validação em conta demo</li>
+            </ol>
+          </section>
+
+          <section class="principles-card">
+            <span class="card-label">PRINCÍPIOS</span>
+            <ul>
+              <li>Capital preservado antes de lucro.</li>
+              <li>Processo antes de resultado.</li>
+              <li>Dados antes de convicção.</li>
+              <li>Disciplina antes de frequência.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div id="assessmentModal" class="assessment-modal" aria-hidden="true">
+    <div class="assessment-dialog" role="dialog" aria-modal="true" aria-labelledby="assessmentTitle">
+      <div class="dialog-head">
+        <div>
+          <span class="hero-kicker">AVALIAÇÃO FINAL</span>
+          <h2 id="assessmentTitle">Fundamentos do trader</h2>
+        </div>
+        <button id="closeAssessment" type="button" aria-label="Fechar avaliação">×</button>
+      </div>
+      <form id="assessmentForm"></form>
+      <button class="academy-primary submit-assessment" form="assessmentForm" type="submit">FINALIZAR AVALIAÇÃO</button>
+      <p id="assessmentResult" class="assessment-result" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <script src="js/academy-core.js"></script>
+  <script src="js/academia.js"></script>
+</body>
+</html>
