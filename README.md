@@ -46,7 +46,7 @@ A formação aplicada inclui:
 - avaliação final com 12 questões e nota mínima de 75%;
 - progresso e melhor nota salvos no `localStorage`.
 
-## Laboratório de Replay — Nível 1
+## Laboratório de Replay
 
 Abra:
 
@@ -57,6 +57,13 @@ replay.html
 O laboratório inclui:
 
 - cenário artificial com 120 candles;
+- importação local de históricos CSV autorizados;
+- validação de timestamp e OHLC;
+- suporte a cabeçalhos em português e inglês;
+- detecção de vírgula, ponto e vírgula ou tabulação;
+- limite de 2 MB e 5.000 linhas;
+- descarte de linhas inválidas e timestamps duplicados;
+- ordenação cronológica automática;
 - candles futuros ocultos;
 - avanço candle a candle;
 - entradas compradas e vendidas;
@@ -65,15 +72,16 @@ O laboratório inclui:
 - resultado em múltiplos de risco (`R`);
 - expectativa, win rate e drawdown;
 - diário e exportação CSV protegida;
+- identificação explícita da origem da sessão;
 - persistência local da sessão.
 
-Todos os cenários são artificiais e não representam mercado ao vivo, recomendação ou sinal operacional.
+O botão **Baixar modelo CSV** gera um arquivo compatível. O formato completo está documentado em `docs/importacao-historico-replay.md`.
 
 ## Recursos atuais
 
 - Academia Suzy — Nível 1 com seis aulas e avaliação final.
 - Academia Suzy — Nível 2 com oito aulas, prática técnica e avaliação final.
-- Laboratório de replay candle a candle com diário e métricas em R.
+- Laboratório de replay candle a candle com dados artificiais ou históricos importados.
 - Catálogo estruturado em JSON com fallback local.
 - Scanner demonstrativo e gráfico de velas artificiais.
 - Registro manual de WIN e LOSS.
@@ -100,6 +108,8 @@ suzy-command-center/
 │   ├── base.css
 │   ├── replay.css
 │   └── style.css
+├── docs/
+│   └── importacao-historico-replay.md
 ├── js/
 │   ├── academia.js
 │   ├── academia2.js
@@ -134,17 +144,16 @@ npm test
 - Não há feed real de preços ou calendário econômico oficial.
 - Não há conexão com corretora.
 - Não executa ordens reais ou automáticas.
-- O replay usa candles artificiais e ainda não importa históricos autorizados.
+- A origem e a licença dos históricos importados são responsabilidade do usuário.
 - Ainda não existe simulador completo com spread, comissão e slippage.
 - O diário avançado e as estatísticas por setup ainda não foram implementados.
 
 ## Próximas etapas recomendadas
 
-1. Permitir importação validada de históricos autorizados para replay.
-2. Adicionar simulador de ordens com spread, comissão e slippage.
-3. Criar diário profissional e estatísticas avançadas.
-4. Adicionar testes de integração da interface no navegador.
-5. Criar backend com autenticação e histórico persistente.
+1. Adicionar simulador de ordens com spread, comissão e slippage.
+2. Criar diário profissional e estatísticas avançadas.
+3. Adicionar testes de integração da interface no navegador.
+4. Criar backend com autenticação e histórico persistente.
 
 ## Aviso
 
