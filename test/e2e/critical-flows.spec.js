@@ -3,7 +3,7 @@ const { test, expect } = require("@playwright/test");
 const publicPages = [
   { path: "/index.html", heading: "Painel de Ativos" },
   { path: "/academia.html", heading: "Academia Suzy — Fundamentos" },
-  { path: "/academia-nivel2.html", heading: "Academia Suzy — Análise Técnica Aplicada" },
+  { path: "/academia-nivel2.html", heading: "Análise técnica com contexto" },
   { path: "/replay.html", heading: "Laboratório de Replay — Nível 1" },
   { path: "/simulador.html", heading: "Simulador de Ordens e Custos" },
   { path: "/diario.html", heading: "Diário Profissional do Trader" }
@@ -76,7 +76,7 @@ test("executa uma ordem a mercado no simulador", async ({ page }, testInfo) => {
   await page.locator("#submitOrder").click();
 
   await expect(page.locator("#positionDetails")).toBeVisible();
-  await expect(page.locator("#positionDirection")).toHaveText("COMPRA");
+  await expect(page.locator("#positionDirection")).toHaveText("COMPRADO");
   await expect(page.locator("#closeMarket")).toBeEnabled();
   await expect(page.locator("#orderFeedback")).not.toBeEmpty();
 });
