@@ -28,6 +28,13 @@ function desktopOnly(testInfo) {
   test.skip(testInfo.project.name.includes("mobile"), "Fluxo funcional coberto no projeto desktop; o projeto móvel valida carregamento e responsividade.");
 }
 
+test("mantém o diário funcional sem backend no modo estático", async ({ page }) => {
+  await page.goto("/diario.html");
+  await expect(page.locator("#syncStatus")).toHaveText("Somente neste navegador");
+  await expect(page.locator("#syncToServer")).toBeDisabled();
+  await expect(page.locator("#restoreFromServer")).toBeDisabled();
+});
+
 test("registra uma operação demo no Command Center", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/index.html");
