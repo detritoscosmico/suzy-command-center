@@ -192,6 +192,44 @@
     });
   }
 
+  function buildDemoCalendar(baseDate = new Date()) {
+    const templates = [
+      [0, 9, 0, "USD", "Inflação — cenário de estudo", "HIGH"],
+      [0, 11, 30, "BRL", "Atividade econômica — cenário de estudo", "MEDIUM"],
+      [0, 15, 0, "EUR", "Discurso monetário — cenário de estudo", "LOW"],
+      [1, 8, 0, "GBP", "Emprego — cenário de estudo", "HIGH"],
+      [1, 10, 30, "USD", "Estoques e atividade — cenário de estudo", "MEDIUM"],
+      [1, 14, 0, "JPY", "Confiança econômica — cenário de estudo", "LOW"],
+      [2, 9, 30, "EUR", "Decisão de juros — cenário de estudo", "HIGH"],
+      [2, 13, 0, "BRL", "Inflação ao produtor — cenário de estudo", "MEDIUM"],
+      [2, 16, 0, "USD", "PIB — cenário de estudo", "HIGH"]
+    ];
+
+    return templates.map(([dayOffset, hour, minute, currency, title, impact], index) => {
+      const date = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + dayOffset, hour, minute, 0, 0);
+      return { id: `demo-${index + 1}`, time: date.getTime(), currency, title, impact };
+    });
+  }
+
+  function calendarEventStatus(eventTime, now = new Date()) {
+    const difference = Number(eventTime) - now.getTime();
+    if (!Number.isFinite(difference)) return "UNKNOWN";
+    if (Math.abs(difference) <= 15 * 60000) return "LIVE";
+    return difference > 0 ? "UPCOMING" : "DONE";
+  }
+
+  function filterCalendarEvents(events = [], options = {}) {
+    const now = options.now instanceof Date ? options.now : new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const requestedKey = options.day === "TOMORROW" ? localDateKey(tomorrow) : localDateKey(now);
+
+    return events
+      .filter(event => options.day === "ALL" || localDateKey(new Date(event.time)) === requestedKey)
+      .filter(event => !options.currency || options.currency === "ALL" || event.currency === options.currency)
+      .filter(event => !options.impact || options.impact === "ALL" || event.impact === options.impact)
+      .sort((left, right) => left.time - right.time);
+  }
+
   return {
     localDateKey,
     consecutiveLosses,
@@ -204,6 +242,9 @@
     normalizeCatalog,
     analyzeDemoAssets,
     generateDemoCandles,
-    calculateEma
+    calculateEma,
+    buildDemoCalendar,
+    calendarEventStatus,
+    filterCalendarEvents
   };
 });
