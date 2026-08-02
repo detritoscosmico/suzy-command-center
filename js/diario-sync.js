@@ -166,6 +166,28 @@
     renderSyncUi();
   }
 
+  async function synchronizeCurrentSafely() {
+    const knownRemoteFingerprint = remoteFingerprint();
+    const currentLocalFingerprint = localFingerprint();
+    await fetchRemoteJournal();
+    const freshRemoteFingerprint = remoteFingerprint();
+
+    if (freshRemoteFingerprint !== knownRemoteFingerprint && freshRemoteFingerprint !== currentLocalFingerprint) {
+      syncState.automatic = false;
+      setFeedback("O SQLite foi alterado em outra aba. A sincronização automática foi pausada para evitar sobrescrita.", "warning");
+      renderSyncUi();
+      return;
+    }
+
+    if (freshRemoteFingerprint === currentLocalFingerprint) {
+      syncState.automatic = true;
+      renderSyncUi();
+      return;
+    }
+
+    await putCurrentJournal();
+  }
+
   function enqueue(task) {
     queue = queue.then(task, task);
     return queue;
@@ -178,6 +200,7 @@
     if (freshRemote.length && different) {
       const confirmed = confirm(`O SQLite possui ${freshRemote.length} registro${freshRemote.length === 1 ? "" : "s"} diferente${freshRemote.length === 1 ? "" : "s"}. Substituir pela versão deste navegador?`);
       if (!confirmed) {
+        setFeedback("Envio cancelado. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
         return;
       }
@@ -192,6 +215,7 @@
     if (entries.length && different) {
       const confirmed = confirm(`A restauração substituirá ${entries.length} registro${entries.length === 1 ? "" : "s"} deste navegador pela cópia do SQLite. Continuar?`);
       if (!confirmed) {
+        setFeedback("Restauração cancelada. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
         return;
       }
@@ -229,7 +253,7 @@
         return;
       }
       if (localFingerprint() === remoteFingerprint()) return;
-      enqueue(() => runBusy(putCurrentJournal));
+      enqueue(() => runBusy(synchronizeCurrentSafely));
     }, 0);
   }
 
