@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Academia Suzy Nível 2: análise técnica aplicada, confluência, risco-retorno e prática de leitura de mercado." />
+  <title>Academia Suzy — Nível 2</title>
+  <link rel="stylesheet" href="css/academia2.css" />
+</head>
+<body>
+  <div class="level2-shell">
+    <aside class="level2-sidebar">
+      <a class="level2-brand" href="academia.html" aria-label="Voltar ao Nível 1">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>ACADEMIA TRADER</span></div>
+      </a>
+
+      <div class="level-badge">NÍVEL 2 • ANÁLISE TÉCNICA</div>
+
+      <div class="sidebar-progress">
+        <div><span>Progresso</span><strong id="courseProgressText">0 de 8 aulas</strong></div>
+        <div class="progress-track"><div id="courseProgressBar" class="progress-fill"></div></div>
+      </div>
+
+      <nav id="lessonList" class="lesson-list" aria-label="Aulas do Nível 2"></nav>
+
+      <div class="sidebar-actions">
+        <a href="academia.html">← Nível 1</a>
+        <a href="replay.html">Abrir laboratório de replay</a>
+        <button id="resetCourse" type="button">Reiniciar Nível 2</button>
+      </div>
+    </aside>
+
+    <main class="level2-main">
+      <section class="level2-hero">
+        <div>
+          <span class="hero-kicker">FORMAÇÃO APLICADA</span>
+          <h1>Análise técnica com contexto</h1>
+          <p>Aprenda a combinar estrutura, zonas, gatilho, invalidação e risco sem transformar indicadores em promessa de resultado.</p>
+        </div>
+        <div class="hero-warning">
+          <strong>REGRA CENTRAL</strong>
+          <span>Nenhuma confluência elimina incerteza. Toda leitura precisa de invalidação e risco definido.</span>
+        </div>
+      </section>
+
+      <section class="level2-kpis" aria-label="Resumo do progresso">
+        <article><span>Progresso</span><strong id="progressPercent">0%</strong></article>
+        <article><span>Aulas concluídas</span><strong id="completedLessons">0/8</strong></article>
+        <article><span>Prática</span><strong id="practiceScore">0/0</strong></article>
+        <article><span>Melhor nota</span><strong id="bestScore">0%</strong></article>
+      </section>
+
+      <div class="level2-layout">
+        <article id="lessonContent" class="lesson-card"></article>
+
+        <aside class="level2-right">
+          <section class="practice-card">
+            <span class="card-label">LABORATÓRIO DE CONTEXTO</span>
+            <h2>Classifique o cenário</h2>
+            <p>O sistema gera candles artificiais. Analise estrutura e médias, depois escolha a leitura predominante.</p>
+            <div class="canvas-shell"><canvas id="practiceChart" width="420" height="230" aria-label="Cenário técnico artificial"></canvas></div>
+            <div class="practice-actions">
+              <button data-answer="UP" type="button">ALTA</button>
+              <button data-answer="DOWN" type="button">BAIXA</button>
+              <button data-answer="SIDEWAYS" type="button">LATERAL</button>
+            </div>
+            <button id="newScenario" class="secondary-button" type="button">GERAR NOVO CENÁRIO</button>
+            <p id="practiceFeedback" class="feedback" aria-live="polite"></p>
+            <small>Faça pelo menos cinco leituras para liberar a avaliação final.</small>
+          </section>
+
+          <section class="checklist-card">
+            <span class="card-label">CHECKLIST TÉCNICO</span>
+            <h2>Setup verificável</h2>
+            <label><input type="checkbox" data-check="context"> Contexto definido</label>
+            <label><input type="checkbox" data-check="zone"> Zona relevante</label>
+            <label><input type="checkbox" data-check="trigger"> Gatilho confirmado</label>
+            <label><input type="checkbox" data-check="invalidation"> Invalidação objetiva</label>
+            <label><input type="checkbox" data-check="risk"> Risco calculado</label>
+            <label class="blocker"><input type="checkbox" data-check="newsRisk"> Evento de alto impacto próximo</label>
+            <label class="blocker"><input type="checkbox" data-check="emotionalRisk"> Estado emocional inadequado</label>
+            <div class="checklist-result"><span>Qualidade</span><strong id="checklistScore">0%</strong></div>
+            <p id="checklistStatus" class="feedback">Setup incompleto.</p>
+          </section>
+
+          <section class="assessment-card">
+            <span class="card-label">AVALIAÇÃO FINAL</span>
+            <h2>Prova de análise técnica</h2>
+            <p>12 questões. Nota mínima de 75%. Exige oito aulas concluídas e cinco exercícios práticos.</p>
+            <button id="openAssessment" class="primary-button" disabled>CONCLUA A FORMAÇÃO</button>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div id="assessmentModal" class="assessment-modal" aria-hidden="true">
+    <div class="assessment-dialog" role="dialog" aria-modal="true" aria-labelledby="assessmentTitle">
+      <div class="dialog-head">
+        <div><span class="hero-kicker">AVALIAÇÃO FINAL</span><h2 id="assessmentTitle">Análise técnica aplicada</h2></div>
+        <button id="closeAssessment" type="button" aria-label="Fechar avaliação">×</button>
+      </div>
+      <form id="assessmentForm"></form>
+      <button class="primary-button submit-assessment" form="assessmentForm" type="submit">FINALIZAR AVALIAÇÃO</button>
+      <p id="assessmentResult" class="assessment-result" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/academy2-core.js"></script>
+  <script src="js/academia2.js"></script>
+</body>
+</html>
