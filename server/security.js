@@ -8,6 +8,7 @@ const {
 const PASSWORD_ITERATIONS = 310_000;
 const PASSWORD_KEY_LENGTH = 32;
 const PASSWORD_DIGEST = "sha256";
+const RECOVERY_KEY_PREFIX = "SUZY-";
 
 function randomToken(bytes = 32) {
   return randomBytes(bytes).toString("base64url");
@@ -15,6 +16,23 @@ function randomToken(bytes = 32) {
 
 function hashToken(token) {
   return createHash("sha256").update(String(token ?? "")).digest("hex");
+}
+
+function generateRecoveryKey() {
+  return `${RECOVERY_KEY_PREFIX}${randomBytes(24).toString("base64url")}`;
+}
+
+function normalizeRecoveryKey(value) {
+  return String(value ?? "").trim();
+}
+
+function hashRecoveryKey(value) {
+  return hashToken(normalizeRecoveryKey(value));
+}
+
+function verifyRecoveryKey(value, expectedHash) {
+  const actualHash = hashRecoveryKey(value);
+  return constantTimeTextEqual(actualHash, expectedHash);
 }
 
 function normalizeUsername(value) {
@@ -109,8 +127,13 @@ function serializeCookie(name, value, options = {}) {
 
 module.exports = {
   PASSWORD_ITERATIONS,
+  RECOVERY_KEY_PREFIX,
   randomToken,
   hashToken,
+  generateRecoveryKey,
+  normalizeRecoveryKey,
+  hashRecoveryKey,
+  verifyRecoveryKey,
   normalizeUsername,
   validateUsername,
   validatePassword,
