@@ -65,5 +65,29 @@
     return { blocked: Boolean(reason), reason, stats, limits };
   }
 
-  return { localDateKey, consecutiveLosses, calculateStats, calculateLimits, evaluateRisk };
+  function sanitizeCsvCell(value) {
+    let text = String(value ?? "");
+
+    if (typeof value === "string" && /^[\t\r ]*[=+\-@]/.test(text)) {
+      text = `'${text}`;
+    }
+
+    return `"${text.replaceAll('"', '""')}"`;
+  }
+
+  function serializeCsv(rows = [], delimiter = ";") {
+    return rows
+      .map(row => row.map(sanitizeCsvCell).join(delimiter))
+      .join("\n");
+  }
+
+  return {
+    localDateKey,
+    consecutiveLosses,
+    calculateStats,
+    calculateLimits,
+    evaluateRisk,
+    sanitizeCsvCell,
+    serializeCsv
+  };
 });
