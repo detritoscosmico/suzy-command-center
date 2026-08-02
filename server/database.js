@@ -24,6 +24,8 @@ class SuzyDatabase {
         password_salt TEXT NOT NULL,
         password_hash TEXT NOT NULL,
         password_iterations INTEGER NOT NULL,
+        recovery_key_hash TEXT,
+        password_updated_at TEXT,
         created_at TEXT NOT NULL
       );
 
@@ -66,34 +68,94 @@ class SuzyDatabase {
       CREATE INDEX IF NOT EXISTS idx_journal_user_timestamp
       ON journal_entries(user_id, timestamp);
     `);
+
+    this.ensureColumn("users", "recovery_key_hash", "TEXT");
+    this.ensureColumn("users", "password_updated_at", "TEXT");
+  }
+
+  ensureColumn(tableName, columnName, definition) {
+    const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all();
+    if (columns.some(column => column.name === columnName)) return;
+    this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
   }
 
   countUsers() {
     return Number(this.db.prepare("SELECT COUNT(*) AS total FROM users").get().total);
   }
 
-  createUser({ username, passwordSalt, passwordHash, passwordIterations }) {
+  createUser({ username, passwordSalt, passwordHash, passwordIterations, recoveryKeyHash = null }) {
     const createdAt = new Date().toISOString();
     const result = this.db.prepare(`
-      INSERT INTO users (username, password_salt, password_hash, password_iterations, created_at)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(username, passwordSalt, passwordHash, passwordIterations, createdAt);
-    return { id: Number(result.lastInsertRowid), username, createdAt };
+      INSERT INTO users (
+        username, password_salt, password_hash, password_iterations,
+        recovery_key_hash, password_updated_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      username,
+      passwordSalt,
+      passwordHash,
+      passwordIterations,
+      recoveryKeyHash,
+      createdAt,
+      createdAt
+    );
+    return { id: Number(result.lastInsertRowid), username, createdAt, recoveryConfigured: Boolean(recoveryKeyHash) };
   }
 
-  findUserByUsername(username) {
-    const row = this.db.prepare(`
-      SELECT id, username, password_salt, password_hash, password_iterations, created_at
-      FROM users WHERE username = ? COLLATE NOCASE
-    `).get(username);
+  mapUser(row) {
     return row ? {
       id: Number(row.id),
       username: row.username,
       passwordSalt: row.password_salt,
       passwordHash: row.password_hash,
       passwordIterations: Number(row.password_iterations),
+      recoveryKeyHash: row.recovery_key_hash || null,
+      passwordUpdatedAt: row.password_updated_at || null,
       createdAt: row.created_at
     } : null;
+  }
+
+  findUserByUsername(username) {
+    const row = this.db.prepare(`
+      SELECT id, username, password_salt, password_hash, password_iterations,
+             recovery_key_hash, password_updated_at, created_at
+      FROM users WHERE username = ? COLLATE NOCASE
+    `).get(username);
+    return this.mapUser(row);
+  }
+
+  findUserById(userId) {
+    const row = this.db.prepare(`
+      SELECT id, username, password_salt, password_hash, password_iterations,
+             recovery_key_hash, password_updated_at, created_at
+      FROM users WHERE id = ?
+    `).get(userId);
+    return this.mapUser(row);
+  }
+
+  updatePassword(userId, { passwordSalt, passwordHash, passwordIterations, recoveryKeyHash }) {
+    const passwordUpdatedAt = new Date().toISOString();
+    const result = this.db.prepare(`
+      UPDATE users
+      SET password_salt = ?, password_hash = ?, password_iterations = ?,
+          recovery_key_hash = COALESCE(?, recovery_key_hash), password_updated_at = ?
+      WHERE id = ?
+    `).run(
+      passwordSalt,
+      passwordHash,
+      passwordIterations,
+      recoveryKeyHash ?? null,
+      passwordUpdatedAt,
+      userId
+    );
+    return { changed: Number(result.changes) === 1, passwordUpdatedAt };
+  }
+
+  setRecoveryKeyHash(userId, recoveryKeyHash) {
+    const result = this.db.prepare(`
+      UPDATE users SET recovery_key_hash = ? WHERE id = ?
+    `).run(recoveryKeyHash, userId);
+    return Number(result.changes) === 1;
   }
 
   createSession(userId, ttlSeconds = 7 * 24 * 60 * 60) {
@@ -135,6 +197,11 @@ class SuzyDatabase {
   deleteSession(token) {
     if (!token) return;
     this.db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(hashToken(token));
+  }
+
+  deleteSessionsForUser(userId) {
+    const result = this.db.prepare("DELETE FROM sessions WHERE user_id = ?").run(userId);
+    return Number(result.changes);
   }
 
   cleanupExpiredSessions() {
