@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Laboratório de replay da Academia Suzy para treino de leitura de candles, entrada, stop, alvo e resultado em R." />
+  <title>Academia Suzy — Laboratório de Replay</title>
+  <link rel="stylesheet" href="css/replay.css" />
+</head>
+<body>
+  <div class="replay-shell">
+    <aside class="replay-sidebar">
+      <a class="replay-brand" href="academia.html" aria-label="Voltar para a Academia Suzy">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>LABORATÓRIO DE REPLAY</span></div>
+      </a>
+
+      <div class="mode-badge">NÍVEL PRÁTICO • DADOS ARTIFICIAIS</div>
+
+      <section class="sidebar-card">
+        <span>OBJETIVO</span>
+        <p>Treinar decisão sem enxergar candles futuros, registrar entradas e medir o resultado em múltiplos de risco.</p>
+      </section>
+
+      <section class="sidebar-card">
+        <span>REGRAS</span>
+        <ul>
+          <li>Um trade aberto por vez.</li>
+          <li>Stop definido antes da entrada.</li>
+          <li>Critério conservador se stop e alvo forem tocados juntos.</li>
+          <li>Nenhuma cotação representa mercado real.</li>
+        </ul>
+      </section>
+
+      <div class="sidebar-links">
+        <a href="academia.html">← Voltar à Academia</a>
+        <a href="index.html">Command Center</a>
+      </div>
+    </aside>
+
+    <main class="replay-main">
+      <header class="replay-hero">
+        <div>
+          <span class="eyebrow">TREINO CANDLE A CANDLE</span>
+          <h1>Laboratório de Replay — Nível 1</h1>
+          <p>Analise apenas o que já foi revelado. Decida, avance uma vela e deixe os dados julgarem o processo.</p>
+        </div>
+        <div class="demo-warning"><strong>AMBIENTE EDUCACIONAL</strong><span>Sem ordens reais, sem previsão e sem promessa de resultado.</span></div>
+      </header>
+
+      <section class="replay-kpis">
+        <article><span>Progresso</span><strong id="replayProgress">0/0</strong></article>
+        <article><span>Trades</span><strong id="replayTrades">0</strong></article>
+        <article><span>Resultado</span><strong id="replayTotalR">0.00R</strong></article>
+        <article><span>Expectativa</span><strong id="replayExpectancy">0.00R</strong></article>
+        <article><span>Drawdown</span><strong id="replayDrawdown">0.00R</strong></article>
+      </section>
+
+      <div class="replay-grid">
+        <section class="chart-card">
+          <div class="card-head">
+            <div><span class="eyebrow">CENÁRIO OCULTO</span><h2 id="replayTitle">EUR/USD DEMO • M5</h2></div>
+            <div class="chart-actions">
+              <button id="newSession" type="button">Nova sessão</button>
+              <button id="advanceCandle" class="primary" type="button">AVANÇAR 1 CANDLE</button>
+            </div>
+          </div>
+
+          <div class="ohlc-grid">
+            <div><span>Abertura</span><strong id="replayOpen">—</strong></div>
+            <div><span>Máxima</span><strong id="replayHigh" class="green">—</strong></div>
+            <div><span>Mínima</span><strong id="replayLow" class="red">—</strong></div>
+            <div><span>Fechamento</span><strong id="replayClose">—</strong></div>
+          </div>
+
+          <div class="canvas-shell"><canvas id="replayChart" aria-label="Gráfico de replay com candles artificiais"></canvas></div>
+          <p id="replayMessage" class="message" aria-live="polite">Nova sessão preparada.</p>
+        </section>
+
+        <aside class="control-column">
+          <section class="control-card">
+            <span class="eyebrow">PLANO DO TRADE</span>
+            <h2>Defina antes de entrar</h2>
+
+            <label>Distância do stop (%)
+              <input id="stopDistance" type="number" min="0.02" max="5" step="0.01" value="0.20" />
+            </label>
+            <label>Relação risco-retorno
+              <select id="riskReward">
+                <option value="1">1:1</option>
+                <option value="1.5">1:1,5</option>
+                <option value="2" selected>1:2</option>
+                <option value="3">1:3</option>
+              </select>
+            </label>
+            <label>Observação da entrada
+              <textarea id="tradeNote" maxlength="240" placeholder="Ex.: tendência, pullback e confirmação"></textarea>
+            </label>
+
+            <div class="direction-actions">
+              <button id="openLong" class="long" type="button">ENTRAR COMPRADO</button>
+              <button id="openShort" class="short" type="button">ENTRAR VENDIDO</button>
+            </div>
+          </section>
+
+          <section class="position-card">
+            <span class="eyebrow">POSIÇÃO ATUAL</span>
+            <div id="positionEmpty" class="empty-position">Nenhuma posição aberta.</div>
+            <div id="positionDetails" class="position-details" hidden>
+              <div><span>Direção</span><strong id="positionDirection">—</strong></div>
+              <div><span>Entrada</span><strong id="positionEntry">—</strong></div>
+              <div><span>Stop</span><strong id="positionStop" class="red">—</strong></div>
+              <div><span>Alvo</span><strong id="positionTarget" class="green">—</strong></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="results-card">
+        <div class="card-head">
+          <div><span class="eyebrow">DIÁRIO DO REPLAY</span><h2>Resultados da sessão</h2></div>
+          <button id="exportReplay" type="button">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Direção</th><th>Entrada</th><th>Stop</th><th>Alvo</th><th>Resultado</th><th>R</th><th>Observação</th></tr></thead>
+            <tbody id="replayResults"><tr><td colspan="8" class="empty-row">Nenhum trade concluído.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/replay-core.js"></script>
+  <script src="js/replay.js"></script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 {
   "name": "suzy-command-center",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
-    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js",
+    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js && node --check js/replay-core.js && node --check js/replay.js",
     "test": "node --test"
   }
 }
