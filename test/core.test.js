@@ -10,7 +10,9 @@ const {
   serializeCsv,
   normalizeAsset,
   normalizeCatalog,
-  analyzeDemoAssets
+  analyzeDemoAssets,
+  generateDemoCandles,
+  calculateEma
 } = require("../js/core.js");
 
 test("gera a chave diária usando a data local", () => {
@@ -186,4 +188,27 @@ test("scanner demo não altera os ativos originais", () => {
   const result = analyzeDemoAssets(source);
   assert.notEqual(result[0], source[0]);
   assert.deepEqual(source, [{ ticker: "XLM/USD", cat: "Cripto", force: 4, pop: 2, change: 0.03 }]);
+});
+
+test("gera velas demo com OHLC válido e intervalo correto", () => {
+  const candles = generateDemoCandles({ basePrice: 100, count: 10, intervalMinutes: 5, endTime: 10000000, random: () => 0.5 });
+  assert.equal(candles.length, 10);
+  assert.equal(candles[1].time - candles[0].time, 5 * 60000);
+  for (const candle of candles) {
+    assert.ok(candle.high >= Math.max(candle.open, candle.close));
+    assert.ok(candle.low <= Math.min(candle.open, candle.close));
+    assert.ok(candle.low > 0);
+  }
+});
+
+test("não gera velas para preço base inválido", () => {
+  assert.deepEqual(generateDemoCandles({ basePrice: 0 }), []);
+  assert.deepEqual(generateDemoCandles({ basePrice: "inválido" }), []);
+});
+
+test("calcula média móvel exponencial", () => {
+  const ema = calculateEma([10, 11, 12], 2);
+  assert.equal(ema[0], 10);
+  assert.ok(Math.abs(ema[1] - 10.6666666667) < 0.000001);
+  assert.ok(Math.abs(ema[2] - 11.5555555556) < 0.000001);
 });

@@ -21,6 +21,7 @@
       <button class="nav" data-view="reports">☷ Relatórios</button>
       <button class="nav" data-view="mission">◎ Centro de Missão</button>
       <button class="nav" data-view="scanner">⌕ Scanner Demo</button>
+      <button class="nav" data-view="chart">▥ Velas de Estudo</button>
       <button class="nav nav-muted" disabled>▣ Calendário — em breve</button>
       <button class="nav nav-muted" disabled>✈ Telegram — em breve</button>
     </nav>
@@ -204,6 +205,35 @@
         </div>
         <p id="scannerUpdated" class="scanner-updated" aria-live="polite"></p>
         <p class="notice scanner-warning"><strong>Atenção:</strong> este scanner não usa mercado real, não prevê resultados e não deve ser tratado como sinal de compra, venda, CALL ou PUT.</p>
+      </div>
+    </section>
+
+    <section id="chartView" class="view">
+      <div class="panel chart-panel">
+        <div class="panel-head chart-head">
+          <div>
+            <h3>▥ Gráfico de velas japonesas — estudo demo</h3>
+            <small>Cenário artificial para praticar leitura de candles, pavios, direção e médias móveis.</small>
+          </div>
+          <div class="chart-controls">
+            <label>Ativo<select id="chartAsset"></select></label>
+            <label>Período<select id="chartTimeframe"><option value="1">M1</option><option value="5" selected>M5</option><option value="15">M15</option></select></label>
+            <button id="newChartScenario" class="primary-btn">NOVO CENÁRIO</button>
+          </div>
+        </div>
+
+        <div class="chart-kpis">
+          <div><span>Abertura</span><strong id="chartOpen">—</strong></div>
+          <div><span>Máxima</span><strong id="chartHigh" class="green">—</strong></div>
+          <div><span>Mínima</span><strong id="chartLow" class="red">—</strong></div>
+          <div><span>Fechamento</span><strong id="chartClose">—</strong></div>
+          <div><span>Leitura</span><strong id="chartTrend" class="orange">—</strong></div>
+        </div>
+
+        <div class="chart-legend"><span><i class="legend-up"></i> Candle de alta</span><span><i class="legend-down"></i> Candle de baixa</span><span><i class="legend-ema9"></i> EMA 9</span><span><i class="legend-ema21"></i> EMA 21</span></div>
+        <div class="canvas-shell"><canvas id="candleChart" role="img" aria-label="Gráfico demonstrativo de velas japonesas com médias móveis"></canvas></div>
+        <p id="chartUpdated" class="scanner-updated" aria-live="polite"></p>
+        <p class="notice scanner-warning"><strong>Modo de estudo:</strong> todas as velas são geradas artificialmente. Este gráfico não representa mercado ao vivo e não produz sinais operacionais.</p>
       </div>
     </section>
 

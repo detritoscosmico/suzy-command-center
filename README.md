@@ -21,6 +21,7 @@ Também é possível abrir `index.html` diretamente no navegador. Nesse modo, o 
 - Busca, categorias, favoritos e ordenação.
 - Cotações demonstrativas com pequenas variações simuladas.
 - Scanner demo com ranking de força, popularidade e variação simulada.
+- Gráfico responsivo de velas japonesas com cenários artificiais, M1/M5/M15 e EMA 9/21.
 - Registro manual de WIN e LOSS.
 - Banca e resultado atualizados automaticamente.
 - Risco máximo por entrada.

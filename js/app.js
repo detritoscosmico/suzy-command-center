@@ -38,6 +38,7 @@ const defaultState={
 };
 let state=loadState();
 let sortMode="default";
+let chartCandles=[];
 const $=id=>document.getElementById(id);
 
 async function loadAssetCatalog(){
@@ -50,8 +51,10 @@ async function loadAssetCatalog(){
   if(!loaded.length)throw new Error("Catálogo sem ativos válidos.");
   assets=loaded;
   populateTradeAssets();
+  populateChartAssets();
   renderAssets();
   renderScanner();
+  generateChartScenario();
  }catch(error){
   console.warn("Catálogo JSON indisponível; usando catálogo local de segurança.",error);
  }
@@ -116,6 +119,37 @@ function renderScanner(){
  document.querySelectorAll("[data-scanner-trade]").forEach(button=>button.onclick=()=>openTrade(button.dataset.scannerTrade));
  $("scannerUpdated").textContent=`Última análise demo: ${new Date().toLocaleTimeString("pt-BR")}`;
 }
+function populateChartAssets(){
+ const selected=$("chartAsset").value;
+ $("chartAsset").innerHTML=assets.map(asset=>`<option value="${escapeHtml(asset.ticker)}">${asset.icon} ${escapeHtml(asset.ticker)}</option>`).join("");
+ if(selected&&assets.some(asset=>asset.ticker===selected))$("chartAsset").value=selected;
+}
+function selectedChartAsset(){return assets.find(asset=>asset.ticker===$("chartAsset").value)||assets[0];}
+function chartPrice(value,asset=selectedChartAsset()){return Number(value).toFixed(Math.min(asset?.decimals??2,6));}
+function generateChartScenario(){
+ const asset=selectedChartAsset();if(!asset)return;
+ chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:48,intervalMinutes:Number($("chartTimeframe").value)});
+ renderCandleChart();
+}
+function renderCandleChart(){
+ const canvas=$("candleChart");const asset=selectedChartAsset();if(!canvas||!asset||!chartCandles.length)return;
+ const width=Math.max(canvas.parentElement.clientWidth,320);const height=430;const ratio=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=width*ratio;canvas.height=height*ratio;canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
+ const ctx=canvas.getContext("2d");ctx.scale(ratio,ratio);ctx.clearRect(0,0,width,height);ctx.fillStyle="#06101d";ctx.fillRect(0,0,width,height);
+ const margin={top:22,right:76,bottom:34,left:16};const plotWidth=width-margin.left-margin.right;const plotHeight=height-margin.top-margin.bottom;
+ const highest=Math.max(...chartCandles.map(candle=>candle.high));const lowest=Math.min(...chartCandles.map(candle=>candle.low));const padding=(highest-lowest||highest*.01)*.08;const max=highest+padding;const min=lowest-padding;
+ const y=value=>margin.top+(max-value)/(max-min)*plotHeight;const step=plotWidth/chartCandles.length;const bodyWidth=Math.max(3,Math.min(10,step*.62));
+ ctx.strokeStyle="rgba(143,164,189,.16)";ctx.lineWidth=1;ctx.fillStyle="#8fa4bd";ctx.font="11px Segoe UI";ctx.textAlign="left";
+ for(let line=0;line<=5;line++){const py=margin.top+plotHeight/5*line;ctx.beginPath();ctx.moveTo(margin.left,py);ctx.lineTo(width-margin.right,py);ctx.stroke();const price=max-(max-min)/5*line;ctx.fillText(chartPrice(price,asset),width-margin.right+8,py+4);}
+ chartCandles.forEach((candle,index)=>{const x=margin.left+step*index+step/2;const rising=candle.close>=candle.open;const color=rising?"#22e582":"#ff5c5c";ctx.strokeStyle=color;ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x,y(candle.high));ctx.lineTo(x,y(candle.low));ctx.stroke();const top=y(Math.max(candle.open,candle.close));const bottom=y(Math.min(candle.open,candle.close));ctx.fillRect(x-bodyWidth/2,top,bodyWidth,Math.max(1,bottom-top));});
+ const drawEma=(period,color)=>{const values=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),period);ctx.strokeStyle=color;ctx.lineWidth=1.7;ctx.beginPath();values.forEach((value,index)=>{const x=margin.left+step*index+step/2;const py=y(value);if(index===0)ctx.moveTo(x,py);else ctx.lineTo(x,py);});ctx.stroke();};
+ drawEma(9,"#38bdf8");drawEma(21,"#ff5ec7");
+ ctx.fillStyle="#8fa4bd";ctx.textAlign="center";for(let index=0;index<chartCandles.length;index+=12){const candle=chartCandles[index];ctx.fillText(new Date(candle.time).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),margin.left+step*index+step/2,height-12);}
+ const last=chartCandles.at(-1);const ema9=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),9).at(-1);const ema21=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),21).at(-1);
+ $("chartOpen").textContent=chartPrice(last.open,asset);$("chartHigh").textContent=chartPrice(last.high,asset);$("chartLow").textContent=chartPrice(last.low,asset);$("chartClose").textContent=chartPrice(last.close,asset);
+ const trend=last.close>ema9&&ema9>ema21?{label:"ALTA DEMO",className:"green"}:last.close<ema9&&ema9<ema21?{label:"BAIXA DEMO",className:"red"}:{label:"LATERAL",className:"orange"};$("chartTrend").textContent=trend.label;$("chartTrend").className=trend.className;
+ $("chartUpdated").textContent=`${asset.ticker} • ${$("chartTimeframe").selectedOptions[0].text} • cenário gerado às ${new Date().toLocaleTimeString("pt-BR")}`;
+}
 function renderStats(){
  const stats=getStats();const limits=getLimits(stats);const risk=getRiskState(Number($("tradeAmount").value||0));
  const pnlClass=stats.dailyPnl>0?"green":stats.dailyPnl<0?"red":"";
@@ -145,12 +179,13 @@ function exportCsv(){
 function resetOperations(){if(confirm("Apagar todas as operações registradas neste navegador?")){state.operations=[];saveState();renderStats();$("tradeFeedback").textContent="Histórico limpo.";}}
 function fillMissionForm(){$("cfgBank").value=state.initialBank;$("cfgRisk").value=state.riskPct;$("cfgStopLoss").value=state.stopLossPct;$("cfgStopGain").value=state.stopGainPct;$("cfgMaxOps").value=state.maxOps;$("cfgMaxLosses").value=state.maxLosses;}
 function saveMission(){const next={initialBank:Number($("cfgBank").value),riskPct:Number($("cfgRisk").value),stopLossPct:Number($("cfgStopLoss").value),stopGainPct:Number($("cfgStopGain").value),maxOps:Number($("cfgMaxOps").value),maxLosses:Number($("cfgMaxLosses").value)};if(next.initialBank<100||next.riskPct<=0||next.riskPct>5||next.stopLossPct<=0||next.stopGainPct<=0||next.maxOps<1||next.maxLosses<1){$("missionFeedback").textContent="Revise os valores. Risco por entrada deve ficar entre 0,1% e 5%.";return;}Object.assign(state,next);saveState();$("missionFeedback").textContent="Missão salva com sucesso.";renderStats();speak("Missão diária atualizada. As novas travas de risco já estão ativas.");}
-const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."],scanner:["Scanner Demo","Ranking educacional baseado somente em dados simulados."]};
-function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();if(view==="scanner")renderScanner();}
+const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."],scanner:["Scanner Demo","Ranking educacional baseado somente em dados simulados."],chart:["Velas Japonesas","Pratique leitura de candles em cenários totalmente simulados."]};
+function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();if(view==="scanner")renderScanner();if(view==="chart")renderCandleChart();}
 function speak(text){if(!("speechSynthesis" in window)){alert("A voz não é suportada neste navegador.");return;}speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang="pt-BR";utterance.rate=.95;speechSynthesis.speak(utterance);}
 function getSuzyBrief(){const stats=getStats();const risk=getRiskState(Number($("tradeAmount").value||100));return risk.blocked?`Danilo, operações bloqueadas. ${risk.reason}`:`Danilo, saldo demo em ${money(stats.balance)}. Resultado do dia ${signedMoney(stats.dailyPnl)}. Você realizou ${stats.total} operações com ${stats.winrate} por cento de acerto.`;}
 function updateClock(){const now=new Date();$("today").textContent=now.toLocaleDateString("pt-BR");$("clock").textContent=now.toLocaleTimeString("pt-BR");}
 function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();if($("scannerView").classList.contains("active"))renderScanner();}
-function initialize(){populateTradeAssets();fillMissionForm();renderAssets();renderStats();renderScanner();updateClock();loadAssetCatalog();}
+function initialize(){populateTradeAssets();populateChartAssets();fillMissionForm();renderAssets();renderStats();renderScanner();generateChartScenario();updateClock();loadAssetCatalog();}
 $("scannerCategory").addEventListener("change",renderScanner);$("scannerMinForce").addEventListener("change",renderScanner);$("scannerLimit").addEventListener("change",renderScanner);$("scanRefresh").onclick=renderScanner;
+$("chartAsset").addEventListener("change",generateChartScenario);$("chartTimeframe").addEventListener("change",generateChartScenario);$("newChartScenario").onclick=generateChartScenario;window.addEventListener("resize",()=>{if($("chartView").classList.contains("active"))renderCandleChart();});
 $("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
