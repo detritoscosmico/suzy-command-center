@@ -15,7 +15,7 @@
         <div><strong>SUZY</strong><span>LABORATÓRIO DE REPLAY</span></div>
       </a>
 
-      <div class="mode-badge">NÍVEL PRÁTICO • DADOS ARTIFICIAIS</div>
+      <div class="mode-badge">NÍVEL PRÁTICO • REPLAY EDUCACIONAL</div>
 
       <section class="sidebar-card">
         <span>OBJETIVO</span>
@@ -28,8 +28,33 @@
           <li>Um trade aberto por vez.</li>
           <li>Stop definido antes da entrada.</li>
           <li>Critério conservador se stop e alvo forem tocados juntos.</li>
-          <li>Nenhuma cotação representa mercado real.</li>
+          <li>Históricos importados devem ter origem autorizada.</li>
         </ul>
+      </section>
+
+      <section class="sidebar-card import-card">
+        <span>IMPORTAR HISTÓRICO AUTORIZADO</span>
+        <p>CSV com colunas <code>time, open, high, low, close</code>. Limite de 2 MB e 5.000 linhas.</p>
+        <label>Nome do ativo
+          <input id="importAsset" maxlength="40" value="ATIVO IMPORTADO" />
+        </label>
+        <label>Período
+          <select id="importTimeframe">
+            <option>M1</option>
+            <option selected>M5</option>
+            <option>M15</option>
+            <option>M30</option>
+            <option>H1</option>
+            <option>H4</option>
+            <option>D1</option>
+          </select>
+        </label>
+        <label class="file-label">Arquivo CSV
+          <input id="historyFile" type="file" accept=".csv,text/csv" />
+        </label>
+        <button id="importHistory" type="button">VALIDAR E IMPORTAR</button>
+        <button id="downloadTemplate" class="secondary-button" type="button">BAIXAR MODELO CSV</button>
+        <p id="importFeedback" class="import-feedback" aria-live="polite"></p>
       </section>
 
       <div class="sidebar-links">
@@ -48,6 +73,11 @@
         <div class="demo-warning"><strong>AMBIENTE EDUCACIONAL</strong><span>Sem ordens reais, sem previsão e sem promessa de resultado.</span></div>
       </header>
 
+      <section class="source-banner" aria-label="Origem da sessão">
+        <div><span>ORIGEM DOS CANDLES</span><strong id="replaySource">CENÁRIO ARTIFICIAL</strong></div>
+        <p id="replaySourceName">Cenário gerado pela Suzy.</p>
+      </section>
+
       <section class="replay-kpis">
         <article><span>Progresso</span><strong id="replayProgress">0/0</strong></article>
         <article><span>Trades</span><strong id="replayTrades">0</strong></article>
@@ -61,7 +91,7 @@
           <div class="card-head">
             <div><span class="eyebrow">CENÁRIO OCULTO</span><h2 id="replayTitle">EUR/USD DEMO • M5</h2></div>
             <div class="chart-actions">
-              <button id="newSession" type="button">Nova sessão</button>
+              <button id="newSession" type="button">Nova sessão artificial</button>
               <button id="advanceCandle" class="primary" type="button">AVANÇAR 1 CANDLE</button>
             </div>
           </div>
@@ -73,7 +103,7 @@
             <div><span>Fechamento</span><strong id="replayClose">—</strong></div>
           </div>
 
-          <div class="canvas-shell"><canvas id="replayChart" aria-label="Gráfico de replay com candles artificiais"></canvas></div>
+          <div class="canvas-shell"><canvas id="replayChart" aria-label="Gráfico de replay com candles históricos ou artificiais"></canvas></div>
           <p id="replayMessage" class="message" aria-live="polite">Nova sessão preparada.</p>
         </section>
 
