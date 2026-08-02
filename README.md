@@ -58,6 +58,21 @@ Arquivo: `academia-nivel2.html`
 
 Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliação final com nota mínima de 75%. Abrange estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist e playbook.
 
+### Calendário Econômico Educacional
+
+Arquivo: `calendario.html`
+
+- importação local de eventos CSV ou JSON obtidos de fonte autorizada;
+- exigência de data e hora ISO 8601 com fuso explícito;
+- validação de moeda, impacto, fonte e URL;
+- filtros por período, moeda, impacto e situação;
+- resumo das próximas 24 horas;
+- remoção de duplicatas e ordenação cronológica;
+- cenário artificial identificado como demonstração;
+- protocolo educacional para risco antes, durante e depois de eventos.
+
+O formato de importação e as limitações estão documentados em `docs/calendario-economico-autorizado.md`.
+
 ### Laboratório de Replay
 
 Arquivo: `replay.html`
@@ -152,6 +167,7 @@ No modo local seguro, essa página oferece:
 ## Recursos atuais
 
 - Academia Suzy — Níveis 1 e 2;
+- calendário econômico educacional com importação autorizada;
 - replay com dados artificiais ou históricos importados;
 - simulador de ordens com custos operacionais;
 - diário profissional com estatísticas avançadas;
@@ -166,7 +182,8 @@ No modo local seguro, essa página oferece:
 - relatórios e exportação CSV protegida contra fórmulas;
 - voz da Suzy pelo navegador;
 - layout responsivo para computador e celular;
-- testes unitários, testes da API e testes de integração no navegador;
+- testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
+- auditoria automatizada de acessibilidade WCAG com axe-core;
 - validação contínua pelo GitHub Actions.
 
 ## Estrutura
@@ -176,6 +193,7 @@ suzy-command-center/
 ├── .github/workflows/quality.yml
 ├── academia.html
 ├── academia-nivel2.html
+├── calendario.html
 ├── diario.html
 ├── index.html
 ├── login.html
@@ -184,18 +202,22 @@ suzy-command-center/
 ├── playwright.config.js
 ├── assets/
 ├── css/
+│   ├── calendario.css
 │   ├── diario-sync.css
 │   └── login.css
 ├── dados/
 ├── docs/
 │   ├── backend-local-seguro.md
+│   ├── calendario-economico-autorizado.md
 │   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
 │   ├── recuperacao-senha-local.md
 │   ├── simulador-custos-operacionais.md
 │   ├── sincronizacao-direta-diario.md
-│   └── testes-integracao-interface.md
+│   └── testes-multinavegador-acessibilidade.md
 ├── js/
+│   ├── calendario.js
+│   ├── calendar-core.js
 │   ├── diario-sync.js
 │   ├── journal-sync-core.js
 │   └── login.js
@@ -206,6 +228,9 @@ suzy-command-center/
 │   └── validation.js
 ├── test/
 │   ├── e2e/
+│   │   ├── accessibility.spec.js
+│   │   └── critical-flows.spec.js
+│   ├── calendar.test.js
 │   ├── journal-sync.test.js
 │   ├── server-api.test.js
 │   ├── server-security.test.js
@@ -216,11 +241,11 @@ suzy-command-center/
 
 ## Testes
 
-Instale as dependências e o Chromium:
+Instale as dependências e os três motores de navegador:
 
 ```bash
 npm install
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 ```
 
 Verificação de sintaxe:
@@ -235,10 +260,16 @@ Testes unitários, segurança e API local:
 npm run test:unit
 ```
 
-Testes de integração em Chromium desktop e celular:
+Testes de integração em Chromium desktop e celular, Firefox desktop e WebKit desktop:
 
 ```bash
 npm run test:e2e
+```
+
+Auditoria de acessibilidade isolada:
+
+```bash
+npm run test:e2e:accessibility
 ```
 
 Abrir o relatório HTML:
@@ -246,6 +277,8 @@ Abrir o relatório HTML:
 ```bash
 npm run test:e2e:report
 ```
+
+A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md`.
 
 ## Limitações atuais
 
@@ -257,16 +290,16 @@ npm run test:e2e:report
 - não há feed real de preços ou calendário econômico oficial;
 - não há conexão com corretora;
 - não executa ordens reais ou automáticas;
-- a origem e a licença dos históricos importados são responsabilidade do usuário;
+- a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
-- os testes de navegador usam apenas Chromium.
+- testes automatizados de acessibilidade não substituem revisão manual com teclado, leitor de tela e usuários reais.
 
 ## Próximas etapas recomendadas
 
-1. Implementar calendário econômico por fonte autorizada.
-2. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
-3. Adicionar histórico de versões e lixeira ao diário.
-4. Criar trilha de psicologia, disciplina e avaliação comportamental.
+1. Adicionar histórico de versões e lixeira ao diário.
+2. Criar trilha de psicologia, disciplina e avaliação comportamental.
+3. Avaliar criptografia em repouso para o banco local.
+4. Ampliar testes manuais com leitores de tela.
 
 ## Aviso
 

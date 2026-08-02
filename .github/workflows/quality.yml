@@ -11,7 +11,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
@@ -24,8 +24,8 @@ jobs:
       - name: Instalar dependências
         run: npm install --no-audit --no-fund
 
-      - name: Instalar Chromium do Playwright
-        run: npx playwright install --with-deps chromium
+      - name: Instalar Chromium, Firefox e WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Verificar sintaxe
         run: npm run check
@@ -33,7 +33,7 @@ jobs:
       - name: Executar testes unitários
         run: npm run test:unit
 
-      - name: Executar testes de integração
+      - name: Executar testes multinavegador e acessibilidade
         run: npm run test:e2e
 
       - name: Publicar relatório do navegador
