@@ -18,6 +18,11 @@ venv/
 __pycache__/
 *.pyc
 
+# Testes de navegador
+playwright-report/
+test-results/
+blob-report/
+
 # Sistema e editor
 .DS_Store
 Thumbs.db
