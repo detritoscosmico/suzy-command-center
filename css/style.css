@@ -11,3 +11,9 @@
   border:2px solid rgba(255,94,199,.72);
   box-shadow:0 0 0 3px rgba(255,94,199,.08),0 0 30px rgba(255,94,199,.28);
 }
+
+.nav-link{
+  display:block;
+  width:100%;
+  text-decoration:none;
+}
