@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Calendário econômico educacional da Academia Suzy com importação local de eventos obtidos de fonte autorizada." />
+  <title>Academia Suzy — Calendário Econômico Educacional</title>
+  <link rel="stylesheet" href="css/calendario.css" />
+</head>
+<body>
+  <div class="calendar-shell">
+    <aside class="calendar-sidebar">
+      <a class="calendar-brand" href="index.html" aria-label="Voltar ao Suzy Command Center">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>CALENDÁRIO ECONÔMICO</span></div>
+      </a>
+
+      <div id="calendarMode" class="mode-badge">SEM DADOS IMPORTADOS</div>
+
+      <section class="sidebar-card">
+        <span>FINALIDADE</span>
+        <p>Treinar preparação pré-evento, leitura de impacto e controle de exposição. O módulo não produz sinais nem executa operações.</p>
+      </section>
+
+      <section class="sidebar-card">
+        <span>INTEGRIDADE DA FONTE</span>
+        <ul>
+          <li>Importe somente dados que você tem autorização para usar.</li>
+          <li>Confirme horários no provedor original.</li>
+          <li>Arquivos são processados somente neste navegador.</li>
+        </ul>
+      </section>
+
+      <nav class="sidebar-links" aria-label="Outros módulos">
+        <a href="index.html">Command Center</a>
+        <a href="academia.html">Academia Nível 1</a>
+        <a href="academia-nivel2.html">Academia Nível 2</a>
+        <a href="replay.html">Laboratório de replay</a>
+        <a href="simulador.html">Simulador de ordens</a>
+        <a href="diario.html">Diário profissional</a>
+      </nav>
+    </aside>
+
+    <main class="calendar-main">
+      <header class="calendar-hero">
+        <div>
+          <span class="eyebrow">PLANEJAMENTO MACRO E RISCO DE EVENTO</span>
+          <h1>Calendário Econômico Educacional</h1>
+          <p>Importe um arquivo autorizado, filtre os eventos e prepare um protocolo de risco sem depender de dados inventados.</p>
+        </div>
+        <div class="warning-box">
+          <strong>NÃO É FEED EM TEMPO REAL</strong>
+          <span>O sistema não consulta provedores externos e não garante atualização, exatidão ou completude.</span>
+        </div>
+      </header>
+
+      <section class="import-card" aria-labelledby="importTitle">
+        <div class="card-head">
+          <div>
+            <span class="eyebrow">IMPORTAÇÃO LOCAL</span>
+            <h2 id="importTitle">Carregar eventos autorizados</h2>
+          </div>
+          <div class="compact-actions">
+            <button id="downloadTemplate" type="button">Baixar modelo CSV</button>
+            <button id="loadDemo" type="button">Carregar exemplo artificial</button>
+          </div>
+        </div>
+
+        <div class="import-grid">
+          <label>Nome da fonte
+            <input id="sourceName" maxlength="120" placeholder="Ex.: provedor oficial ou arquivo licenciado" />
+          </label>
+          <label>URL de referência
+            <input id="sourceUrl" type="url" maxlength="300" placeholder="https://..." />
+          </label>
+          <label class="file-label">Arquivo CSV ou JSON
+            <input id="calendarFile" type="file" accept=".csv,.json,text/csv,application/json" />
+          </label>
+        </div>
+
+        <label class="authorization-line">
+          <input id="sourceAuthorized" type="checkbox" />
+          Confirmo que tenho autorização, licença ou direito de uso para processar estes dados.
+        </label>
+
+        <div class="import-actions">
+          <button id="importCalendar" class="primary" type="button">IMPORTAR ARQUIVO</button>
+          <button id="exportCalendar" type="button" disabled>Exportar JSON normalizado</button>
+          <button id="clearCalendar" class="danger" type="button" disabled>Limpar calendário</button>
+        </div>
+        <p id="importFeedback" class="feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="summary-grid" aria-label="Resumo do calendário">
+        <article><span>Eventos carregados</span><strong id="summaryTotal">0</strong></article>
+        <article><span>Próximas 24 horas</span><strong id="summaryUpcoming">0</strong></article>
+        <article><span>Alto impacto em 24h</span><strong id="summaryHigh">0</strong></article>
+        <article><span>Janela atual</span><strong id="summaryNow">0</strong></article>
+      </section>
+
+      <section class="filters-card">
+        <div class="card-head">
+          <div><span class="eyebrow">AMOSTRA VISÍVEL</span><h2>Filtros</h2></div>
+          <button id="resetFilters" type="button">Remover filtros</button>
+        </div>
+        <div class="filter-grid">
+          <label>De<input id="filterFrom" type="date" /></label>
+          <label>Até<input id="filterTo" type="date" /></label>
+          <label>Moeda<select id="filterCurrency"><option value="ALL">Todas</option></select></label>
+          <label>Impacto<select id="filterImpact"><option value="ALL">Todos</option><option value="HIGH">Alto</option><option value="MEDIUM">Médio</option><option value="LOW">Baixo</option></select></label>
+          <label>Status<select id="filterStatus"><option value="ALL">Todos</option><option value="UPCOMING">Próximos</option><option value="TODAY">Hoje</option><option value="PAST">Encerrados</option></select></label>
+        </div>
+      </section>
+
+      <section class="events-card">
+        <div class="card-head">
+          <div><span class="eyebrow">AGENDA NORMALIZADA</span><h2>Eventos econômicos</h2></div>
+          <span id="visibleCount" class="visible-count">0 exibidos</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Data local</th><th>Hora</th><th>Moeda</th><th>Evento</th><th>Impacto</th><th>Anterior</th><th>Previsão</th><th>Real</th><th>Status</th><th>Fonte</th></tr>
+            </thead>
+            <tbody id="calendarBody"><tr><td colspan="10" class="empty-row">Importe um arquivo autorizado ou carregue o exemplo artificial.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="protocol-card">
+        <div>
+          <span class="eyebrow">PROTOCOLO EDUCACIONAL</span>
+          <h2>Como tratar risco de evento</h2>
+        </div>
+        <div class="protocol-grid">
+          <article><strong>Antes</strong><p>Confirme horário, moeda afetada, impacto esperado e exposição simultânea.</p></article>
+          <article><strong>Durante</strong><p>Considere spreads, slippage, liquidez reduzida e movimentos sem estrutura clara.</p></article>
+          <article><strong>Depois</strong><p>Aguarde estabilização, registre o comportamento e compare com seu plano de risco.</p></article>
+        </div>
+        <p class="notice">Este protocolo é educacional. Ele não determina compra, venda, entrada, saída ou tamanho de posição.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/calendar-core.js"></script>
+  <script src="js/calendario.js"></script>
+</body>
+</html>
