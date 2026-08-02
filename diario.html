@@ -15,7 +15,19 @@
         <div><strong>SUZY</strong><span>DIÁRIO PROFISSIONAL</span></div>
       </a>
 
-      <div class="mode-badge">PROCESSO • DADOS LOCAIS</div>
+      <div id="storageModeBadge" class="mode-badge">PROCESSO • DADOS LOCAIS</div>
+
+      <section class="sidebar-card sync-card" aria-labelledby="syncTitle">
+        <span id="syncTitle">SINCRONIZAÇÃO</span>
+        <strong id="syncStatus" class="sync-status">Verificando modo de armazenamento...</strong>
+        <p id="syncDetails">O diário continua disponível no navegador mesmo sem o servidor local.</p>
+        <div class="sync-actions">
+          <button id="syncToServer" type="button" disabled>Salvar no SQLite</button>
+          <button id="restoreFromServer" type="button" disabled>Restaurar do SQLite</button>
+          <a id="syncLoginLink" href="login.html">Conta local</a>
+        </div>
+        <small id="syncFeedback" class="sync-feedback" aria-live="polite"></small>
+      </section>
 
       <section class="sidebar-card">
         <span>OBJETIVO</span>
@@ -48,7 +60,7 @@
           <h1>Diário Profissional do Trader</h1>
           <p>Registre o processo, filtre a amostra e identifique o que realmente contribui para consistência.</p>
         </div>
-        <div class="local-warning"><strong>ARMAZENAMENTO LOCAL</strong><span>Os registros permanecem neste navegador. Faça exportações periódicas.</span></div>
+        <div id="storageNotice" class="local-warning"><strong id="storageNoticeTitle">ARMAZENAMENTO LOCAL</strong><span id="storageNoticeText">Os registros permanecem neste navegador. Faça exportações periódicas.</span></div>
       </header>
 
       <section class="journal-kpis" aria-label="Indicadores principais">
@@ -153,6 +165,7 @@
 
   <script src="js/core.js"></script>
   <script src="js/journal-core.js"></script>
+  <script src="js/journal-sync-core.js"></script>
   <script src="js/diario.js"></script>
 </body>
 </html>
