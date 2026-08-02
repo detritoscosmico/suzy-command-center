@@ -7,6 +7,15 @@
 
   root.SuzyReplayCore = api;
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  const REQUIRED_CSV_FIELDS = ["time", "open", "high", "low", "close"];
+  const CSV_HEADER_ALIASES = {
+    time: ["time", "timestamp", "datetime", "date", "data", "datahora", "hora"],
+    open: ["open", "abertura", "o"],
+    high: ["high", "max", "maximum", "maxima", "maior", "h"],
+    low: ["low", "min", "minimum", "minima", "menor", "l"],
+    close: ["close", "fechamento", "ultimo", "last", "c"]
+  };
+
   function clampNumber(value, minimum, maximum, fallback) {
     const parsed = Number(value);
     if (!Number.isFinite(parsed)) return fallback;
@@ -29,15 +38,223 @@
     return { time, open, high, low, close };
   }
 
+  function canonicalHeader(value) {
+    return String(value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function countDelimiter(line, delimiter) {
+    let count = 0;
+    let quoted = false;
+
+    for (let index = 0; index < line.length; index += 1) {
+      const char = line[index];
+      if (char === '"') {
+        if (quoted && line[index + 1] === '"') index += 1;
+        else quoted = !quoted;
+      } else if (!quoted && char === delimiter) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
+  function detectDelimiter(text) {
+    const firstLine = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).find(line => line.trim()) || "";
+    const candidates = [";", ",", "\t"];
+    return candidates
+      .map(delimiter => ({ delimiter, count: countDelimiter(firstLine, delimiter) }))
+      .sort((left, right) => right.count - left.count)[0]?.delimiter || ",";
+  }
+
+  function parseDelimitedRows(text, delimiter = detectDelimiter(text)) {
+    const rows = [];
+    let row = [];
+    let cell = "";
+    let quoted = false;
+    const source = String(text ?? "").replace(/^\uFEFF/, "");
+
+    for (let index = 0; index < source.length; index += 1) {
+      const char = source[index];
+
+      if (char === '"') {
+        if (quoted && source[index + 1] === '"') {
+          cell += '"';
+          index += 1;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (!quoted && char === delimiter) {
+        row.push(cell.trim());
+        cell = "";
+      } else if (!quoted && (char === "\n" || char === "\r")) {
+        if (char === "\r" && source[index + 1] === "\n") index += 1;
+        row.push(cell.trim());
+        if (row.some(value => value !== "")) rows.push(row);
+        row = [];
+        cell = "";
+      } else {
+        cell += char;
+      }
+    }
+
+    row.push(cell.trim());
+    if (row.some(value => value !== "")) rows.push(row);
+    return rows;
+  }
+
+  function parseDecimal(value) {
+    const raw = String(value ?? "").trim().replace(/\s/g, "");
+    if (!raw) return NaN;
+
+    let normalized = raw;
+    const comma = normalized.lastIndexOf(",");
+    const dot = normalized.lastIndexOf(".");
+
+    if (comma >= 0 && dot >= 0) {
+      if (comma > dot) normalized = normalized.replace(/\./g, "").replace(",", ".");
+      else normalized = normalized.replace(/,/g, "");
+    } else if (comma >= 0) {
+      normalized = normalized.replace(",", ".");
+    }
+
+    return Number(normalized);
+  }
+
+  function parseTimestamp(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw) return NaN;
+
+    if (/^\d+(\.\d+)?$/.test(raw)) {
+      const numeric = Number(raw);
+      if (!Number.isFinite(numeric)) return NaN;
+      if (numeric >= 1e12) return Math.round(numeric);
+      if (numeric >= 1e9) return Math.round(numeric * 1000);
+    }
+
+    const brazilian = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if (brazilian) {
+      const [, day, month, year, hour = "0", minute = "0", second = "0"] = brazilian;
+      const timestamp = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+      return Number.isFinite(timestamp) ? timestamp : NaN;
+    }
+
+    const parsed = Date.parse(raw);
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }
+
+  function resolveCsvColumns(headers = []) {
+    const canonical = headers.map(canonicalHeader);
+    const indexes = {};
+
+    for (const field of REQUIRED_CSV_FIELDS) {
+      indexes[field] = canonical.findIndex(header => CSV_HEADER_ALIASES[field].includes(header));
+    }
+
+    return indexes;
+  }
+
+  function parseHistoricalCsv(text, options = {}) {
+    const maximumRows = Math.round(clampNumber(options.maximumRows, 30, 10000, 5000));
+    const minimumCandles = Math.round(clampNumber(options.minimumCandles, 10, 500, 30));
+    const errors = [];
+    const warnings = [];
+    const source = String(text ?? "");
+
+    if (!source.trim()) {
+      return { valid: false, candles: [], errors: ["O arquivo está vazio."], warnings, delimiter: ",", totalRows: 0 };
+    }
+
+    const delimiter = detectDelimiter(source);
+    const rows = parseDelimitedRows(source, delimiter);
+    if (rows.length < 2) {
+      return { valid: false, candles: [], errors: ["O CSV precisa conter cabeçalho e linhas de candles."], warnings, delimiter, totalRows: 0 };
+    }
+
+    const indexes = resolveCsvColumns(rows[0]);
+    const missing = REQUIRED_CSV_FIELDS.filter(field => indexes[field] < 0);
+    if (missing.length) {
+      return {
+        valid: false,
+        candles: [],
+        errors: [`Colunas obrigatórias ausentes: ${missing.join(", ")}.`],
+        warnings,
+        delimiter,
+        totalRows: rows.length - 1
+      };
+    }
+
+    const dataRows = rows.slice(1);
+    if (dataRows.length > maximumRows) {
+      warnings.push(`O arquivo possui ${dataRows.length} linhas; somente as primeiras ${maximumRows} foram processadas.`);
+    }
+
+    const candlesByTime = new Map();
+    let invalidRows = 0;
+    let duplicateRows = 0;
+
+    dataRows.slice(0, maximumRows).forEach((row, rowIndex) => {
+      const candle = normalizeCandle({
+        time: parseTimestamp(row[indexes.time]),
+        open: parseDecimal(row[indexes.open]),
+        high: parseDecimal(row[indexes.high]),
+        low: parseDecimal(row[indexes.low]),
+        close: parseDecimal(row[indexes.close])
+      });
+
+      if (!candle) {
+        invalidRows += 1;
+        if (errors.length < 8) errors.push(`Linha ${rowIndex + 2}: timestamp ou OHLC inválido.`);
+        return;
+      }
+
+      if (candlesByTime.has(candle.time)) {
+        duplicateRows += 1;
+        return;
+      }
+
+      candlesByTime.set(candle.time, candle);
+    });
+
+    const originalTimes = [...candlesByTime.keys()];
+    const candles = [...candlesByTime.values()].sort((left, right) => left.time - right.time);
+    const reordered = originalTimes.some((time, index) => time !== candles[index]?.time);
+
+    if (invalidRows > errors.length) warnings.push(`${invalidRows} linhas inválidas foram descartadas.`);
+    if (duplicateRows) warnings.push(`${duplicateRows} timestamps duplicados foram descartados.`);
+    if (reordered) warnings.push("Os candles foram reordenados cronologicamente.");
+    if (candles.length < minimumCandles) {
+      errors.push(`São necessários pelo menos ${minimumCandles} candles válidos; foram encontrados ${candles.length}.`);
+    }
+
+    return {
+      valid: candles.length >= minimumCandles,
+      candles,
+      errors,
+      warnings,
+      delimiter,
+      totalRows: dataRows.length,
+      validRows: candles.length,
+      invalidRows,
+      duplicateRows
+    };
+  }
+
   function createReplaySession(candles = [], options = {}) {
-    const normalized = candles.map(normalizeCandle).filter(Boolean);
+    const normalized = candles.map(normalizeCandle).filter(Boolean).sort((left, right) => left.time - right.time);
     const minimumVisible = Math.min(20, normalized.length);
     const requestedVisible = Math.round(clampNumber(options.initialVisible, minimumVisible, normalized.length, 30));
 
     return {
-      version: 1,
-      asset: String(options.asset ?? "ATIVO DEMO"),
-      timeframe: String(options.timeframe ?? "M5"),
+      version: 2,
+      asset: String(options.asset ?? "ATIVO DEMO").trim().slice(0, 40) || "ATIVO DEMO",
+      timeframe: String(options.timeframe ?? "M5").trim().slice(0, 12) || "M5",
+      source: String(options.source ?? "ARTIFICIAL").trim().slice(0, 24) || "ARTIFICIAL",
+      sourceName: String(options.sourceName ?? "Cenário gerado pela Suzy").trim().slice(0, 120),
       candles: normalized,
       cursor: requestedVisible,
       openTrade: null,
@@ -216,6 +433,12 @@
 
   return {
     normalizeCandle,
+    detectDelimiter,
+    parseDelimitedRows,
+    parseDecimal,
+    parseTimestamp,
+    resolveCsvColumns,
+    parseHistoricalCsv,
     createReplaySession,
     visibleCandles,
     openReplayTrade,
