@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Diário profissional da Academia Suzy para registrar operações, processo, emoções e estatísticas avançadas." />
+  <title>Academia Suzy — Diário Profissional</title>
+  <link rel="stylesheet" href="css/diario.css" />
+</head>
+<body>
+  <div class="journal-shell">
+    <aside class="journal-sidebar">
+      <a class="journal-brand" href="academia.html" aria-label="Voltar à Academia Suzy">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>DIÁRIO PROFISSIONAL</span></div>
+      </a>
+
+      <div class="mode-badge">PROCESSO • DADOS LOCAIS</div>
+
+      <section class="sidebar-card">
+        <span>OBJETIVO</span>
+        <p>Transformar cada operação em evidência: contexto, execução, disciplina, emoção, resultado e aprendizado.</p>
+      </section>
+
+      <section class="sidebar-card">
+        <span>MÉTRICAS</span>
+        <ul>
+          <li>Expectativa e profit factor.</li>
+          <li>Drawdown em múltiplos de risco.</li>
+          <li>Desempenho por setup, ativo e sessão.</li>
+          <li>Aderência ao plano e qualidade da execução.</li>
+        </ul>
+      </section>
+
+      <div class="sidebar-links">
+        <a href="academia.html">← Academia Nível 1</a>
+        <a href="academia-nivel2.html">Academia Nível 2</a>
+        <a href="replay.html">Laboratório de replay</a>
+        <a href="simulador.html">Simulador de ordens</a>
+        <a href="index.html">Command Center</a>
+      </div>
+    </aside>
+
+    <main class="journal-main">
+      <header class="journal-hero">
+        <div>
+          <span class="eyebrow">REVISÃO BASEADA EM DADOS</span>
+          <h1>Diário Profissional do Trader</h1>
+          <p>Registre o processo, filtre a amostra e identifique o que realmente contribui para consistência.</p>
+        </div>
+        <div class="local-warning"><strong>ARMAZENAMENTO LOCAL</strong><span>Os registros permanecem neste navegador. Faça exportações periódicas.</span></div>
+      </header>
+
+      <section class="journal-kpis" aria-label="Indicadores principais">
+        <article><span>Operações</span><strong id="kpiTotal">0</strong></article>
+        <article><span>Resultado</span><strong id="kpiTotalR">0.00R</strong></article>
+        <article><span>Expectativa</span><strong id="kpiExpectancy">0.00R</strong></article>
+        <article><span>Profit factor</span><strong id="kpiProfitFactor">0.00</strong></article>
+        <article><span>Drawdown</span><strong id="kpiDrawdown">0.00R</strong></article>
+        <article><span>Aderência</span><strong id="kpiAdherence">0%</strong></article>
+      </section>
+
+      <div class="journal-grid">
+        <section class="entry-card">
+          <div class="card-head">
+            <div><span class="eyebrow">NOVO REGISTRO</span><h2>Documentar operação</h2></div>
+            <button id="clearForm" type="button">Limpar</button>
+          </div>
+
+          <form id="journalForm">
+            <div class="form-grid">
+              <label>Data e hora<input id="entryTimestamp" type="datetime-local" required /></label>
+              <label>Ativo<input id="entryAsset" maxlength="30" placeholder="EUR/USD" required /></label>
+              <label>Mercado<select id="entryMarket"><option>Forex</option><option>Criptomoedas</option><option>Índices</option><option>Ações</option><option>Commodities</option><option>Opções</option><option>Outros</option></select></label>
+              <label>Sessão<select id="entrySession"><option>Ásia</option><option>Londres</option><option>Nova York</option><option>Sobreposição Londres/NY</option><option>Fora de sessão</option></select></label>
+              <label>Timeframe<select id="entryTimeframe"><option>M1</option><option>M5</option><option>M15</option><option>M30</option><option>H1</option><option>H4</option><option>D1</option></select></label>
+              <label>Direção<select id="entryDirection"><option value="LONG">Comprado</option><option value="SHORT">Vendido</option><option value="CALL">CALL</option><option value="PUT">PUT</option></select></label>
+              <label>Setup<input id="entrySetup" maxlength="60" placeholder="Pullback na tendência" required /></label>
+              <label>Resultado em R<input id="entryR" type="number" min="-20" max="50" step="0.01" value="0" required /></label>
+              <label>Qualidade da execução<select id="entryQuality"><option value="1">1 — Ruim</option><option value="2">2 — Fraca</option><option value="3" selected>3 — Adequada</option><option value="4">4 — Boa</option><option value="5">5 — Excelente</option></select></label>
+              <label>Erro de processo<select id="entryError"><option>Nenhum</option><option>FOMO</option><option>Entrada antecipada</option><option>Entrada atrasada</option><option>Stop alterado</option><option>Saída impulsiva</option><option>Excesso de risco</option><option>Fora do plano</option><option>Revenge trading</option><option>Outro</option></select></label>
+              <label>Emoção antes<input id="entryEmotionBefore" maxlength="40" placeholder="Calmo, ansioso, confiante" /></label>
+              <label>Emoção depois<input id="entryEmotionAfter" maxlength="40" placeholder="Neutro, frustrado, satisfeito" /></label>
+            </div>
+
+            <label class="check-line"><input id="entryFollowedPlan" type="checkbox" checked /> A operação respeitou integralmente o plano.</label>
+            <label>Contexto e justificativa<textarea id="entryContext" maxlength="600" placeholder="Estrutura, região, gatilho, invalidação e cenário macro."></textarea></label>
+            <label>Lição e próxima correção<textarea id="entryLesson" maxlength="600" placeholder="O que repetir, eliminar ou testar na próxima amostra."></textarea></label>
+
+            <button class="primary" type="submit">SALVAR REGISTRO</button>
+            <p id="formFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <aside class="analytics-column">
+          <section class="chart-card">
+            <div class="card-head"><div><span class="eyebrow">CURVA DE RESULTADO</span><h2>Equity em R</h2></div></div>
+            <div class="canvas-shell"><canvas id="equityChart" aria-label="Curva de resultado do diário em múltiplos de risco"></canvas></div>
+          </section>
+
+          <section class="errors-card">
+            <span class="eyebrow">ERROS RECORRENTES</span>
+            <h2>Falhas de processo</h2>
+            <ol id="processErrors"><li>Nenhum erro registrado.</li></ol>
+          </section>
+        </aside>
+      </div>
+
+      <section class="filters-card">
+        <div class="card-head">
+          <div><span class="eyebrow">AMOSTRA ANALISADA</span><h2>Filtros</h2></div>
+          <button id="resetFilters" type="button">Remover filtros</button>
+        </div>
+        <div class="filter-grid">
+          <label>De<input id="filterFrom" type="date" /></label>
+          <label>Até<input id="filterTo" type="date" /></label>
+          <label>Ativo<select id="filterAsset"><option value="">Todos</option></select></label>
+          <label>Setup<select id="filterSetup"><option value="">Todos</option></select></label>
+          <label>Sessão<select id="filterSession"><option value="">Todas</option></select></label>
+          <label>Resultado<select id="filterResult"><option value="">Todos</option><option>WIN</option><option>LOSS</option><option>BREAKEVEN</option></select></label>
+        </div>
+      </section>
+
+      <section class="breakdown-card">
+        <div class="tab-actions" role="tablist" aria-label="Agrupamento das estatísticas">
+          <button class="active" data-group="setup" type="button">Por setup</button>
+          <button data-group="asset" type="button">Por ativo</button>
+          <button data-group="session" type="button">Por sessão</button>
+          <button data-group="timeframe" type="button">Por timeframe</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Grupo</th><th>Trades</th><th>Win rate</th><th>Total R</th><th>Expectativa</th><th>Profit factor</th><th>Aderência</th></tr></thead>
+            <tbody id="breakdownBody"><tr><td colspan="7" class="empty-row">Nenhum dado disponível.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="history-card">
+        <div class="card-head">
+          <div><span class="eyebrow">HISTÓRICO</span><h2>Operações registradas</h2></div>
+          <div class="history-actions"><button id="exportCsv" type="button">Exportar CSV</button><button id="exportJson" type="button">Backup JSON</button><button id="clearJournal" class="danger" type="button">Apagar diário</button></div>
+        </div>
+        <div class="table-wrap history-table">
+          <table>
+            <thead><tr><th>Data</th><th>Ativo</th><th>Setup</th><th>Sessão</th><th>Direção</th><th>Resultado</th><th>R</th><th>Plano</th><th>Qualidade</th><th>Ação</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="10" class="empty-row">Nenhuma operação registrada.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/journal-core.js"></script>
+  <script src="js/diario.js"></script>
+</body>
+</html>
