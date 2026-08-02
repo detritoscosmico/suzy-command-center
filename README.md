@@ -30,21 +30,7 @@ Abra:
 academia-nivel2.html
 ```
 
-A formação aplicada inclui:
-
-- estrutura e contexto de mercado;
-- suporte, resistência e zonas;
-- tendência, pullback e continuidade;
-- candles como gatilho contextual;
-- EMA, RSI e indicadores como filtros;
-- confluência e checklist verificável;
-- invalidação e relação risco-retorno;
-- construção e validação do playbook técnico;
-- laboratório de classificação de cenários artificiais;
-- checklist com critérios obrigatórios e bloqueadores;
-- oito aulas sequenciais;
-- avaliação final com 12 questões e nota mínima de 75%;
-- progresso e melhor nota salvos no `localStorage`.
+A formação aplicada inclui estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist técnico e construção de playbook. São oito aulas sequenciais, cinco exercícios práticos e avaliação final com nota mínima de 75%.
 
 ## Laboratório de Replay
 
@@ -60,28 +46,52 @@ O laboratório inclui:
 - importação local de históricos CSV autorizados;
 - validação de timestamp e OHLC;
 - suporte a cabeçalhos em português e inglês;
-- detecção de vírgula, ponto e vírgula ou tabulação;
 - limite de 2 MB e 5.000 linhas;
 - descarte de linhas inválidas e timestamps duplicados;
-- ordenação cronológica automática;
 - candles futuros ocultos;
 - avanço candle a candle;
 - entradas compradas e vendidas;
 - stop e alvo definidos antes da entrada;
-- fechamento automático;
 - resultado em múltiplos de risco (`R`);
 - expectativa, win rate e drawdown;
+- diário e exportação CSV protegida.
+
+O formato de importação está documentado em `docs/importacao-historico-replay.md`.
+
+## Simulador de Ordens e Custos
+
+Abra:
+
+```text
+simulador.html
+```
+
+O simulador educacional inclui:
+
+- ordens a mercado, limite e stop de entrada;
+- compra no ask e venda no bid;
+- spread configurável;
+- slippage configurável;
+- comissão cobrada na entrada e na saída;
+- valor monetário por ponto;
+- stop e alvo definidos antes da entrada;
+- processamento por candles artificiais;
+- melhoria de preço em ordens limite quando aplicável;
+- slippage adverso em ordens stop e saídas por stop;
+- critério conservador quando stop e alvo aparecem no mesmo candle;
+- resultado bruto, custos e resultado líquido;
+- taxa de acerto e média líquida da sessão;
 - diário e exportação CSV protegida;
-- identificação explícita da origem da sessão;
 - persistência local da sessão.
 
-O botão **Baixar modelo CSV** gera um arquivo compatível. O formato completo está documentado em `docs/importacao-historico-replay.md`.
+As regras e limitações estão documentadas em `docs/simulador-custos-operacionais.md`.
 
 ## Recursos atuais
 
-- Academia Suzy — Nível 1 com seis aulas e avaliação final.
-- Academia Suzy — Nível 2 com oito aulas, prática técnica e avaliação final.
-- Laboratório de replay candle a candle com dados artificiais ou históricos importados.
+- Academia Suzy — Nível 1.
+- Academia Suzy — Nível 2.
+- Laboratório de replay com dados artificiais ou históricos importados.
+- Simulador de ordens com spread, comissão e slippage.
 - Catálogo estruturado em JSON com fallback local.
 - Scanner demonstrativo e gráfico de velas artificiais.
 - Registro manual de WIN e LOSS.
@@ -100,6 +110,7 @@ suzy-command-center/
 ├── academia-nivel2.html
 ├── index.html
 ├── replay.html
+├── simulador.html
 ├── assets/
 │   └── suzy-avatar.webp
 ├── css/
@@ -107,9 +118,11 @@ suzy-command-center/
 │   ├── academia2.css
 │   ├── base.css
 │   ├── replay.css
+│   ├── simulador.css
 │   └── style.css
 ├── docs/
-│   └── importacao-historico-replay.md
+│   ├── importacao-historico-replay.md
+│   └── simulador-custos-operacionais.md
 ├── js/
 │   ├── academia.js
 │   ├── academia2.js
@@ -118,14 +131,17 @@ suzy-command-center/
 │   ├── app.js
 │   ├── core.js
 │   ├── replay-core.js
-│   └── replay.js
+│   ├── replay.js
+│   ├── simulator-core.js
+│   └── simulador.js
 ├── dados/
 │   └── ativos.json
 ├── test/
 │   ├── academy.test.js
 │   ├── academy2.test.js
 │   ├── core.test.js
-│   └── replay.test.js
+│   ├── replay.test.js
+│   └── simulator.test.js
 ├── package.json
 └── README.md
 ```
@@ -145,15 +161,15 @@ npm test
 - Não há conexão com corretora.
 - Não executa ordens reais ou automáticas.
 - A origem e a licença dos históricos importados são responsabilidade do usuário.
-- Ainda não existe simulador completo com spread, comissão e slippage.
-- O diário avançado e as estatísticas por setup ainda não foram implementados.
+- O simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos.
+- O diário profissional avançado e as estatísticas por setup ainda não foram implementados.
 
 ## Próximas etapas recomendadas
 
-1. Adicionar simulador de ordens com spread, comissão e slippage.
-2. Criar diário profissional e estatísticas avançadas.
-3. Adicionar testes de integração da interface no navegador.
-4. Criar backend com autenticação e histórico persistente.
+1. Criar diário profissional e estatísticas avançadas por setup, ativo e horário.
+2. Adicionar testes de integração da interface no navegador.
+3. Criar backend com autenticação e histórico persistente.
+4. Implementar calendário econômico por fonte autorizada.
 
 ## Aviso
 
