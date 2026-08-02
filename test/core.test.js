@@ -12,7 +12,10 @@ const {
   normalizeCatalog,
   analyzeDemoAssets,
   generateDemoCandles,
-  calculateEma
+  calculateEma,
+  buildDemoCalendar,
+  calendarEventStatus,
+  filterCalendarEvents
 } = require("../js/core.js");
 
 test("gera a chave diária usando a data local", () => {
@@ -211,4 +214,28 @@ test("calcula média móvel exponencial", () => {
   assert.equal(ema[0], 10);
   assert.ok(Math.abs(ema[1] - 10.6666666667) < 0.000001);
   assert.ok(Math.abs(ema[2] - 11.5555555556) < 0.000001);
+});
+
+test("gera calendário demo relativo à data local informada", () => {
+  const events = buildDemoCalendar(new Date(2026, 7, 2, 18, 0));
+  assert.equal(events.length, 9);
+  assert.equal(localDateKey(new Date(events[0].time)), "2026-08-02");
+  assert.equal(localDateKey(new Date(events.at(-1).time)), "2026-08-04");
+  assert.ok(events.every(event => event.title.includes("cenário de estudo")));
+});
+
+test("classifica evento demo como próximo, ao vivo ou encerrado", () => {
+  const now = new Date(2026, 7, 2, 10, 0);
+  assert.equal(calendarEventStatus(new Date(2026, 7, 2, 11, 0).getTime(), now), "UPCOMING");
+  assert.equal(calendarEventStatus(new Date(2026, 7, 2, 9, 50).getTime(), now), "LIVE");
+  assert.equal(calendarEventStatus(new Date(2026, 7, 2, 9, 0).getTime(), now), "DONE");
+});
+
+test("filtra calendário demo por dia, moeda e impacto", () => {
+  const now = new Date(2026, 7, 2, 7, 0);
+  const events = buildDemoCalendar(now);
+  const result = filterCalendarEvents(events, { day: "TOMORROW", currency: "GBP", impact: "HIGH", now });
+  assert.equal(result.length, 1);
+  assert.equal(result[0].currency, "GBP");
+  assert.equal(localDateKey(new Date(result[0].time)), "2026-08-03");
 });
