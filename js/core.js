@@ -132,6 +132,25 @@
       });
   }
 
+  function analyzeDemoAssets(assets = [], options = {}) {
+    const category = String(options.category ?? "Todos");
+    const minForce = clampInteger(options.minForce, 1, 4, 1);
+    const limit = clampInteger(options.limit, 1, 50, 10);
+
+    return assets
+      .filter(asset => asset && Number(asset.force) >= minForce)
+      .filter(asset => category === "Todos" || (category === "OTC" ? String(asset.ticker).includes("(OTC)") : asset.cat === category))
+      .map(asset => {
+        const change = Number.isFinite(Number(asset.change)) ? Number(asset.change) : 0;
+        const movement = Math.abs(change);
+        const score = Math.round(Number(asset.force) * 18 + Number(asset.pop) * 8 + Math.min(movement * 300, 25));
+        const direction = movement < 0.02 ? "WAIT" : change > 0 ? "UP" : "DOWN";
+        return { ...asset, change, movement, score, direction };
+      })
+      .sort((left, right) => right.score - left.score || right.movement - left.movement || left.ticker.localeCompare(right.ticker))
+      .slice(0, limit);
+  }
+
   return {
     localDateKey,
     consecutiveLosses,
@@ -141,6 +160,7 @@
     sanitizeCsvCell,
     serializeCsv,
     normalizeAsset,
-    normalizeCatalog
+    normalizeCatalog,
+    analyzeDemoAssets
   };
 });
