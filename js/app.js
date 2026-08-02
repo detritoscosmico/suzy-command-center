@@ -51,16 +51,9 @@ function signedMoney(value){const amount=money(Math.abs(value));return value>0?`
 function todayKey(date=new Date()){return SuzyCore.localDateKey(date);}
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"}[char]));}
 function allPnl(){return state.operations.reduce((sum,op)=>sum+Number(op.pnl),0);}
-function getStats(){
- return SuzyCore.calculateStats({operations:state.operations,initialBank:state.initialBank,dateKey:todayKey()});
-}
-function getLimits(stats=getStats()){
- return SuzyCore.calculateLimits({balance:stats.balance,initialBank:state.initialBank,riskPct:state.riskPct,stopLossPct:state.stopLossPct,stopGainPct:state.stopGainPct});
-}
-function getRiskState(amount=0){
- const stats=getStats();const limits=getLimits(stats);
- return SuzyCore.evaluateRisk({stats,limits,maxOps:state.maxOps,maxLosses:state.maxLosses,amount,formatMoney:money});
-}
+function getStats(){return SuzyCore.calculateStats({operations:state.operations,initialBank:state.initialBank,dateKey:todayKey()});}
+function getLimits(stats=getStats()){return SuzyCore.calculateLimits({balance:stats.balance,initialBank:state.initialBank,riskPct:state.riskPct,stopLossPct:state.stopLossPct,stopGainPct:state.stopGainPct});}
+function getRiskState(amount=0){const stats=getStats();const limits=getLimits(stats);return SuzyCore.evaluateRisk({stats,limits,maxOps:state.maxOps,maxLosses:state.maxLosses,amount,formatMoney:money});}
 
 function renderAssets(){
  const term=$("searchInput").value.trim().toLowerCase();
@@ -88,17 +81,9 @@ function renderAssets(){
  document.querySelectorAll("[data-favorite]").forEach(button=>button.onclick=()=>toggleFavorite(button.dataset.favorite));
  document.querySelectorAll("[data-trade]").forEach(button=>button.onclick=()=>openTrade(button.dataset.trade));
 }
-function toggleFavorite(ticker){
- state.favorites=state.favorites.includes(ticker)?state.favorites.filter(item=>item!==ticker):[...state.favorites,ticker];
- saveState();renderAssets();
-}
-function populateTradeAssets(){
- const selected=$("tradeAsset").value;
- $("tradeAsset").innerHTML=assets.map(asset=>`<option value="${escapeHtml(asset.ticker)}">${asset.icon} ${escapeHtml(asset.ticker)}</option>`).join("");
- if(selected&&assets.some(asset=>asset.ticker===selected))$("tradeAsset").value=selected;
-}
+function toggleFavorite(ticker){state.favorites=state.favorites.includes(ticker)?state.favorites.filter(item=>item!==ticker):[...state.favorites,ticker];saveState();renderAssets();}
+function populateTradeAssets(){const selected=$("tradeAsset").value;$("tradeAsset").innerHTML=assets.map(asset=>`<option value="${escapeHtml(asset.ticker)}">${asset.icon} ${escapeHtml(asset.ticker)}</option>`).join("");if(selected&&assets.some(asset=>asset.ticker===selected))$("tradeAsset").value=selected;}
 function openTrade(ticker){populateTradeAssets();$("tradeAsset").value=ticker;navigate("operations");$("tradeAmount").focus();}
-
 function renderStats(){
  const stats=getStats();const limits=getLimits(stats);const risk=getRiskState(Number($("tradeAmount").value||0));
  const pnlClass=stats.dailyPnl>0?"green":stats.dailyPnl<0?"red":"";
@@ -113,69 +98,25 @@ function renderStats(){
  $("registerWin").disabled=risk.blocked;$("registerLoss").disabled=risk.blocked;
  renderProgress(stats,limits);renderAdvice(stats,limits,risk);renderRecent(stats);renderReport();
 }
-function renderProgress(stats,limits){
- const pct=limits.stopGain?Math.max(0,Math.min(100,stats.dailyPnl/limits.stopGain*100)):0;
- $("missionProgress").style.width=`${pct}%`;$("progressText").textContent=`${signedMoney(stats.dailyPnl)} de ${money(limits.stopGain)}`;
-}
-function renderAdvice(stats,limits,risk){
- let advice="Danilo, comece devagar. O primeiro objetivo é não perder o controle.";
- if(risk.blocked)advice=`Pare agora. ${risk.reason}`;
- else if(stats.lossStreak>=2)advice="Duas perdas seguidas. Reduza estímulos, revise o setup e não tente recuperar no impulso.";
- else if(stats.dailyPnl>0&&stats.dailyPnl>=limits.stopGain*.7)advice="Você está perto da meta. Proteja o resultado; não aumente a mão.";
- else if(stats.total>=Math.ceil(state.maxOps*.7))advice="Você já consumiu boa parte do limite de operações. Seja seletivo.";
- $("suzyAdvice").textContent=advice;
-}
-function renderRecent(stats=getStats()){
- const items=[...stats.daily].reverse().slice(0,5);
- $("recentOps").innerHTML=items.length?items.map(op=>`<li><span>${op.direction==='CALL'?'↗':'↘'} ${escapeHtml(op.asset)}</span><strong class="${op.result==='WIN'?'green':'red'}">${op.result}</strong><small>${escapeHtml(op.time)}</small></li>`).join(""):`<li class="empty-state">Nenhuma operação registrada.</li>`;
-}
-function renderReport(){
- const all=[...state.operations].reverse();const total=state.operations.length;const wins=state.operations.filter(op=>op.result==="WIN").length;const losses=total-wins;const pnl=allPnl();
- $("reportTotal").textContent=total;$("reportWins").textContent=wins;$("reportLosses").textContent=losses;$("reportPnl").textContent=signedMoney(pnl);$("reportPnl").className=pnl>0?"green":pnl<0?"red":"";
- $("reportBody").innerHTML=all.length?all.map(op=>`<tr><td>${escapeHtml(op.dateLabel)}</td><td>${escapeHtml(op.asset)}</td><td>${op.direction}</td><td>${escapeHtml(op.setup)}</td><td>${money(op.amount)}</td><td class="${op.result==='WIN'?'green':'red'}">${op.result}</td><td class="${op.pnl>=0?'green':'red'}">${signedMoney(op.pnl)}</td><td>${escapeHtml(op.reason)}</td></tr>`).join(""):`<tr><td colspan="8" class="empty-row">Nenhuma operação registrada.</td></tr>`;
-}
-
-function registerOperation(result){
- const amount=Number($("tradeAmount").value);const risk=getRiskState(amount);
- if(risk.blocked){$("tradeFeedback").textContent=risk.reason;renderStats();return;}
- const now=new Date();const pnl=result==="WIN"?amount*(state.payoutPct/100):-amount;
- const operation={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),dateKey:todayKey(now),dateLabel:now.toLocaleString("pt-BR"),time:now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),asset:$("tradeAsset").value,direction:$("tradeDirection").value,setup:$("tradeSetup").value,amount,result,pnl:Number(pnl.toFixed(2)),reason:$("tradeReason").value.trim()||"Sem observação"};
- state.operations.push(operation);saveState();$("tradeReason").value="";$("tradeFeedback").textContent=`${result} registrado: ${signedMoney(operation.pnl)}.`;renderStats();
- speak(result==="WIN"?"Win registrado. Sem euforia: continue dentro do plano.":"Loss registrado. Não aumente a mão e não tente vingança.");
-}
+function renderProgress(stats,limits){const pct=limits.stopGain?Math.max(0,Math.min(100,stats.dailyPnl/limits.stopGain*100)):0;$("missionProgress").style.width=`${pct}%`;$("progressText").textContent=`${signedMoney(stats.dailyPnl)} de ${money(limits.stopGain)}`;}
+function renderAdvice(stats,limits,risk){let advice="Danilo, comece devagar. O primeiro objetivo é não perder o controle.";if(risk.blocked)advice=`Pare agora. ${risk.reason}`;else if(stats.lossStreak>=2)advice="Duas perdas seguidas. Reduza estímulos, revise o setup e não tente recuperar no impulso.";else if(stats.dailyPnl>0&&stats.dailyPnl>=limits.stopGain*.7)advice="Você está perto da meta. Proteja o resultado; não aumente a mão.";else if(stats.total>=Math.ceil(state.maxOps*.7))advice="Você já consumiu boa parte do limite de operações. Seja seletivo.";$("suzyAdvice").textContent=advice;}
+function renderRecent(stats=getStats()){const items=[...stats.daily].reverse().slice(0,5);$("recentOps").innerHTML=items.length?items.map(op=>`<li><span>${op.direction==='CALL'?'↗':'↘'} ${escapeHtml(op.asset)}</span><strong class="${op.result==='WIN'?'green':'red'}">${op.result}</strong><small>${escapeHtml(op.time)}</small></li>`).join(""):`<li class="empty-state">Nenhuma operação registrada.</li>`;}
+function renderReport(){const all=[...state.operations].reverse();const total=state.operations.length;const wins=state.operations.filter(op=>op.result==="WIN").length;const losses=total-wins;const pnl=allPnl();$("reportTotal").textContent=total;$("reportWins").textContent=wins;$("reportLosses").textContent=losses;$("reportPnl").textContent=signedMoney(pnl);$("reportPnl").className=pnl>0?"green":pnl<0?"red":"";$("reportBody").innerHTML=all.length?all.map(op=>`<tr><td>${escapeHtml(op.dateLabel)}</td><td>${escapeHtml(op.asset)}</td><td>${op.direction}</td><td>${escapeHtml(op.setup)}</td><td>${money(op.amount)}</td><td class="${op.result==='WIN'?'green':'red'}">${op.result}</td><td class="${op.pnl>=0?'green':'red'}">${signedMoney(op.pnl)}</td><td>${escapeHtml(op.reason)}</td></tr>`).join(""):`<tr><td colspan="8" class="empty-row">Nenhuma operação registrada.</td></tr>`;}
+function registerOperation(result){const amount=Number($("tradeAmount").value);const risk=getRiskState(amount);if(risk.blocked){$("tradeFeedback").textContent=risk.reason;renderStats();return;}const now=new Date();const pnl=result==="WIN"?amount*(state.payoutPct/100):-amount;const operation={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),dateKey:todayKey(now),dateLabel:now.toLocaleString("pt-BR"),time:now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),asset:$("tradeAsset").value,direction:$("tradeDirection").value,setup:$("tradeSetup").value,amount,result,pnl:Number(pnl.toFixed(2)),reason:$("tradeReason").value.trim()||"Sem observação"};state.operations.push(operation);saveState();$("tradeReason").value="";$("tradeFeedback").textContent=`${result} registrado: ${signedMoney(operation.pnl)}.`;renderStats();speak(result==="WIN"?"Win registrado. Sem euforia: continue dentro do plano.":"Loss registrado. Não aumente a mão e não tente vingança.");}
 function exportCsv(){
  if(!state.operations.length){alert("Não há operações para exportar.");return;}
  const header=["data","ativo","direcao","setup","valor","resultado","pnl","motivo"];
  const rows=state.operations.map(op=>[op.dateLabel,op.asset,op.direction,op.setup,op.amount,op.result,op.pnl,op.reason]);
- const csv=[header,...rows].map(row=>row.map(value=>`"${String(value).replaceAll('"','""')}"`).join(";")).join("\n");
+ const csv=SuzyCore.serializeCsv([header,...rows]);
  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=`suzy-relatorio-${todayKey()}.csv`;link.click();URL.revokeObjectURL(url);
 }
 function resetOperations(){if(confirm("Apagar todas as operações registradas neste navegador?")){state.operations=[];saveState();renderStats();$("tradeFeedback").textContent="Histórico limpo.";}}
-
 function fillMissionForm(){$("cfgBank").value=state.initialBank;$("cfgRisk").value=state.riskPct;$("cfgStopLoss").value=state.stopLossPct;$("cfgStopGain").value=state.stopGainPct;$("cfgMaxOps").value=state.maxOps;$("cfgMaxLosses").value=state.maxLosses;}
-function saveMission(){
- const next={initialBank:Number($("cfgBank").value),riskPct:Number($("cfgRisk").value),stopLossPct:Number($("cfgStopLoss").value),stopGainPct:Number($("cfgStopGain").value),maxOps:Number($("cfgMaxOps").value),maxLosses:Number($("cfgMaxLosses").value)};
- if(next.initialBank<100||next.riskPct<=0||next.riskPct>5||next.stopLossPct<=0||next.stopGainPct<=0||next.maxOps<1||next.maxLosses<1){$("missionFeedback").textContent="Revise os valores. Risco por entrada deve ficar entre 0,1% e 5%.";return;}
- Object.assign(state,next);saveState();$("missionFeedback").textContent="Missão salva com sucesso.";renderStats();speak("Missão diária atualizada. As novas travas de risco já estão ativas.");
-}
-
+function saveMission(){const next={initialBank:Number($("cfgBank").value),riskPct:Number($("cfgRisk").value),stopLossPct:Number($("cfgStopLoss").value),stopGainPct:Number($("cfgStopGain").value),maxOps:Number($("cfgMaxOps").value),maxLosses:Number($("cfgMaxLosses").value)};if(next.initialBank<100||next.riskPct<=0||next.riskPct>5||next.stopLossPct<=0||next.stopGainPct<=0||next.maxOps<1||next.maxLosses<1){$("missionFeedback").textContent="Revise os valores. Risco por entrada deve ficar entre 0,1% e 5%.";return;}Object.assign(state,next);saveState();$("missionFeedback").textContent="Missão salva com sucesso.";renderStats();speak("Missão diária atualizada. As novas travas de risco já estão ativas.");}
 const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."]};
-function navigate(view){
- document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));
- $(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();
-}
-function speak(text){
- if(!("speechSynthesis" in window)){alert("A voz não é suportada neste navegador.");return;}
- speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang="pt-BR";utterance.rate=.95;speechSynthesis.speak(utterance);
-}
+function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();}
+function speak(text){if(!("speechSynthesis" in window)){alert("A voz não é suportada neste navegador.");return;}speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang="pt-BR";utterance.rate=.95;speechSynthesis.speak(utterance);}
 function getSuzyBrief(){const stats=getStats();const risk=getRiskState(Number($("tradeAmount").value||100));return risk.blocked?`Danilo, operações bloqueadas. ${risk.reason}`:`Danilo, saldo demo em ${money(stats.balance)}. Resultado do dia ${signedMoney(stats.dailyPnl)}. Você realizou ${stats.total} operações com ${stats.winrate} por cento de acerto.`;}
 function updateClock(){const now=new Date();$("today").textContent=now.toLocaleDateString("pt-BR");$("clock").textContent=now.toLocaleTimeString("pt-BR");}
 function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();}
-
-$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);
-$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};
-$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");
-$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
-document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));
-
-populateTradeAssets();fillMissionForm();renderAssets();renderStats();updateClock();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
+$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));populateTradeAssets();fillMissionForm();renderAssets();renderStats();updateClock();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
