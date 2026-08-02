@@ -20,7 +20,7 @@
       <button class="nav" data-view="operations">↔ Operações Demo</button>
       <button class="nav" data-view="reports">☷ Relatórios</button>
       <button class="nav" data-view="mission">◎ Centro de Missão</button>
-      <button class="nav nav-muted" disabled>⌕ Scanner — em breve</button>
+      <button class="nav" data-view="scanner">⌕ Scanner Demo</button>
       <button class="nav nav-muted" disabled>▣ Calendário — em breve</button>
       <button class="nav nav-muted" disabled>✈ Telegram — em breve</button>
     </nav>
@@ -176,6 +176,34 @@
           <p id="progressText" class="progress-text">R$ 0,00 de R$ 500,00</p>
           <div id="suzyAdvice" class="suzy-advice">Danilo, comece devagar. O primeiro objetivo é não perder o controle.</div>
         </div>
+      </div>
+    </section>
+
+    <section id="scannerView" class="view">
+      <div class="panel scanner-panel">
+        <div class="panel-head scanner-head">
+          <div>
+            <h3>⌕ Scanner inteligente — modo demo</h3>
+            <small>Ranking educacional calculado somente com força, popularidade e variações simuladas.</small>
+          </div>
+          <div class="scanner-controls">
+            <label>Categoria<select id="scannerCategory"><option value="Todos">Todos</option><option value="OTC">OTC</option><option value="Índice">Índice</option><option value="Cripto">Cripto</option><option value="Commodities">Commodities</option><option value="Moedas">Moedas</option></select></label>
+            <label>Força mínima<select id="scannerMinForce"><option value="1">1 de 4</option><option value="2">2 de 4</option><option value="3" selected>3 de 4</option><option value="4">4 de 4</option></select></label>
+            <label>Resultados<select id="scannerLimit"><option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="15">Top 15</option></select></label>
+            <button id="scanRefresh" class="primary-btn">ANALISAR AGORA</button>
+          </div>
+        </div>
+        <div class="scanner-summary">
+          <div><span>Analisados</span><strong id="scannerTotal">0</strong></div>
+          <div><span>Alta demo</span><strong id="scannerUp" class="green">0</strong></div>
+          <div><span>Baixa demo</span><strong id="scannerDown" class="red">0</strong></div>
+          <div><span>Aguardar</span><strong id="scannerWait" class="orange">0</strong></div>
+        </div>
+        <div class="table-wrap scanner-table">
+          <table><thead><tr><th>#</th><th>Ativo</th><th>Categoria</th><th>Variação demo</th><th>Força</th><th>Leitura</th><th>Pontuação</th><th>Ação</th></tr></thead><tbody id="scannerBody"></tbody></table>
+        </div>
+        <p id="scannerUpdated" class="scanner-updated" aria-live="polite"></p>
+        <p class="notice scanner-warning"><strong>Atenção:</strong> este scanner não usa mercado real, não prevê resultados e não deve ser tratado como sinal de compra, venda, CALL ou PUT.</p>
       </div>
     </section>
 

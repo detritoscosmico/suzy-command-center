@@ -51,6 +51,7 @@ async function loadAssetCatalog(){
   assets=loaded;
   populateTradeAssets();
   renderAssets();
+  renderScanner();
  }catch(error){
   console.warn("Catálogo JSON indisponível; usando catálogo local de segurança.",error);
  }
@@ -101,6 +102,20 @@ function renderAssets(){
 function toggleFavorite(ticker){state.favorites=state.favorites.includes(ticker)?state.favorites.filter(item=>item!==ticker):[...state.favorites,ticker];saveState();renderAssets();}
 function populateTradeAssets(){const selected=$("tradeAsset").value;$("tradeAsset").innerHTML=assets.map(asset=>`<option value="${escapeHtml(asset.ticker)}">${asset.icon} ${escapeHtml(asset.ticker)}</option>`).join("");if(selected&&assets.some(asset=>asset.ticker===selected))$("tradeAsset").value=selected;}
 function openTrade(ticker){populateTradeAssets();$("tradeAsset").value=ticker;navigate("operations");$("tradeAmount").focus();}
+function renderScanner(){
+ const list=SuzyCore.analyzeDemoAssets(assets,{category:$("scannerCategory").value,minForce:Number($("scannerMinForce").value),limit:Number($("scannerLimit").value)});
+ const counts={UP:0,DOWN:0,WAIT:0};list.forEach(item=>counts[item.direction]++);
+ $("scannerTotal").textContent=list.length;$("scannerUp").textContent=counts.UP;$("scannerDown").textContent=counts.DOWN;$("scannerWait").textContent=counts.WAIT;
+ const directionMeta={UP:{label:"ALTA DEMO",className:"green",icon:"↗"},DOWN:{label:"BAIXA DEMO",className:"red",icon:"↘"},WAIT:{label:"AGUARDAR",className:"orange",icon:"—"}};
+ $("scannerBody").innerHTML=list.length?list.map((asset,index)=>{const meta=directionMeta[asset.direction];return`<tr>
+  <td><strong>${index+1}</strong></td><td><div class="asset-cell"><span class="flag">${asset.icon}</span>${escapeHtml(asset.ticker)}</div></td><td>${escapeHtml(asset.cat)}</td>
+  <td class="${asset.change>0?'green':asset.change<0?'red':''}">${asset.change>=0?'+':''}${asset.change.toFixed(2)}%</td>
+  <td class="force">${[1,2,3,4].map(i=>`<span class="${i<=asset.force?'on':''}" style="height:${8+i*4}px"></span>`).join("")}</td>
+  <td><strong class="${meta.className}">${meta.icon} ${meta.label}</strong></td><td><span class="scanner-score">${asset.score}</span></td>
+  <td><button class="trade-shortcut" data-scanner-trade="${escapeHtml(asset.ticker)}">Abrir no demo</button></td></tr>`;}).join(""):`<tr><td colspan="8" class="empty-row">Nenhum ativo atende aos filtros escolhidos.</td></tr>`;
+ document.querySelectorAll("[data-scanner-trade]").forEach(button=>button.onclick=()=>openTrade(button.dataset.scannerTrade));
+ $("scannerUpdated").textContent=`Última análise demo: ${new Date().toLocaleTimeString("pt-BR")}`;
+}
 function renderStats(){
  const stats=getStats();const limits=getLimits(stats);const risk=getRiskState(Number($("tradeAmount").value||0));
  const pnlClass=stats.dailyPnl>0?"green":stats.dailyPnl<0?"red":"";
@@ -130,11 +145,12 @@ function exportCsv(){
 function resetOperations(){if(confirm("Apagar todas as operações registradas neste navegador?")){state.operations=[];saveState();renderStats();$("tradeFeedback").textContent="Histórico limpo.";}}
 function fillMissionForm(){$("cfgBank").value=state.initialBank;$("cfgRisk").value=state.riskPct;$("cfgStopLoss").value=state.stopLossPct;$("cfgStopGain").value=state.stopGainPct;$("cfgMaxOps").value=state.maxOps;$("cfgMaxLosses").value=state.maxLosses;}
 function saveMission(){const next={initialBank:Number($("cfgBank").value),riskPct:Number($("cfgRisk").value),stopLossPct:Number($("cfgStopLoss").value),stopGainPct:Number($("cfgStopGain").value),maxOps:Number($("cfgMaxOps").value),maxLosses:Number($("cfgMaxLosses").value)};if(next.initialBank<100||next.riskPct<=0||next.riskPct>5||next.stopLossPct<=0||next.stopGainPct<=0||next.maxOps<1||next.maxLosses<1){$("missionFeedback").textContent="Revise os valores. Risco por entrada deve ficar entre 0,1% e 5%.";return;}Object.assign(state,next);saveState();$("missionFeedback").textContent="Missão salva com sucesso.";renderStats();speak("Missão diária atualizada. As novas travas de risco já estão ativas.");}
-const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."]};
-function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();}
+const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."],scanner:["Scanner Demo","Ranking educacional baseado somente em dados simulados."]};
+function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();if(view==="scanner")renderScanner();}
 function speak(text){if(!("speechSynthesis" in window)){alert("A voz não é suportada neste navegador.");return;}speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang="pt-BR";utterance.rate=.95;speechSynthesis.speak(utterance);}
 function getSuzyBrief(){const stats=getStats();const risk=getRiskState(Number($("tradeAmount").value||100));return risk.blocked?`Danilo, operações bloqueadas. ${risk.reason}`:`Danilo, saldo demo em ${money(stats.balance)}. Resultado do dia ${signedMoney(stats.dailyPnl)}. Você realizou ${stats.total} operações com ${stats.winrate} por cento de acerto.`;}
 function updateClock(){const now=new Date();$("today").textContent=now.toLocaleDateString("pt-BR");$("clock").textContent=now.toLocaleTimeString("pt-BR");}
-function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();}
-function initialize(){populateTradeAssets();fillMissionForm();renderAssets();renderStats();updateClock();loadAssetCatalog();}
+function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();if($("scannerView").classList.contains("active"))renderScanner();}
+function initialize(){populateTradeAssets();fillMissionForm();renderAssets();renderStats();renderScanner();updateClock();loadAssetCatalog();}
+$("scannerCategory").addEventListener("change",renderScanner);$("scannerMinForce").addEventListener("change",renderScanner);$("scannerLimit").addEventListener("change",renderScanner);$("scanRefresh").onclick=renderScanner;
 $("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
