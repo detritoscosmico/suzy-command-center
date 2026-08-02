@@ -1,0 +1,15 @@
+.calendar-main,.calendar-sidebar{min-width:0}
+
+@media(max-width:980px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .calendar-shell{display:block;width:100%;min-width:0}
+  .calendar-sidebar{position:relative;top:auto;width:100%;height:auto;max-height:none;overflow:visible;z-index:auto}
+  .calendar-main{position:relative;width:100%;min-width:0;overflow:hidden;z-index:1}
+  .table-wrap{width:100%;max-width:100%;overflow-x:auto}
+  .calendar-hero,.import-card,.filters-card,.events-card,.protocol-card{max-width:100%}
+}
+
+@media(max-width:680px){
+  .compact-actions button,.import-actions button{width:100%}
+  .calendar-hero h1{overflow-wrap:anywhere}
+}
