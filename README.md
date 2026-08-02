@@ -86,12 +86,40 @@ O simulador educacional inclui:
 
 As regras e limitações estão documentadas em `docs/simulador-custos-operacionais.md`.
 
+## Diário Profissional
+
+Abra:
+
+```text
+diario.html
+```
+
+O diário profissional inclui:
+
+- registro de data, ativo, mercado, sessão, timeframe e direção;
+- setup, resultado em `R` e qualidade da execução;
+- aderência ao plano;
+- emoção antes e depois;
+- classificação de erros de processo;
+- contexto, justificativa e lição aprendida;
+- expectativa, profit factor e drawdown máximo;
+- curva acumulada em `R`;
+- desempenho por setup, ativo, sessão e timeframe;
+- filtros por período, ativo, setup, sessão e resultado;
+- ranking de erros recorrentes;
+- exportação CSV protegida;
+- backup completo em JSON;
+- persistência local.
+
+A metodologia e as limitações estão documentadas em `docs/diario-profissional.md`.
+
 ## Recursos atuais
 
 - Academia Suzy — Nível 1.
 - Academia Suzy — Nível 2.
 - Laboratório de replay com dados artificiais ou históricos importados.
 - Simulador de ordens com spread, comissão e slippage.
+- Diário profissional com estatísticas avançadas.
 - Catálogo estruturado em JSON com fallback local.
 - Scanner demonstrativo e gráfico de velas artificiais.
 - Registro manual de WIN e LOSS.
@@ -108,6 +136,7 @@ As regras e limitações estão documentadas em `docs/simulador-custos-operacion
 suzy-command-center/
 ├── academia.html
 ├── academia-nivel2.html
+├── diario.html
 ├── index.html
 ├── replay.html
 ├── simulador.html
@@ -117,10 +146,12 @@ suzy-command-center/
 │   ├── academia.css
 │   ├── academia2.css
 │   ├── base.css
+│   ├── diario.css
 │   ├── replay.css
 │   ├── simulador.css
 │   └── style.css
 ├── docs/
+│   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
 │   └── simulador-custos-operacionais.md
 ├── js/
@@ -130,6 +161,8 @@ suzy-command-center/
 │   ├── academy2-core.js
 │   ├── app.js
 │   ├── core.js
+│   ├── diario.js
+│   ├── journal-core.js
 │   ├── replay-core.js
 │   ├── replay.js
 │   ├── simulator-core.js
@@ -140,6 +173,7 @@ suzy-command-center/
 │   ├── academy.test.js
 │   ├── academy2.test.js
 │   ├── core.test.js
+│   ├── journal.test.js
 │   ├── replay.test.js
 │   └── simulator.test.js
 ├── package.json
@@ -162,14 +196,14 @@ npm test
 - Não executa ordens reais ou automáticas.
 - A origem e a licença dos históricos importados são responsabilidade do usuário.
 - O simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos.
-- O diário profissional avançado e as estatísticas por setup ainda não foram implementados.
+- O diário ainda não possui sincronização, importação do backup JSON ou anexos de imagem.
 
 ## Próximas etapas recomendadas
 
-1. Criar diário profissional e estatísticas avançadas por setup, ativo e horário.
-2. Adicionar testes de integração da interface no navegador.
-3. Criar backend com autenticação e histórico persistente.
-4. Implementar calendário econômico por fonte autorizada.
+1. Adicionar testes de integração da interface no navegador.
+2. Criar backend com autenticação e histórico persistente.
+3. Implementar calendário econômico por fonte autorizada.
+4. Adicionar sincronização e recuperação de backup do diário.
 
 ## Aviso
 
