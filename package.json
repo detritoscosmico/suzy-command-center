@@ -1,9 +1,9 @@
 {
   "name": "suzy-command-center",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
-    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js && node --check js/replay-core.js && node --check js/replay.js && node --check js/academy2-core.js && node --check js/academia2.js && node --check js/simulator-core.js && node --check js/simulador.js",
+    "check": "node --check js/core.js && node --check js/app.js && node --check js/academy-core.js && node --check js/academia.js && node --check js/replay-core.js && node --check js/replay.js && node --check js/academy2-core.js && node --check js/academia2.js && node --check js/simulator-core.js && node --check js/simulador.js && node --check js/journal-core.js && node --check js/diario.js",
     "test": "node --test"
   }
 }
