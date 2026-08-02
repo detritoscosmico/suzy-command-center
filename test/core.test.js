@@ -7,7 +7,9 @@ const {
   calculateLimits,
   evaluateRisk,
   sanitizeCsvCell,
-  serializeCsv
+  serializeCsv,
+  normalizeAsset,
+  normalizeCatalog
 } = require("../js/core.js");
 
 test("gera a chave diária usando a data local", () => {
@@ -107,4 +109,51 @@ test("serializa todas as células usando a proteção contra fórmulas", () => {
     csv,
     '"motivo";"pnl"\n"\'=HYPERLINK(""https://example.invalid"")";"-100"'
   );
+});
+
+test("normaliza um ativo válido e limita campos numéricos", () => {
+  const asset = normalizeAsset({
+    ticker: " BTC/USD ",
+    name: " Bitcoin ",
+    price: "123.45",
+    decimals: 99,
+    cat: "Cripto",
+    icon: "₿",
+    pop: 8,
+    force: 0
+  });
+
+  assert.deepEqual(asset, {
+    ticker: "BTC/USD",
+    name: "Bitcoin",
+    price: 123.45,
+    decimals: 8,
+    cat: "Cripto",
+    icon: "₿",
+    pop: 3,
+    force: 1
+  });
+});
+
+test("descarta ativos inválidos e remove tickers duplicados", () => {
+  const catalog = normalizeCatalog({
+    ativos: [
+      { ticker: "EUR/USD", name: "Euro / Dólar", price: 1.08, decimals: 5 },
+      { ticker: "EUR/USD", name: "Duplicado", price: 2 },
+      { ticker: "SEM-PRECO", name: "Inválido", price: 0 },
+      null
+    ]
+  });
+
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0].ticker, "EUR/USD");
+});
+
+test("usa catálogo de segurança quando o JSON não possui ativos válidos", () => {
+  const fallback = [{ ticker: "XLM/USD", name: "Stellar", price: 0.28, decimals: 5 }];
+  const catalog = normalizeCatalog({ ativos: [{ ticker: "", name: "Inválido", price: -1 }] }, fallback);
+
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0].ticker, "XLM/USD");
+  assert.notEqual(catalog[0], fallback[0]);
 });

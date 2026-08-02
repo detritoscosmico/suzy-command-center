@@ -1,4 +1,4 @@
-const assets=[
+const fallbackAssets=[
 {ticker:"EUR/USD (OTC)",name:"Euro / Dólar",price:1.08742,decimals:5,cat:"OTC",icon:"🇪🇺",pop:3,force:4},
 {ticker:"GBP/USD (OTC)",name:"Libra / Dólar",price:1.27364,decimals:5,cat:"OTC",icon:"🇬🇧",pop:3,force:4},
 {ticker:"USD/JPY (OTC)",name:"Dólar / Iene",price:159.9645,decimals:4,cat:"OTC",icon:"🇯🇵",pop:3,force:3},
@@ -30,6 +30,7 @@ const assets=[
 {ticker:"UK 100",name:"UK 100",price:10354.85,decimals:2,cat:"Índice",icon:"🇬🇧",pop:3,force:4}
 ];
 
+let assets=SuzyCore.normalizeCatalog(null,fallbackAssets);
 const STORAGE_KEY="suzy-command-center-v2";
 const defaultState={
  initialBank:10000,riskPct:1,stopLossPct:3,stopGainPct:5,maxOps:5,maxLosses:3,payoutPct:85,
@@ -38,6 +39,22 @@ const defaultState={
 let state=loadState();
 let sortMode="default";
 const $=id=>document.getElementById(id);
+
+async function loadAssetCatalog(){
+ if(window.location.protocol==="file:")return;
+ try{
+  const response=await fetch("dados/ativos.json",{cache:"no-store"});
+  if(!response.ok)throw new Error(`HTTP ${response.status}`);
+  const payload=await response.json();
+  const loaded=SuzyCore.normalizeCatalog(payload);
+  if(!loaded.length)throw new Error("Catálogo sem ativos válidos.");
+  assets=loaded;
+  populateTradeAssets();
+  renderAssets();
+ }catch(error){
+  console.warn("Catálogo JSON indisponível; usando catálogo local de segurança.",error);
+ }
+}
 
 function loadState(){
  try{
@@ -119,4 +136,5 @@ function speak(text){if(!("speechSynthesis" in window)){alert("A voz não é sup
 function getSuzyBrief(){const stats=getStats();const risk=getRiskState(Number($("tradeAmount").value||100));return risk.blocked?`Danilo, operações bloqueadas. ${risk.reason}`:`Danilo, saldo demo em ${money(stats.balance)}. Resultado do dia ${signedMoney(stats.dailyPnl)}. Você realizou ${stats.total} operações com ${stats.winrate} por cento de acerto.`;}
 function updateClock(){const now=new Date();$("today").textContent=now.toLocaleDateString("pt-BR");$("clock").textContent=now.toLocaleTimeString("pt-BR");}
 function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();}
-$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));populateTradeAssets();fillMissionForm();renderAssets();renderStats();updateClock();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
+function initialize(){populateTradeAssets();fillMissionForm();renderAssets();renderStats();updateClock();loadAssetCatalog();}
+$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);

@@ -81,6 +81,57 @@
       .join("\n");
   }
 
+  function clampInteger(value, minimum, maximum, fallback) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.min(maximum, Math.max(minimum, Math.round(parsed)));
+  }
+
+  function normalizeAsset(asset) {
+    if (!asset || typeof asset !== "object") return null;
+
+    const ticker = String(asset.ticker ?? "").trim();
+    const name = String(asset.name ?? "").trim();
+    const price = Number(asset.price);
+
+    if (!ticker || !name || !Number.isFinite(price) || price <= 0) return null;
+
+    return {
+      ticker,
+      name,
+      price,
+      decimals: clampInteger(asset.decimals, 0, 8, 2),
+      cat: String(asset.cat ?? "Outros").trim() || "Outros",
+      icon: String(asset.icon ?? "•").trim() || "•",
+      pop: clampInteger(asset.pop, 1, 3, 1),
+      force: clampInteger(asset.force, 1, 4, 1)
+    };
+  }
+
+  function normalizeCatalog(payload, fallback = []) {
+    const candidateRows = Array.isArray(payload?.ativos) ? payload.ativos : [];
+    const normalized = [];
+    const seenTickers = new Set();
+
+    for (const row of candidateRows) {
+      const asset = normalizeAsset(row);
+      if (!asset || seenTickers.has(asset.ticker)) continue;
+      seenTickers.add(asset.ticker);
+      normalized.push(asset);
+    }
+
+    if (normalized.length) return normalized;
+
+    return fallback
+      .map(normalizeAsset)
+      .filter(Boolean)
+      .filter(asset => {
+        if (seenTickers.has(asset.ticker)) return false;
+        seenTickers.add(asset.ticker);
+        return true;
+      });
+  }
+
   return {
     localDateKey,
     consecutiveLosses,
@@ -88,6 +139,8 @@
     calculateLimits,
     evaluateRisk,
     sanitizeCsvCell,
-    serializeCsv
+    serializeCsv,
+    normalizeAsset,
+    normalizeCatalog
   };
 });
