@@ -9,7 +9,8 @@ const {
   sanitizeCsvCell,
   serializeCsv,
   normalizeAsset,
-  normalizeCatalog
+  normalizeCatalog,
+  analyzeDemoAssets
 } = require("../js/core.js");
 
 test("gera a chave diária usando a data local", () => {
@@ -156,4 +157,33 @@ test("usa catálogo de segurança quando o JSON não possui ativos válidos", ()
   assert.equal(catalog.length, 1);
   assert.equal(catalog[0].ticker, "XLM/USD");
   assert.notEqual(catalog[0], fallback[0]);
+});
+
+test("scanner demo classifica direção e ordena pela pontuação", () => {
+  const result = analyzeDemoAssets([
+    { ticker: "LENTO", cat: "Cripto", force: 2, pop: 1, change: 0.01 },
+    { ticker: "ALTA", cat: "Cripto", force: 4, pop: 3, change: 0.08 },
+    { ticker: "BAIXA", cat: "Moedas", force: 4, pop: 2, change: -0.07 }
+  ]);
+  assert.equal(result[0].ticker, "ALTA");
+  assert.equal(result[0].direction, "UP");
+  assert.equal(result[1].direction, "DOWN");
+  assert.equal(result[2].direction, "WAIT");
+});
+
+test("scanner demo respeita categoria, força mínima e limite", () => {
+  const result = analyzeDemoAssets([
+    { ticker: "BTC/USD (OTC)", cat: "Cripto", force: 4, pop: 3, change: 0.05 },
+    { ticker: "ETH/USD", cat: "Cripto", force: 3, pop: 3, change: 0.04 },
+    { ticker: "USD/JPY (OTC)", cat: "OTC", force: 4, pop: 2, change: -0.03 }
+  ], { category: "OTC", minForce: 4, limit: 1 });
+  assert.equal(result.length, 1);
+  assert.equal(result[0].ticker, "BTC/USD (OTC)");
+});
+
+test("scanner demo não altera os ativos originais", () => {
+  const source = [{ ticker: "XLM/USD", cat: "Cripto", force: 4, pop: 2, change: 0.03 }];
+  const result = analyzeDemoAssets(source);
+  assert.notEqual(result[0], source[0]);
+  assert.deepEqual(source, [{ ticker: "XLM/USD", cat: "Cripto", force: 4, pop: 2, change: 0.03 }]);
 });
