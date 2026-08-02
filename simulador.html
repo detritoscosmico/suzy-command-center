@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Simulador educacional de ordens com spread, comissão, slippage, stop e alvo." />
+  <title>Academia Suzy — Simulador de Ordens</title>
+  <link rel="stylesheet" href="css/simulador.css" />
+</head>
+<body>
+  <div class="sim-shell">
+    <aside class="sim-sidebar">
+      <a class="sim-brand" href="academia.html" aria-label="Voltar para a Academia Suzy">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>SIMULADOR OPERACIONAL</span></div>
+      </a>
+
+      <div class="mode-badge">TREINO DE EXECUÇÃO • SEM DINHEIRO REAL</div>
+
+      <section class="sidebar-card">
+        <span>OBJETIVO</span>
+        <p>Entender como spread, slippage e comissão alteram o preço de execução e o resultado líquido.</p>
+      </section>
+
+      <section class="sidebar-card">
+        <span>REGRAS DO LABORATÓRIO</span>
+        <ul>
+          <li>Apenas uma ordem ou posição por vez.</li>
+          <li>Stop e alvo são definidos antes da entrada.</li>
+          <li>Ordens stop recebem slippage adverso.</li>
+          <li>Ordens limite não executam pior que o limite.</li>
+          <li>Se stop e alvo ocorrerem juntos, prevalece o stop.</li>
+        </ul>
+      </section>
+
+      <div class="sidebar-links">
+        <a href="academia.html">← Academia Nível 1</a>
+        <a href="academia-nivel2.html">Academia Nível 2</a>
+        <a href="replay.html">Laboratório de replay</a>
+        <a href="index.html">Command Center</a>
+      </div>
+    </aside>
+
+    <main class="sim-main">
+      <header class="sim-hero">
+        <div>
+          <span class="eyebrow">FORMAÇÃO PRÁTICA</span>
+          <h1>Simulador de Ordens e Custos</h1>
+          <p>Configure uma ordem, aplique custos operacionais e acompanhe a diferença entre resultado bruto e resultado líquido.</p>
+        </div>
+        <div class="demo-warning">
+          <strong>AMBIENTE EDUCACIONAL</strong>
+          <span>Sem corretora, sem execução real, sem recomendação e sem promessa de resultado.</span>
+        </div>
+      </header>
+
+      <section class="quote-strip" aria-label="Cotação simulada">
+        <div><span>ATIVO</span><strong id="quoteAsset">EUR/USD DEMO</strong></div>
+        <div><span>BID</span><strong id="quoteBid" class="red">—</strong></div>
+        <div><span>PREÇO MÉDIO</span><strong id="quoteMid">—</strong></div>
+        <div><span>ASK</span><strong id="quoteAsk" class="green">—</strong></div>
+        <div><span>CUSTO DO SPREAD</span><strong id="spreadCost">—</strong></div>
+      </section>
+
+      <section class="sim-kpis">
+        <article><span>Trades</span><strong id="metricTrades">0</strong></article>
+        <article><span>Taxa de acerto</span><strong id="metricWinrate">0%</strong></article>
+        <article><span>Resultado bruto</span><strong id="metricGross">R$ 0,00</strong></article>
+        <article><span>Custos totais</span><strong id="metricCosts">R$ 0,00</strong></article>
+        <article><span>Resultado líquido</span><strong id="metricNet">R$ 0,00</strong></article>
+      </section>
+
+      <div class="sim-grid">
+        <section class="order-card">
+          <div class="card-head">
+            <div><span class="eyebrow">CONFIGURAÇÃO</span><h2>Montar ordem</h2></div>
+            <button id="resetSimulator" class="secondary" type="button">Reiniciar sessão</button>
+          </div>
+
+          <div class="form-grid">
+            <label>Ativo demonstrativo
+              <select id="instrument">
+                <option value="EURUSD" selected>EUR/USD</option>
+                <option value="XAUUSD">Ouro — XAU/USD</option>
+                <option value="BTCUSD">Bitcoin — BTC/USD</option>
+                <option value="SP500">S&P 500</option>
+              </select>
+            </label>
+            <label>Preço médio atual
+              <input id="midPrice" type="number" min="0.00000001" step="0.00001" value="1.08750" />
+            </label>
+            <label>Tipo de ordem
+              <select id="orderType">
+                <option value="MARKET" selected>Mercado</option>
+                <option value="LIMIT">Limite</option>
+                <option value="STOP">Stop de entrada</option>
+              </select>
+            </label>
+            <label>Direção
+              <select id="orderDirection">
+                <option value="BUY" selected>Compra</option>
+                <option value="SELL">Venda</option>
+              </select>
+            </label>
+            <label>Preço de disparo
+              <input id="triggerPrice" type="number" min="0.00000001" step="0.00001" value="1.08650" disabled />
+            </label>
+            <label>Valor por ponto
+              <input id="valuePerPoint" type="number" min="0.01" step="0.01" value="1.00" />
+            </label>
+          </div>
+
+          <div class="cost-grid">
+            <label>Tamanho do ponto
+              <input id="pointSize" type="number" min="0.00000001" step="0.00001" value="0.00010" />
+            </label>
+            <label>Spread em pontos
+              <input id="spreadPoints" type="number" min="0" step="0.1" value="1.2" />
+            </label>
+            <label>Slippage em pontos
+              <input id="slippagePoints" type="number" min="0" step="0.1" value="0.5" />
+            </label>
+            <label>Comissão por lado
+              <input id="commissionPerSide" type="number" min="0" step="0.01" value="2.50" />
+            </label>
+            <label>Stop em pontos
+              <input id="stopPoints" type="number" min="1" step="1" value="20" />
+            </label>
+            <label>Alvo em pontos
+              <input id="targetPoints" type="number" min="1" step="1" value="40" />
+            </label>
+          </div>
+
+          <label class="full-label">Hipótese ou motivo da ordem
+            <textarea id="orderNote" maxlength="180" placeholder="Ex.: rompimento após consolidação, risco máximo definido"></textarea>
+          </label>
+
+          <button id="submitOrder" class="primary" type="button">ENVIAR ORDEM AO SIMULADOR</button>
+          <p id="orderFeedback" class="feedback" aria-live="polite"></p>
+        </section>
+
+        <aside class="right-column">
+          <section class="status-card">
+            <span class="eyebrow">ORDEM PENDENTE</span>
+            <div id="pendingEmpty" class="empty-state">Nenhuma ordem pendente.</div>
+            <div id="pendingDetails" class="detail-grid" hidden>
+              <div><span>Tipo</span><strong id="pendingType">—</strong></div>
+              <div><span>Direção</span><strong id="pendingDirection">—</strong></div>
+              <div><span>Disparo</span><strong id="pendingTrigger">—</strong></div>
+            </div>
+            <button id="cancelPending" class="secondary full" type="button" disabled>Cancelar ordem</button>
+          </section>
+
+          <section class="status-card">
+            <span class="eyebrow">POSIÇÃO ABERTA</span>
+            <div id="positionEmpty" class="empty-state">Nenhuma posição aberta.</div>
+            <div id="positionDetails" class="detail-grid" hidden>
+              <div><span>Direção</span><strong id="positionDirection">—</strong></div>
+              <div><span>Entrada</span><strong id="positionEntry">—</strong></div>
+              <div><span>Stop</span><strong id="positionStop" class="red">—</strong></div>
+              <div><span>Alvo</span><strong id="positionTarget" class="green">—</strong></div>
+            </div>
+            <button id="closeMarket" class="danger full" type="button" disabled>Fechar a mercado</button>
+          </section>
+
+          <section class="scenario-card">
+            <span class="eyebrow">PRÓXIMO CANDLE</span>
+            <h2>Gerar cenário artificial</h2>
+            <label>Volatilidade em pontos
+              <input id="volatilityPoints" type="number" min="2" step="1" value="30" />
+            </label>
+            <button id="generateBar" class="primary" type="button">GERAR E PROCESSAR CANDLE</button>
+            <div id="lastBar" class="bar-grid" hidden>
+              <div><span>O</span><strong id="barOpen">—</strong></div>
+              <div><span>H</span><strong id="barHigh">—</strong></div>
+              <div><span>L</span><strong id="barLow">—</strong></div>
+              <div><span>C</span><strong id="barClose">—</strong></div>
+            </div>
+            <p class="small-note">O candle é artificial. Uma ordem acionada neste candle só terá stop e alvo avaliados a partir do candle seguinte.</p>
+          </section>
+        </aside>
+      </div>
+
+      <section class="results-card">
+        <div class="card-head">
+          <div><span class="eyebrow">DIÁRIO DE EXECUÇÃO</span><h2>Resultado bruto, custos e líquido</h2></div>
+          <button id="exportSimulator" class="secondary" type="button">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Ordem</th><th>Direção</th><th>Entrada</th><th>Saída</th><th>Pontos</th><th>Bruto</th><th>Custos</th><th>Líquido</th><th>Resultado</th></tr>
+            </thead>
+            <tbody id="tradeRows"><tr><td colspan="10" class="empty-row">Nenhum trade encerrado.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/simulator-core.js"></script>
+  <script src="js/simulador.js"></script>
+</body>
+</html>
