@@ -123,13 +123,17 @@ Arquivo: `diario.html`
 - desempenho por setup, ativo, sessão e timeframe;
 - filtros por período e resultado;
 - ranking de erros recorrentes;
-- exportação CSV e backup JSON;
+- edição de registros com preservação automática da versão anterior;
+- até 20 versões anteriores por operação;
+- restauração de versões anteriores sem perder a versão atual;
+- lixeira com restauração e exclusão definitiva;
+- exportação CSV e backup JSON completo com registros, versões e lixeira;
 - detecção automática do backend local;
-- envio e restauração direta do SQLite;
+- envio e restauração direta dos registros ativos no SQLite;
 - confirmação explícita quando as cópias divergem;
 - sincronização automática após o alinhamento inicial.
 
-A metodologia está documentada em `docs/diario-profissional.md`. A persistência direta está documentada em `docs/sincronizacao-direta-diario.md`.
+A metodologia e o ciclo de vida dos registros estão documentados em `docs/diario-profissional.md`. A persistência direta está documentada em `docs/sincronizacao-direta-diario.md`.
 
 ### Conta local protegida
 
@@ -170,10 +174,10 @@ No modo local seguro, essa página oferece:
 - calendário econômico educacional com importação autorizada;
 - replay com dados artificiais ou históricos importados;
 - simulador de ordens com custos operacionais;
-- diário profissional com estatísticas avançadas;
+- diário profissional com estatísticas avançadas, versões e lixeira;
 - autenticação individual no modo local;
 - alteração e recuperação segura da senha local;
-- sincronização direta do diário com SQLite;
+- sincronização direta dos registros ativos do diário com SQLite;
 - restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local;
 - scanner demonstrativo e gráfico de velas artificiais;
@@ -203,6 +207,7 @@ suzy-command-center/
 ├── assets/
 ├── css/
 │   ├── calendario.css
+│   ├── diario.css
 │   ├── diario-sync.css
 │   └── login.css
 ├── dados/
@@ -218,7 +223,10 @@ suzy-command-center/
 ├── js/
 │   ├── calendario.js
 │   ├── calendar-core.js
+│   ├── diario.js
 │   ├── diario-sync.js
+│   ├── journal-core.js
+│   ├── journal-lifecycle-core.js
 │   ├── journal-sync-core.js
 │   └── login.js
 ├── server/
@@ -231,6 +239,7 @@ suzy-command-center/
 │   │   ├── accessibility.spec.js
 │   │   └── critical-flows.spec.js
 │   ├── calendar.test.js
+│   ├── journal-lifecycle.test.js
 │   ├── journal-sync.test.js
 │   ├── server-api.test.js
 │   ├── server-security.test.js
@@ -285,6 +294,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o GitHub Pages não executa o backend local;
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
+- versões e lixeira do diário permanecem somente no navegador e no backup JSON;
 - sem a senha e sem uma chave de recuperação válida, não existe recuperação automática;
 - o banco local não é criptografado em repouso;
 - não há feed real de preços ou calendário econômico oficial;
@@ -296,7 +306,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Adicionar histórico de versões e lixeira ao diário.
+1. Sincronizar histórico de versões e lixeira com o SQLite.
 2. Criar trilha de psicologia, disciplina e avaliação comportamental.
 3. Avaliar criptografia em repouso para o banco local.
 4. Ampliar testes manuais com leitores de tela.

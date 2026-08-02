@@ -116,3 +116,34 @@ test("salva registro no diário e atualiza as estatísticas", async ({ page }, t
   await expect(page.locator("#historyBody")).toContainText("EUR/USD");
   await expect(page.locator("#formFeedback")).not.toBeEmpty();
 });
+
+test("edita registro, preserva versão e permite restaurar da lixeira", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/diario.html");
+
+  await page.locator("#entryTimestamp").fill("2026-08-02T11:00");
+  await page.locator("#entryAsset").fill("BTC/USDT");
+  await page.locator("#entrySetup").fill("Rompimento inicial");
+  await page.locator("#entryR").fill("1");
+  await page.locator("#submitEntryButton").click();
+
+  await page.locator("#historyBody [data-edit]").click();
+  await expect(page.locator("#formMode")).toHaveText("EDITANDO REGISTRO");
+  await page.locator("#entrySetup").fill("Rompimento confirmado");
+  await page.locator("#entryR").fill("1.5");
+  await page.locator("#submitEntryButton").click();
+
+  await expect(page.locator("#versionCount")).toHaveText("1");
+  await expect(page.locator("#versionBody")).toContainText("Antes da edição");
+  await expect(page.locator("#versionBody")).toContainText("Rompimento inicial");
+
+  page.on("dialog", dialog => dialog.accept());
+  await page.locator("#historyBody [data-delete]").click();
+  await expect(page.locator("#kpiTotal")).toHaveText("0");
+  await expect(page.locator("#trashCount")).toHaveText("1");
+
+  await page.locator("#trashBody [data-restore-trash]").click();
+  await expect(page.locator("#kpiTotal")).toHaveText("1");
+  await expect(page.locator("#trashCount")).toHaveText("0");
+  await expect(page.locator("#historyBody")).toContainText("Rompimento confirmado");
+});

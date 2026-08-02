@@ -1,25 +1,62 @@
 const JOURNAL_STORAGE_KEY = "suzy-professional-journal-v1";
+const JOURNAL_TRASH_KEY = "suzy-professional-journal-trash-v1";
+const JOURNAL_HISTORY_KEY = "suzy-professional-journal-history-v1";
 const $ = id => document.getElementById(id);
-let entries = loadEntries();
-let activeGroup = "setup";
 
-function loadEntries() {
+let entries = loadEntries();
+let trashEntries = loadTrash();
+let versionHistory = loadHistory();
+let activeGroup = "setup";
+let editingEntryId = null;
+let selectedHistoryEntryId = null;
+
+function loadJson(key, fallback) {
   try {
-    const parsed = JSON.parse(localStorage.getItem(JOURNAL_STORAGE_KEY));
-    return Array.isArray(parsed) ? parsed.map(SuzyJournalCore.normalizeJournalEntry).filter(Boolean) : [];
+    const parsed = JSON.parse(localStorage.getItem(key));
+    return parsed ?? fallback;
   } catch (error) {
-    console.warn("Não foi possível restaurar o diário.", error);
-    return [];
+    console.warn(`Não foi possível restaurar ${key}.`, error);
+    return fallback;
   }
 }
 
-function saveEntries() {
+function loadEntries() {
+  const parsed = loadJson(JOURNAL_STORAGE_KEY, []);
+  return Array.isArray(parsed) ? parsed.map(SuzyJournalCore.normalizeJournalEntry).filter(Boolean) : [];
+}
+
+function loadTrash() {
+  const parsed = loadJson(JOURNAL_TRASH_KEY, []);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.map(candidate => {
+    const normalized = SuzyJournalCore.normalizeJournalEntry(candidate);
+    const deletedAt = SuzyJournalLifecycleCore.validIso(candidate?.deletedAt);
+    return normalized && deletedAt ? { ...normalized, deletedAt } : null;
+  }).filter(Boolean);
+}
+
+function loadHistory() {
+  return SuzyJournalLifecycleCore.normalizeHistoryMap(loadJson(JOURNAL_HISTORY_KEY, {}));
+}
+
+function saveState() {
   localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(entries));
+  localStorage.setItem(JOURNAL_TRASH_KEY, JSON.stringify(trashEntries));
+  localStorage.setItem(JOURNAL_HISTORY_KEY, JSON.stringify(versionHistory));
+}
+
+function notifyMutation() {
+  document.dispatchEvent(new CustomEvent("journal:mutated"));
 }
 
 function localInputValue(date = new Date()) {
   const pad = value => String(value).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function isoToLocalInput(value) {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? localInputValue(date) : localInputValue();
 }
 
 function escapeHtml(value) {
@@ -69,8 +106,10 @@ function render() {
   renderBreakdown(sample);
   renderHistory(sample);
   renderErrors(sample);
+  renderTrash();
+  renderVersionHistory();
   drawEquityCurve(sample);
-  saveEntries();
+  saveState();
 }
 
 function renderFilterOptions() {
@@ -119,13 +158,15 @@ function renderHistory(sample) {
         <td class="${entry.rMultiple > 0 ? "green" : entry.rMultiple < 0 ? "red" : ""}">${signedR(entry.rMultiple)}</td>
         <td>${entry.followedPlan ? "SIM" : "NÃO"}</td>
         <td>${entry.quality}/5</td>
-        <td><button class="delete-entry" data-delete="${escapeHtml(entry.id)}" type="button">Excluir</button></td>
+        <td>
+          <div class="row-actions">
+            <button data-edit="${escapeHtml(entry.id)}" type="button">Editar</button>
+            <button data-versions="${escapeHtml(entry.id)}" type="button">Versões</button>
+            <button class="danger-action" data-delete="${escapeHtml(entry.id)}" type="button">Lixeira</button>
+          </div>
+        </td>
       </tr>`).join("")
     : '<tr><td colspan="10" class="empty-row">Nenhuma operação registrada.</td></tr>';
-
-  document.querySelectorAll("[data-delete]").forEach(button => {
-    button.addEventListener("click", () => deleteEntry(button.dataset.delete));
-  });
 }
 
 function renderErrors(sample) {
@@ -133,6 +174,53 @@ function renderErrors(sample) {
   $("processErrors").innerHTML = errors.length
     ? errors.map(error => `<li><strong>${escapeHtml(error.name)}</strong> — ${error.total} ocorrência${error.total === 1 ? "" : "s"}</li>`).join("")
     : "<li>Nenhum erro registrado.</li>";
+}
+
+function renderTrash() {
+  $("trashCount").textContent = trashEntries.length;
+  $("emptyTrash").disabled = trashEntries.length === 0;
+  const rows = [...trashEntries].sort((left, right) => new Date(right.deletedAt) - new Date(left.deletedAt));
+  $("trashBody").innerHTML = rows.length
+    ? rows.map(entry => `
+      <tr>
+        <td>${new Date(entry.deletedAt).toLocaleString("pt-BR")}</td>
+        <td>${new Date(entry.timestamp).toLocaleString("pt-BR")}</td>
+        <td>${escapeHtml(entry.asset)}</td>
+        <td>${escapeHtml(entry.setup)}</td>
+        <td class="${entry.rMultiple > 0 ? "green" : entry.rMultiple < 0 ? "red" : ""}">${signedR(entry.rMultiple)}</td>
+        <td>
+          <div class="row-actions">
+            <button data-restore-trash="${escapeHtml(entry.id)}" type="button">Restaurar</button>
+            <button class="danger-action" data-purge="${escapeHtml(entry.id)}" type="button">Excluir definitivamente</button>
+          </div>
+        </td>
+      </tr>`).join("")
+    : '<tr><td colspan="6" class="empty-row">A lixeira está vazia.</td></tr>';
+}
+
+function renderVersionHistory() {
+  const entry = entries.find(candidate => candidate.id === selectedHistoryEntryId)
+    || trashEntries.find(candidate => candidate.id === selectedHistoryEntryId);
+  const revisions = entry ? (versionHistory[entry.id] || []) : [];
+
+  $("versionEntryTitle").textContent = entry
+    ? `${entry.asset} • ${entry.setup}`
+    : "Selecione “Versões” em uma operação";
+  $("versionCount").textContent = revisions.length;
+
+  $("versionBody").innerHTML = revisions.length
+    ? [...revisions].reverse().map(revision => `
+      <tr>
+        <td>${new Date(revision.savedAt).toLocaleString("pt-BR")}</td>
+        <td>${escapeHtml(revision.reason)}</td>
+        <td>${escapeHtml(revision.entry.asset)}</td>
+        <td>${escapeHtml(revision.entry.setup)}</td>
+        <td>${signedR(revision.entry.rMultiple)}</td>
+        <td>${entries.some(candidate => candidate.id === entry.id)
+          ? `<button data-restore-version="${escapeHtml(revision.id)}" type="button">Restaurar esta versão</button>`
+          : "Restaure o item da lixeira primeiro"}</td>
+      </tr>`).join("")
+    : '<tr><td colspan="6" class="empty-row">Nenhuma versão anterior registrada.</td></tr>';
 }
 
 function drawEquityCurve(sample) {
@@ -212,10 +300,9 @@ function drawEquityCurve(sample) {
   });
 }
 
-function submitEntry(event) {
-  event.preventDefault();
-  const normalized = SuzyJournalCore.normalizeJournalEntry({
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+function entryFromForm(existingEntry) {
+  return SuzyJournalCore.normalizeJournalEntry({
+    id: existingEntry?.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
     timestamp: $("entryTimestamp").value,
     asset: $("entryAsset").value,
     market: $("entryMarket").value,
@@ -230,18 +317,34 @@ function submitEntry(event) {
     emotionAfter: $("entryEmotionAfter").value,
     errorType: $("entryError").value,
     context: $("entryContext").value,
-    lesson: $("entryLesson").value
+    lesson: $("entryLesson").value,
+    createdAt: existingEntry?.createdAt
   });
+}
+
+function submitEntry(event) {
+  event.preventDefault();
+  const current = editingEntryId ? entries.find(entry => entry.id === editingEntryId) : null;
+  const normalized = entryFromForm(current);
 
   if (!normalized) {
     setFeedback("Preencha data, ativo, setup e resultado em R corretamente.", "error");
     return;
   }
 
-  entries.push(normalized);
-  setFeedback("Operação registrada. Revise a amostra, não apenas o resultado isolado.", "success");
+  if (current) {
+    versionHistory = SuzyJournalLifecycleCore.appendRevision(versionHistory, current, "Antes da edição");
+    entries = entries.map(entry => entry.id === current.id ? normalized : entry);
+    selectedHistoryEntryId = current.id;
+    setFeedback("Registro atualizado. A versão anterior foi preservada.", "success");
+  } else {
+    entries.push(normalized);
+    setFeedback("Operação registrada. Revise a amostra, não apenas o resultado isolado.", "success");
+  }
+
   clearEntryForm(false);
   render();
+  notifyMutation();
 }
 
 function setFeedback(text, type = "") {
@@ -250,18 +353,108 @@ function setFeedback(text, type = "") {
 }
 
 function clearEntryForm(clearFeedback = true) {
+  editingEntryId = null;
   $("journalForm").reset();
   $("entryTimestamp").value = localInputValue();
   $("entryR").value = "0";
   $("entryQuality").value = "3";
   $("entryFollowedPlan").checked = true;
+  $("submitEntryButton").textContent = "SALVAR REGISTRO";
+  $("formMode").textContent = "NOVO REGISTRO";
+  $("cancelEdit").hidden = true;
   if (clearFeedback) setFeedback("");
 }
 
-function deleteEntry(id) {
-  if (!confirm("Excluir este registro do diário?")) return;
-  entries = entries.filter(entry => entry.id !== id);
+function editEntry(id) {
+  const entry = entries.find(candidate => candidate.id === id);
+  if (!entry) return;
+  editingEntryId = id;
+  selectedHistoryEntryId = id;
+  $("entryTimestamp").value = isoToLocalInput(entry.timestamp);
+  $("entryAsset").value = entry.asset;
+  $("entryMarket").value = entry.market;
+  $("entrySession").value = entry.session;
+  $("entryTimeframe").value = entry.timeframe;
+  $("entryDirection").value = entry.direction;
+  $("entrySetup").value = entry.setup;
+  $("entryR").value = entry.rMultiple;
+  $("entryQuality").value = String(entry.quality);
+  $("entryError").value = entry.errorType;
+  $("entryEmotionBefore").value = entry.emotionBefore === "Não informada" ? "" : entry.emotionBefore;
+  $("entryEmotionAfter").value = entry.emotionAfter === "Não informada" ? "" : entry.emotionAfter;
+  $("entryFollowedPlan").checked = entry.followedPlan;
+  $("entryContext").value = entry.context;
+  $("entryLesson").value = entry.lesson;
+  $("submitEntryButton").textContent = "SALVAR ALTERAÇÕES";
+  $("formMode").textContent = "EDITANDO REGISTRO";
+  $("cancelEdit").hidden = false;
+  setFeedback("Edite os campos e salve. A versão atual será mantida no histórico.", "");
+  $("journalForm").scrollIntoView({ behavior: "smooth", block: "start" });
+  renderVersionHistory();
+}
+
+function moveEntryToTrash(id) {
+  const entry = entries.find(candidate => candidate.id === id);
+  if (!entry || !confirm(`Mover ${entry.asset} — ${entry.setup} para a lixeira?`)) return;
+  const result = SuzyJournalLifecycleCore.moveToTrash(entries, trashEntries, id);
+  entries = result.entries;
+  trashEntries = result.trash;
+  if (editingEntryId === id) clearEntryForm();
+  selectedHistoryEntryId = id;
   render();
+  notifyMutation();
+}
+
+function restoreTrashEntry(id) {
+  const replacementId = crypto.randomUUID ? crypto.randomUUID() : `${id}-restored-${Date.now()}`;
+  const result = SuzyJournalLifecycleCore.restoreFromTrash(entries, trashEntries, id, replacementId);
+  if (!result.restored) return;
+  const normalized = SuzyJournalCore.normalizeJournalEntry(result.restored);
+  if (!normalized) return;
+  entries = [...result.entries.filter(entry => entry.id !== result.restored.id), normalized];
+  trashEntries = result.trash;
+  if (result.restored.id !== id && versionHistory[id]) {
+    versionHistory[result.restored.id] = versionHistory[id];
+    delete versionHistory[id];
+  }
+  selectedHistoryEntryId = normalized.id;
+  render();
+  notifyMutation();
+}
+
+function purgeTrashEntry(id) {
+  const entry = trashEntries.find(candidate => candidate.id === id);
+  if (!entry || !confirm(`Excluir definitivamente ${entry.asset} — ${entry.setup}? Esta ação não pode ser desfeita.`)) return;
+  trashEntries = SuzyJournalLifecycleCore.permanentlyDelete(trashEntries, id);
+  delete versionHistory[id];
+  if (selectedHistoryEntryId === id) selectedHistoryEntryId = null;
+  render();
+}
+
+function emptyTrash() {
+  if (!trashEntries.length || !confirm(`Excluir definitivamente ${trashEntries.length} item(ns) da lixeira?`)) return;
+  for (const entry of trashEntries) delete versionHistory[entry.id];
+  trashEntries = [];
+  selectedHistoryEntryId = null;
+  render();
+}
+
+function restoreVersion(revisionId) {
+  const current = entries.find(entry => entry.id === selectedHistoryEntryId);
+  const revision = current && (versionHistory[current.id] || []).find(item => item.id === revisionId);
+  if (!current || !revision) return;
+  if (!confirm(`Restaurar a versão de ${new Date(revision.savedAt).toLocaleString("pt-BR")}? A versão atual também será preservada.`)) return;
+
+  versionHistory = SuzyJournalLifecycleCore.appendRevision(versionHistory, current, "Antes da restauração");
+  const restored = SuzyJournalCore.normalizeJournalEntry({
+    ...revision.entry,
+    id: current.id,
+    createdAt: current.createdAt
+  });
+  if (!restored) return;
+  entries = entries.map(entry => entry.id === current.id ? restored : entry);
+  render();
+  notifyMutation();
 }
 
 function resetFilters() {
@@ -278,8 +471,14 @@ function exportCsv() {
 }
 
 function exportJson() {
-  if (!entries.length) return alert("Nenhum registro disponível para backup.");
-  downloadBlob(JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), entries }, null, 2), `suzy-diario-backup-${new Date().toISOString().slice(0, 10)}.json`, "application/json");
+  if (!entries.length && !trashEntries.length) return alert("Nenhum registro disponível para backup.");
+  downloadBlob(JSON.stringify({
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    entries,
+    trash: trashEntries,
+    history: versionHistory
+  }, null, 2), `suzy-diario-backup-${new Date().toISOString().slice(0, 10)}.json`, "application/json");
 }
 
 function downloadBlob(content, filename, type) {
@@ -292,21 +491,60 @@ function downloadBlob(content, filename, type) {
 }
 
 function clearJournal() {
-  if (!entries.length || !confirm("Apagar definitivamente todos os registros deste navegador?")) return;
-  entries = [];
+  if (!entries.length || !confirm(`Mover ${entries.length} registro(s) para a lixeira?`)) return;
+  for (const entry of [...entries]) {
+    const result = SuzyJournalLifecycleCore.moveToTrash(entries, trashEntries, entry.id);
+    entries = result.entries;
+    trashEntries = result.trash;
+  }
+  clearEntryForm();
   render();
+  notifyMutation();
 }
 
 $("journalForm").addEventListener("submit", submitEntry);
 $("clearForm").addEventListener("click", () => clearEntryForm());
+$("cancelEdit").addEventListener("click", () => clearEntryForm());
 $("resetFilters").addEventListener("click", resetFilters);
 $("exportCsv").addEventListener("click", exportCsv);
 $("exportJson").addEventListener("click", exportJson);
 $("clearJournal").addEventListener("click", clearJournal);
+$("emptyTrash").addEventListener("click", emptyTrash);
+
+$("historyBody").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  const versionsButton = event.target.closest("[data-versions]");
+  const deleteButton = event.target.closest("[data-delete]");
+  if (editButton) editEntry(editButton.dataset.edit);
+  if (versionsButton) {
+    selectedHistoryEntryId = versionsButton.dataset.versions;
+    renderVersionHistory();
+    $("versionsCard").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (deleteButton) moveEntryToTrash(deleteButton.dataset.delete);
+});
+
+$("trashBody").addEventListener("click", event => {
+  const restoreButton = event.target.closest("[data-restore-trash]");
+  const purgeButton = event.target.closest("[data-purge]");
+  if (restoreButton) restoreTrashEntry(restoreButton.dataset.restoreTrash);
+  if (purgeButton) purgeTrashEntry(purgeButton.dataset.purge);
+});
+
+$("versionBody").addEventListener("click", event => {
+  const restoreButton = event.target.closest("[data-restore-version]");
+  if (restoreButton) restoreVersion(restoreButton.dataset.restoreVersion);
+});
+
 ["filterFrom", "filterTo", "filterAsset", "filterSetup", "filterSession", "filterResult"].forEach(id => $(id).addEventListener("change", render));
 document.querySelectorAll("[data-group]").forEach(button => button.addEventListener("click", () => {
   activeGroup = button.dataset.group;
-  document.querySelectorAll("[data-group]").forEach(item => item.classList.toggle("active", item === button));
+  document.querySelectorAll("[data-group]").forEach(item => {
+    const active = item === button;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-selected", String(active));
+    item.tabIndex = active ? 0 : -1;
+  });
   renderBreakdown(filteredEntries());
 }));
 window.addEventListener("resize", () => drawEquityCurve(filteredEntries()));

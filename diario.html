@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Diário profissional da Academia Suzy para registrar operações, processo, emoções e estatísticas avançadas." />
+  <meta name="description" content="Diário profissional da Academia Suzy para registrar operações, processo, emoções, versões e estatísticas avançadas." />
   <title>Academia Suzy — Diário Profissional</title>
   <link rel="stylesheet" href="css/diario.css" />
   <link rel="stylesheet" href="css/diario-sync.css" />
@@ -45,6 +45,12 @@
         </ul>
       </section>
 
+      <section class="sidebar-card lifecycle-note">
+        <span>VERSÕES E LIXEIRA</span>
+        <p>Edições preservam até 20 versões anteriores por operação. Itens excluídos podem ser restaurados antes da exclusão definitiva.</p>
+        <small>O SQLite sincroniza os registros ativos. Versões e lixeira permanecem neste navegador e entram no backup JSON.</small>
+      </section>
+
       <div class="sidebar-links">
         <a href="academia.html">← Academia Nível 1</a>
         <a href="academia-nivel2.html">Academia Nível 2</a>
@@ -59,7 +65,7 @@
         <div>
           <span class="eyebrow">REVISÃO BASEADA EM DADOS</span>
           <h1>Diário Profissional do Trader</h1>
-          <p>Registre o processo, filtre a amostra e identifique o que realmente contribui para consistência.</p>
+          <p>Registre o processo, filtre a amostra, revise alterações e identifique o que realmente contribui para consistência.</p>
         </div>
         <div id="storageNotice" class="local-warning"><strong id="storageNoticeTitle">ARMAZENAMENTO LOCAL</strong><span id="storageNoticeText">Os registros permanecem neste navegador. Faça exportações periódicas.</span></div>
       </header>
@@ -76,7 +82,7 @@
       <div class="journal-grid">
         <section class="entry-card">
           <div class="card-head">
-            <div><span class="eyebrow">NOVO REGISTRO</span><h2>Documentar operação</h2></div>
+            <div><span id="formMode" class="eyebrow">NOVO REGISTRO</span><h2>Documentar operação</h2></div>
             <button id="clearForm" type="button">Limpar</button>
           </div>
 
@@ -100,7 +106,10 @@
             <label>Contexto e justificativa<textarea id="entryContext" maxlength="600" placeholder="Estrutura, região, gatilho, invalidação e cenário macro."></textarea></label>
             <label>Lição e próxima correção<textarea id="entryLesson" maxlength="600" placeholder="O que repetir, eliminar ou testar na próxima amostra."></textarea></label>
 
-            <button class="primary" type="submit">SALVAR REGISTRO</button>
+            <div class="form-actions">
+              <button id="submitEntryButton" class="primary" type="submit">SALVAR REGISTRO</button>
+              <button id="cancelEdit" class="secondary-action" type="button" hidden>Cancelar edição</button>
+            </div>
             <p id="formFeedback" class="feedback" aria-live="polite"></p>
           </form>
         </section>
@@ -151,13 +160,41 @@
 
       <section class="history-card">
         <div class="card-head">
-          <div><span class="eyebrow">HISTÓRICO</span><h2>Operações registradas</h2></div>
-          <div class="history-actions"><button id="exportCsv" type="button">Exportar CSV</button><button id="exportJson" type="button">Backup JSON</button><button id="clearJournal" class="danger" type="button">Apagar diário</button></div>
+          <div><span class="eyebrow">HISTÓRICO ATIVO</span><h2>Operações registradas</h2></div>
+          <div class="history-actions"><button id="exportCsv" type="button">Exportar CSV</button><button id="exportJson" type="button">Backup JSON completo</button><button id="clearJournal" class="danger" type="button">Mover tudo para lixeira</button></div>
         </div>
         <div class="table-wrap history-table">
           <table>
-            <thead><tr><th>Data</th><th>Ativo</th><th>Setup</th><th>Sessão</th><th>Direção</th><th>Resultado</th><th>R</th><th>Plano</th><th>Qualidade</th><th>Ação</th></tr></thead>
+            <thead><tr><th>Data</th><th>Ativo</th><th>Setup</th><th>Sessão</th><th>Direção</th><th>Resultado</th><th>R</th><th>Plano</th><th>Qualidade</th><th>Ações</th></tr></thead>
             <tbody id="historyBody"><tr><td colspan="10" class="empty-row">Nenhuma operação registrada.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="versionsCard" class="versions-card">
+        <div class="card-head">
+          <div><span class="eyebrow">HISTÓRICO DE VERSÕES</span><h2 id="versionEntryTitle">Selecione “Versões” em uma operação</h2></div>
+          <span class="counter-badge"><strong id="versionCount">0</strong> versões</span>
+        </div>
+        <p class="section-note">Cada edição ou restauração preserva a versão anterior. O limite é de 20 versões por operação.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Salva em</th><th>Motivo</th><th>Ativo</th><th>Setup</th><th>R</th><th>Ação</th></tr></thead>
+            <tbody id="versionBody"><tr><td colspan="6" class="empty-row">Nenhuma versão anterior registrada.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="trash-card">
+        <div class="card-head">
+          <div><span class="eyebrow">LIXEIRA</span><h2>Registros removidos</h2></div>
+          <div class="trash-head-actions"><span class="counter-badge"><strong id="trashCount">0</strong> itens</span><button id="emptyTrash" class="danger" type="button" disabled>Esvaziar lixeira</button></div>
+        </div>
+        <p class="section-note">Itens na lixeira não participam das métricas. Restaure-os ou exclua-os definitivamente.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Excluído em</th><th>Data da operação</th><th>Ativo</th><th>Setup</th><th>R</th><th>Ações</th></tr></thead>
+            <tbody id="trashBody"><tr><td colspan="6" class="empty-row">A lixeira está vazia.</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -166,6 +203,7 @@
 
   <script src="js/core.js"></script>
   <script src="js/journal-core.js"></script>
+  <script src="js/journal-lifecycle-core.js"></script>
   <script src="js/journal-sync-core.js"></script>
   <script src="js/diario.js"></script>
   <script src="js/diario-sync.js"></script>

@@ -55,35 +55,35 @@
     if (!syncState.available) {
       byId("storageModeBadge").textContent = "PROCESSO • SOMENTE NAVEGADOR";
       setStatus("Somente neste navegador", "Inicie o modo local seguro para ativar o SQLite.", "warning");
-      setStorageNotice("ARMAZENAMENTO LOCAL", "Os registros permanecem neste navegador. O GitHub Pages não executa o backend.");
+      setStorageNotice("ARMAZENAMENTO LOCAL", "Registros, versões e lixeira permanecem neste navegador. O GitHub Pages não executa o backend.");
       return;
     }
 
     if (!syncState.authenticated) {
       byId("storageModeBadge").textContent = "PROCESSO • LOGIN NECESSÁRIO";
       setStatus("Conta local desconectada", "Entre na conta para sincronizar diretamente com o SQLite.", "warning");
-      setStorageNotice("SERVIDOR LOCAL ATIVO", "O SQLite está disponível, mas a conta ainda não foi autenticada.", "conflict");
+      setStorageNotice("SERVIDOR LOCAL ATIVO", "O SQLite está disponível para os registros ativos; versões e lixeira continuam locais.", "conflict");
       return;
     }
 
     byId("storageModeBadge").textContent = `PROCESSO • SQLITE • ${syncState.username}`;
     const comparison = snapshotsState();
     if (syncState.automatic && ["equal", "empty"].includes(comparison)) {
-      setStatus("Sincronização automática ativa", `${entries.length} registro${entries.length === 1 ? "" : "s"} protegido${entries.length === 1 ? "" : "s"} no navegador e no SQLite.`, "success");
-      setStorageNotice("SQLITE SINCRONIZADO", "Novos registros, exclusões e limpezas serão persistidos automaticamente.", "sqlite");
+      setStatus("Sincronização automática ativa", `${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} protegido${entries.length === 1 ? "" : "s"} no navegador e no SQLite.`, "success");
+      setStorageNotice("SQLITE SINCRONIZADO", "Registros ativos são sincronizados. Versões e lixeira entram no backup JSON local.", "sqlite");
       return;
     }
 
     if (comparison === "local-only") {
-      setStatus("Dados aguardando envio", "Este navegador possui registros e o SQLite está vazio.", "warning");
+      setStatus("Dados aguardando envio", "Este navegador possui registros ativos e o SQLite está vazio.", "warning");
     } else if (comparison === "remote-only") {
-      setStatus("Backup disponível no SQLite", "Use “Restaurar do SQLite” para recuperar os registros neste navegador.", "warning");
+      setStatus("Backup disponível no SQLite", "Use “Restaurar do SQLite” para recuperar os registros ativos neste navegador.", "warning");
     } else if (comparison === "diverged") {
-      setStatus("Versões diferentes detectadas", "Escolha explicitamente qual versão deve prevalecer antes de ativar a sincronização automática.", "warning");
+      setStatus("Versões diferentes detectadas", "Escolha explicitamente qual conjunto de registros ativos deve prevalecer.", "warning");
     } else {
       setStatus("Pronto para sincronizar", "Escolha salvar no SQLite ou restaurar a cópia persistida.", "warning");
     }
-    setStorageNotice("REVISÃO NECESSÁRIA", "Nenhum dado foi substituído automaticamente. Escolha a direção da restauração.", "conflict");
+    setStorageNotice("REVISÃO NECESSÁRIA", "Nenhum registro ativo foi substituído automaticamente. Versões e lixeira permanecem locais.", "conflict");
   }
 
   async function requestJson(path, options = {}) {
@@ -162,7 +162,7 @@
     });
     syncState.remoteEntries = SuzyJournalSyncCore.cloneJournal(entries);
     syncState.automatic = true;
-    setFeedback(`${payload.total} registro${payload.total === 1 ? "" : "s"} salvo${payload.total === 1 ? "" : "s"} no SQLite.`, "success");
+    setFeedback(`${payload.total} registro${payload.total === 1 ? "" : "s"} ativo${payload.total === 1 ? "" : "s"} salvo${payload.total === 1 ? "" : "s"} no SQLite.`, "success");
     renderSyncUi();
   }
 
@@ -198,7 +198,7 @@
     const freshRemote = await fetchRemoteJournal();
     const different = SuzyJournalSyncCore.fingerprintJournal(freshRemote) !== localFingerprint();
     if (freshRemote.length && different) {
-      const confirmed = confirm(`O SQLite possui ${freshRemote.length} registro${freshRemote.length === 1 ? "" : "s"} diferente${freshRemote.length === 1 ? "" : "s"}. Substituir pela versão deste navegador?`);
+      const confirmed = confirm(`O SQLite possui ${freshRemote.length} registro${freshRemote.length === 1 ? "" : "s"} ativo${freshRemote.length === 1 ? "" : "s"} diferente${freshRemote.length === 1 ? "" : "s"}. Substituir pela versão deste navegador?`);
       if (!confirmed) {
         setFeedback("Envio cancelado. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
@@ -213,7 +213,7 @@
     const remote = await fetchRemoteJournal();
     const different = remoteFingerprint() !== localFingerprint();
     if (entries.length && different) {
-      const confirmed = confirm(`A restauração substituirá ${entries.length} registro${entries.length === 1 ? "" : "s"} deste navegador pela cópia do SQLite. Continuar?`);
+      const confirmed = confirm(`A restauração substituirá ${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} deste navegador pela cópia do SQLite. A lixeira e o histórico local não serão apagados. Continuar?`);
       if (!confirmed) {
         setFeedback("Restauração cancelada. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
@@ -225,7 +225,7 @@
     render();
     syncState.remoteEntries = SuzyJournalSyncCore.cloneJournal(entries);
     syncState.automatic = true;
-    setFeedback(`${entries.length} registro${entries.length === 1 ? "" : "s"} restaurado${entries.length === 1 ? "" : "s"} do SQLite.`, "success");
+    setFeedback(`${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} restaurado${entries.length === 1 ? "" : "s"} do SQLite.`, "success");
     renderSyncUi();
   }
 
@@ -248,7 +248,7 @@
     setTimeout(() => {
       if (!syncState.authenticated) return;
       if (!syncState.automatic) {
-        setFeedback("Alteração salva somente no navegador até você escolher a direção da sincronização.", "warning");
+        setFeedback("Alteração nos registros ativos salva somente no navegador até você escolher a direção da sincronização.", "warning");
         renderSyncUi();
         return;
       }
@@ -259,11 +259,7 @@
 
   byId("syncToServer").addEventListener("click", () => enqueue(() => runBusy(saveToSqlite)));
   byId("restoreFromServer").addEventListener("click", () => enqueue(() => runBusy(restoreFromSqlite)));
-  byId("journalForm").addEventListener("submit", synchronizeMutation);
-  byId("historyBody").addEventListener("click", event => {
-    if (event.target.closest("[data-delete]")) synchronizeMutation();
-  });
-  byId("clearJournal").addEventListener("click", synchronizeMutation);
+  document.addEventListener("journal:mutated", synchronizeMutation);
 
   detectBackend();
 })();
