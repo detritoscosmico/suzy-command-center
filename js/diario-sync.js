@@ -145,7 +145,7 @@
         const comparison = snapshotsState();
         syncState.automatic = comparison === "equal" || comparison === "empty";
       }
-    } catch (error) {
+    } catch {
       syncState.available = false;
       syncState.authenticated = false;
       syncState.csrfToken = null;
@@ -172,7 +172,7 @@
   }
 
   async function saveToSqlite() {
-    if (!syncState.authenticated || syncState.busy) return;
+    if (!syncState.authenticated) return;
     const freshRemote = await fetchRemoteJournal();
     const different = SuzyJournalSyncCore.fingerprintJournal(freshRemote) !== localFingerprint();
     if (freshRemote.length && different) {
@@ -186,7 +186,7 @@
   }
 
   async function restoreFromSqlite() {
-    if (!syncState.authenticated || syncState.busy) return;
+    if (!syncState.authenticated) return;
     const remote = await fetchRemoteJournal();
     const different = remoteFingerprint() !== localFingerprint();
     if (entries.length && different) {
