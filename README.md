@@ -34,7 +34,7 @@ O terminal informa um endereço semelhante a:
 http://127.0.0.1:8787
 ```
 
-Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e use o painel para persistir backups do diário no banco local.
+Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e depois use `http://127.0.0.1:8787/diario.html` para sincronizar o histórico diretamente com o SQLite.
 
 O banco padrão fica em:
 
@@ -42,7 +42,7 @@ O banco padrão fica em:
 data/suzy-local.sqlite3
 ```
 
-A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md`.
+A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md` e `docs/sincronizacao-direta-diario.md`.
 
 ## Módulos de formação
 
@@ -108,9 +108,13 @@ Arquivo: `diario.html`
 - desempenho por setup, ativo, sessão e timeframe;
 - filtros por período e resultado;
 - ranking de erros recorrentes;
-- exportação CSV e backup JSON.
+- exportação CSV e backup JSON;
+- detecção automática do backend local;
+- envio e restauração direta do SQLite;
+- confirmação explícita quando as cópias divergem;
+- sincronização automática após o alinhamento inicial.
 
-A metodologia está documentada em `docs/diario-profissional.md`.
+A metodologia está documentada em `docs/diario-profissional.md`. A persistência direta está documentada em `docs/sincronizacao-direta-diario.md`.
 
 ### Conta local protegida
 
@@ -121,7 +125,7 @@ No modo local seguro, essa página oferece:
 - criação da primeira conta;
 - login e logout;
 - sessão com cookie HttpOnly;
-- importação do backup JSON do diário;
+- importação manual de backup JSON como recurso adicional;
 - exportação do histórico persistido;
 - remoção confirmada do histórico remoto;
 - indicador da quantidade de registros no SQLite.
@@ -136,7 +140,8 @@ No modo local seguro, essa página oferece:
 - limitação de tentativas de login;
 - validação de payload e limites de tamanho;
 - cabeçalhos CSP, antiframe e `nosniff`;
-- proteção contra leitura de arquivos fora da raiz do projeto.
+- proteção contra leitura de arquivos fora da raiz do projeto;
+- conflitos entre navegador e SQLite não são sobrescritos silenciosamente.
 
 ## Recursos atuais
 
@@ -145,7 +150,8 @@ No modo local seguro, essa página oferece:
 - simulador de ordens com custos operacionais;
 - diário profissional com estatísticas avançadas;
 - autenticação individual no modo local;
-- persistência do histórico em SQLite por backup JSON;
+- sincronização direta do diário com SQLite;
+- restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local;
 - scanner demonstrativo e gráfico de velas artificiais;
 - registro manual de WIN e LOSS;
@@ -171,6 +177,7 @@ suzy-command-center/
 ├── playwright.config.js
 ├── assets/
 ├── css/
+│   ├── diario-sync.css
 │   └── login.css
 ├── dados/
 ├── docs/
@@ -178,8 +185,11 @@ suzy-command-center/
 │   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
 │   ├── simulador-custos-operacionais.md
+│   ├── sincronizacao-direta-diario.md
 │   └── testes-integracao-interface.md
 ├── js/
+│   ├── diario-sync.js
+│   ├── journal-sync-core.js
 │   └── login.js
 ├── server/
 │   ├── database.js
@@ -188,6 +198,7 @@ suzy-command-center/
 │   └── validation.js
 ├── test/
 │   ├── e2e/
+│   ├── journal-sync.test.js
 │   ├── server-api.test.js
 │   ├── server-security.test.js
 │   └── demais testes unitários
@@ -231,7 +242,8 @@ npm run test:e2e:report
 ## Limitações atuais
 
 - o GitHub Pages não executa o backend local;
-- a transferência entre o Diário Profissional e o SQLite ainda é manual por backup JSON;
+- o servidor local precisa permanecer ligado para usar o SQLite;
+- não existe sincronização pela internet ou entre computadores;
 - não existe recuperação de senha;
 - o banco local não é criptografado em repouso;
 - não há feed real de preços ou calendário econômico oficial;
@@ -243,10 +255,10 @@ npm run test:e2e:report
 
 ## Próximas etapas recomendadas
 
-1. Integrar sincronização e restauração diretamente ao Diário Profissional.
-2. Criar recuperação e alteração segura de senha local.
-3. Implementar calendário econômico por fonte autorizada.
-4. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
+1. Criar alteração e recuperação segura de senha local.
+2. Implementar calendário econômico por fonte autorizada.
+3. Ampliar testes para Firefox, WebKit e acessibilidade automatizada.
+4. Adicionar histórico de versões e lixeira ao diário.
 
 ## Aviso
 
