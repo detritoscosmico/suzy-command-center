@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Conta local protegida do Suzy Command Center para persistência do diário profissional." />
+  <title>Suzy Command Center — Conta Local</title>
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body>
+  <main class="auth-shell">
+    <section class="auth-brand">
+      <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+      <div>
+        <span>SUZY COMMAND CENTER</span>
+        <h1>Conta local protegida</h1>
+        <p>Autenticação e persistência em SQLite para o diário profissional. O servidor funciona somente no seu computador.</p>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div id="serverNotice" class="server-notice" aria-live="polite">Verificando o servidor local...</div>
+
+      <form id="setupForm" hidden>
+        <span class="eyebrow">PRIMEIRO ACESSO</span>
+        <h2>Criar conta local</h2>
+        <p>Esta etapa aparece apenas enquanto o banco ainda não possui usuário.</p>
+        <label>Usuário
+          <input id="setupUsername" autocomplete="username" minlength="3" maxlength="32" required placeholder="danilo" />
+        </label>
+        <label>Senha
+          <input id="setupPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required placeholder="Mínimo de 12 caracteres" />
+        </label>
+        <label>Confirmar senha
+          <input id="setupPasswordConfirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+        </label>
+        <button type="submit">CRIAR CONTA LOCAL</button>
+      </form>
+
+      <form id="loginForm" hidden>
+        <span class="eyebrow">ACESSO LOCAL</span>
+        <h2>Entrar</h2>
+        <label>Usuário
+          <input id="loginUsername" autocomplete="username" maxlength="32" required />
+        </label>
+        <label>Senha
+          <input id="loginPassword" type="password" autocomplete="current-password" maxlength="128" required />
+        </label>
+        <button type="submit">ENTRAR</button>
+      </form>
+
+      <section id="sessionPanel" class="session-panel" hidden>
+        <span class="eyebrow">SESSÃO ATIVA</span>
+        <h2>Conta conectada</h2>
+        <p>Usuário: <strong id="sessionUsername">—</strong></p>
+        <p class="session-note">O cookie de sessão é HttpOnly, expira automaticamente e não fica acessível ao JavaScript.</p>
+        <div class="session-actions">
+          <a href="diario.html">ABRIR DIÁRIO PROFISSIONAL</a>
+          <a href="index.html">ABRIR COMMAND CENTER</a>
+          <button id="logoutButton" type="button">SAIR</button>
+        </div>
+
+        <div class="storage-panel">
+          <span class="eyebrow">HISTÓRICO PERSISTENTE</span>
+          <h3>Backup do diário no SQLite</h3>
+          <p>Registros armazenados: <strong id="remoteJournalCount">0</strong></p>
+          <label class="file-label">Selecionar backup JSON do diário
+            <input id="backupFile" type="file" accept="application/json,.json" />
+          </label>
+          <div class="storage-actions">
+            <button id="uploadBackup" type="button">IMPORTAR PARA O BANCO</button>
+            <button id="downloadBackup" type="button">BAIXAR DO BANCO</button>
+            <button id="clearRemoteJournal" class="danger" type="button">LIMPAR HISTÓRICO REMOTO</button>
+          </div>
+          <p class="storage-note">Nesta fase, a transferência é manual por backup JSON. A sincronização automática dentro do diário será a etapa seguinte.</p>
+        </div>
+      </section>
+
+      <p id="authFeedback" class="feedback" aria-live="polite"></p>
+    </section>
+
+    <section class="security-card">
+      <h2>Limites deste modo</h2>
+      <ul>
+        <li>Funciona apenas com <code>npm run serve:secure</code>.</li>
+        <li>O GitHub Pages continua sendo uma demonstração pública sem backend.</li>
+        <li>O banco fica em <code>data/suzy-local.sqlite3</code> e não é enviado ao GitHub.</li>
+        <li>A sincronização transfere o diário deste navegador para a conta local.</li>
+      </ul>
+    </section>
+  </main>
+  <script src="js/login.js"></script>
+</body>
+</html>
