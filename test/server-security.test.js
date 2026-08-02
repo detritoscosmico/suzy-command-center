@@ -2,13 +2,16 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
   constantTimeTextEqual,
+  generateRecoveryKey,
   hashPassword,
+  hashRecoveryKey,
   hashToken,
   parseCookies,
   serializeCookie,
   validatePassword,
   validateUsername,
-  verifyPassword
+  verifyPassword,
+  verifyRecoveryKey
 } = require("../server/security.js");
 
 test("valida usuário local com formato restrito", () => {
@@ -38,6 +41,19 @@ test("gera e verifica hash PBKDF2 sem armazenar senha", () => {
     passwordSalt: record.salt,
     passwordIterations: record.iterations
   }), false);
+});
+
+test("gera chave de recuperação aleatória e armazena somente hash", () => {
+  const first = generateRecoveryKey();
+  const second = generateRecoveryKey();
+  assert.match(first, /^SUZY-[A-Za-z0-9_-]{32}$/);
+  assert.notEqual(first, second);
+
+  const hash = hashRecoveryKey(first);
+  assert.equal(hash.length, 64);
+  assert.notEqual(hash, first);
+  assert.equal(verifyRecoveryKey(first, hash), true);
+  assert.equal(verifyRecoveryKey(second, hash), false);
 });
 
 test("protege token e compara CSRF em tempo constante", () => {
