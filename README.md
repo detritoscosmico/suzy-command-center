@@ -20,6 +20,7 @@ Também é possível abrir `index.html` diretamente no navegador. Nesse modo, o 
 - EUR/USD, GBP/USD, USD/JPY, BTC, ETH, XLM, SOL e outros ativos.
 - Busca, categorias, favoritos e ordenação.
 - Cotações demonstrativas com pequenas variações simuladas.
+- Scanner demo com ranking de força, popularidade e variação simulada.
 - Registro manual de WIN e LOSS.
 - Banca e resultado atualizados automaticamente.
 - Risco máximo por entrada.
