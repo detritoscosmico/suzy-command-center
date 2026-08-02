@@ -6,7 +6,8 @@ const publicPages = [
   { path: "/academia-nivel2.html", heading: "Análise técnica com contexto" },
   { path: "/replay.html", heading: "Laboratório de Replay — Nível 1" },
   { path: "/simulador.html", heading: "Simulador de Ordens e Custos" },
-  { path: "/diario.html", heading: "Diário Profissional do Trader" }
+  { path: "/diario.html", heading: "Diário Profissional do Trader" },
+  { path: "/login.html", heading: "Conta local protegida" }
 ];
 
 for (const publicPage of publicPages) {
