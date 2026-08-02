@@ -22,7 +22,7 @@
       <button class="nav" data-view="mission">◎ Centro de Missão</button>
       <button class="nav" data-view="scanner">⌕ Scanner Demo</button>
       <button class="nav" data-view="chart">▥ Velas de Estudo</button>
-      <button class="nav nav-muted" disabled>▣ Calendário — em breve</button>
+      <button class="nav" data-view="calendar">▣ Calendário Demo</button>
       <button class="nav nav-muted" disabled>✈ Telegram — em breve</button>
     </nav>
 
@@ -234,6 +234,34 @@
         <div class="canvas-shell"><canvas id="candleChart" role="img" aria-label="Gráfico demonstrativo de velas japonesas com médias móveis"></canvas></div>
         <p id="chartUpdated" class="scanner-updated" aria-live="polite"></p>
         <p class="notice scanner-warning"><strong>Modo de estudo:</strong> todas as velas são geradas artificialmente. Este gráfico não representa mercado ao vivo e não produz sinais operacionais.</p>
+      </div>
+    </section>
+
+    <section id="calendarView" class="view">
+      <div class="panel calendar-panel">
+        <div class="panel-head calendar-head">
+          <div>
+            <h3>▣ Calendário econômico — modo demo</h3>
+            <small>Agenda artificial para treinar planejamento, leitura de impacto e proteção de risco.</small>
+          </div>
+          <div class="calendar-controls">
+            <label>Dia<select id="calendarDay"><option value="TODAY">Hoje</option><option value="TOMORROW">Amanhã</option><option value="ALL">Próximos 3 dias</option></select></label>
+            <label>Moeda<select id="calendarCurrency"><option value="ALL">Todas</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="BRL">BRL</option><option value="GBP">GBP</option><option value="JPY">JPY</option></select></label>
+            <label>Impacto<select id="calendarImpact"><option value="ALL">Todos</option><option value="HIGH">Alto</option><option value="MEDIUM">Médio</option><option value="LOW">Baixo</option></select></label>
+            <button id="calendarRefresh" class="primary-btn">ATUALIZAR CENÁRIO</button>
+          </div>
+        </div>
+        <div class="calendar-summary">
+          <div><span>Eventos exibidos</span><strong id="calendarTotal">0</strong></div>
+          <div><span>Próximos</span><strong id="calendarUpcoming" class="green">0</strong></div>
+          <div><span>Impacto alto</span><strong id="calendarHigh" class="red">0</strong></div>
+          <div><span>Em andamento</span><strong id="calendarLive" class="orange">0</strong></div>
+        </div>
+        <div class="table-wrap calendar-table">
+          <table><thead><tr><th>Data</th><th>Hora local</th><th>Moeda</th><th>Evento de estudo</th><th>Impacto</th><th>Status</th></tr></thead><tbody id="calendarBody"></tbody></table>
+        </div>
+        <p id="calendarUpdated" class="scanner-updated" aria-live="polite"></p>
+        <p class="notice scanner-warning"><strong>Atenção:</strong> esta agenda é inteiramente simulada, não contém divulgações reais e não deve orientar operações. Confirme horários e dados em fontes oficiais antes de qualquer decisão financeira.</p>
       </div>
     </section>
 
