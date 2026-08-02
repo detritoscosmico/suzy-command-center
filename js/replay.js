@@ -1,7 +1,10 @@
-const REPLAY_STORAGE_KEY = "suzy-replay-lab-v1";
+const REPLAY_STORAGE_KEY = "suzy-replay-lab-v2";
+const LEGACY_REPLAY_STORAGE_KEY = "suzy-replay-lab-v1";
 const REPLAY_BASE_PRICE = 1.08742;
 const REPLAY_ASSET = "EUR/USD DEMO";
 const REPLAY_TIMEFRAME = "M5";
+const MAX_HISTORY_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_HISTORY_ROWS = 5000;
 
 const $ = id => document.getElementById(id);
 let replayState = loadReplayState() || createNewReplayState();
@@ -16,15 +19,32 @@ function createNewReplayState() {
   return SuzyReplayCore.createReplaySession(candles, {
     asset: REPLAY_ASSET,
     timeframe: REPLAY_TIMEFRAME,
-    initialVisible: 30
+    initialVisible: 30,
+    source: "ARTIFICIAL",
+    sourceName: "Cenário artificial gerado localmente pela Suzy"
   });
 }
 
 function loadReplayState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(REPLAY_STORAGE_KEY));
-    if (!saved || !Array.isArray(saved.candles) || !saved.candles.length) return null;
-    return saved;
+    const raw = localStorage.getItem(REPLAY_STORAGE_KEY) || localStorage.getItem(LEGACY_REPLAY_STORAGE_KEY);
+    const saved = JSON.parse(raw);
+    if (!saved || !Array.isArray(saved.candles) || saved.candles.length < 20) return null;
+
+    const validCandles = saved.candles.map(SuzyReplayCore.normalizeCandle).filter(Boolean);
+    if (validCandles.length !== saved.candles.length) return null;
+
+    return {
+      ...saved,
+      version: 2,
+      source: saved.source || "ARTIFICIAL",
+      sourceName: saved.sourceName || "Sessão restaurada do navegador",
+      candles: validCandles,
+      cursor: Math.min(Math.max(20, Number(saved.cursor) || 30), validCandles.length),
+      trades: Array.isArray(saved.trades) ? saved.trades : [],
+      openTrade: saved.openTrade || null,
+      complete: Boolean(saved.complete)
+    };
   } catch (error) {
     console.warn("Não foi possível restaurar o replay.", error);
     return null;
@@ -32,7 +52,12 @@ function loadReplayState() {
 }
 
 function saveReplayState() {
-  localStorage.setItem(REPLAY_STORAGE_KEY, JSON.stringify(replayState));
+  try {
+    localStorage.setItem(REPLAY_STORAGE_KEY, JSON.stringify(replayState));
+    localStorage.removeItem(LEGACY_REPLAY_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Não foi possível salvar o replay no navegador.", error);
+  }
 }
 
 function escapeHtml(value) {
@@ -45,8 +70,16 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function priceDecimals(value) {
+  const absolute = Math.abs(Number(value) || 0);
+  if (absolute >= 1000) return 2;
+  if (absolute >= 10) return 3;
+  if (absolute >= 1) return 5;
+  return 8;
+}
+
 function price(value) {
-  return Number(value).toFixed(5);
+  return Number(value).toFixed(priceDecimals(value));
 }
 
 function signedR(value) {
@@ -59,6 +92,11 @@ function setMessage(text, type = "") {
   $("replayMessage").className = `message ${type}`.trim();
 }
 
+function setImportFeedback(text, type = "") {
+  $("importFeedback").textContent = text;
+  $("importFeedback").className = `import-feedback ${type}`.trim();
+}
+
 function currentCandle() {
   const visible = SuzyReplayCore.visibleCandles(replayState);
   return visible.at(-1) || null;
@@ -68,8 +106,12 @@ function renderReplay() {
   const visible = SuzyReplayCore.visibleCandles(replayState);
   const candle = visible.at(-1);
   const summary = SuzyReplayCore.summarizeReplay(replayState.trades);
+  const imported = replayState.source === "CSV_IMPORT";
 
   $("replayTitle").textContent = `${replayState.asset} • ${replayState.timeframe}`;
+  $("replaySource").textContent = imported ? "HISTÓRICO IMPORTADO" : "CENÁRIO ARTIFICIAL";
+  $("replaySource").className = imported ? "green" : "orange";
+  $("replaySourceName").textContent = replayState.sourceName || "Origem não informada";
   $("replayProgress").textContent = `${replayState.cursor}/${replayState.candles.length}`;
   $("replayTrades").textContent = summary.total;
   $("replayTotalR").textContent = signedR(summary.totalR);
@@ -130,7 +172,7 @@ function renderResults() {
 
 function openTrade(direction) {
   const result = SuzyReplayCore.openReplayTrade(replayState, {
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${replayState.cursor}`,
+    id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `${Date.now()}-${replayState.cursor}`,
     direction,
     stopDistancePct: $("stopDistance").value,
     riskReward: $("riskReward").value,
@@ -165,12 +207,97 @@ function advanceOneCandle() {
 }
 
 function startNewSession() {
-  const hasActivity = replayState.trades.length || replayState.openTrade || replayState.cursor > 30;
-  if (hasActivity && !confirm("Iniciar uma nova sessão e apagar o replay atual?")) return;
+  const hasActivity = replayState.trades.length || replayState.openTrade || replayState.cursor > 30 || replayState.source === "CSV_IMPORT";
+  if (hasActivity && !confirm("Iniciar uma nova sessão artificial e apagar o replay atual?")) return;
 
   replayState = createNewReplayState();
+  setImportFeedback("");
   setMessage("Nova sessão artificial criada. Os candles futuros continuam ocultos.", "success");
   renderReplay();
+}
+
+async function importHistoricalFile() {
+  const file = $("historyFile").files?.[0];
+  if (!file) {
+    setImportFeedback("Selecione um arquivo CSV.", "error");
+    return;
+  }
+  if (file.size > MAX_HISTORY_FILE_BYTES) {
+    setImportFeedback("Arquivo acima do limite de 2 MB.", "error");
+    return;
+  }
+
+  $("importHistory").disabled = true;
+  setImportFeedback("Validando o histórico...");
+
+  try {
+    const text = await file.text();
+    const parsed = SuzyReplayCore.parseHistoricalCsv(text, {
+      maximumRows: MAX_HISTORY_ROWS,
+      minimumCandles: 30
+    });
+
+    if (!parsed.valid) {
+      setImportFeedback(parsed.errors.slice(0, 3).join(" ") || "Histórico inválido.", "error");
+      return;
+    }
+
+    const hasActivity = replayState.trades.length || replayState.openTrade || replayState.cursor > 30;
+    if (hasActivity && !confirm("Importar este histórico e substituir a sessão atual?")) {
+      setImportFeedback("Importação cancelada.");
+      return;
+    }
+
+    const initialVisible = Math.min(50, Math.max(20, Math.floor(parsed.candles.length * 0.25)));
+    replayState = SuzyReplayCore.createReplaySession(parsed.candles, {
+      asset: $("importAsset").value,
+      timeframe: $("importTimeframe").value,
+      initialVisible,
+      source: "CSV_IMPORT",
+      sourceName: file.name
+    });
+
+    const notes = [];
+    if (parsed.invalidRows) notes.push(`${parsed.invalidRows} linhas inválidas descartadas`);
+    if (parsed.duplicateRows) notes.push(`${parsed.duplicateRows} duplicadas descartadas`);
+    notes.push(...parsed.warnings);
+
+    setImportFeedback(
+      `${parsed.validRows} candles importados com segurança.${notes.length ? ` ${[...new Set(notes)].join("; ")}.` : ""}`,
+      "success"
+    );
+    setMessage("Histórico importado. Os candles futuros permanecem ocultos.", "success");
+    renderReplay();
+  } catch (error) {
+    console.error("Falha ao importar histórico.", error);
+    setImportFeedback("Não foi possível ler o arquivo selecionado.", "error");
+  } finally {
+    $("importHistory").disabled = false;
+  }
+}
+
+function downloadCsvTemplate() {
+  const candles = SuzyCore.generateDemoCandles({
+    basePrice: 1.08742,
+    count: 40,
+    intervalMinutes: 5,
+    endTime: Date.UTC(2026, 0, 2, 15, 0, 0)
+  });
+  const rows = candles.map(candle => [
+    new Date(candle.time).toISOString(),
+    candle.open,
+    candle.high,
+    candle.low,
+    candle.close
+  ]);
+  const csv = SuzyCore.serializeCsv([["time", "open", "high", "low", "close"], ...rows], ",");
+  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelo-historico-replay.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function exportReplayCsv() {
@@ -179,8 +306,11 @@ function exportReplayCsv() {
     return;
   }
 
-  const header = ["direcao", "entrada", "stop", "alvo", "resultado", "r_multiplo", "motivo", "observacao"];
+  const header = ["origem", "ativo", "timeframe", "direcao", "entrada", "stop", "alvo", "resultado", "r_multiplo", "motivo", "observacao"];
   const rows = replayState.trades.map(trade => [
+    replayState.source,
+    replayState.asset,
+    replayState.timeframe,
     trade.direction,
     trade.entry,
     trade.stop,
@@ -217,7 +347,7 @@ function drawReplayChart(candles) {
   ctx.fillStyle = "#06101d";
   ctx.fillRect(0, 0, width, height);
 
-  const margin = { top: 22, right: 78, bottom: 34, left: 15 };
+  const margin = { top: 22, right: 90, bottom: 34, left: 15 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const values = candles.flatMap(candle => [candle.high, candle.low]);
@@ -233,7 +363,7 @@ function drawReplayChart(candles) {
   const minimum = lowest - padding;
   const y = value => margin.top + ((maximum - value) / (maximum - minimum)) * plotHeight;
   const step = plotWidth / candles.length;
-  const bodyWidth = Math.max(3, Math.min(10, step * 0.62));
+  const bodyWidth = Math.max(2, Math.min(10, step * 0.62));
 
   ctx.strokeStyle = "rgba(143,164,189,.16)";
   ctx.fillStyle = "#8fa4bd";
@@ -318,6 +448,8 @@ $("openLong").onclick = () => openTrade("LONG");
 $("openShort").onclick = () => openTrade("SHORT");
 $("advanceCandle").onclick = advanceOneCandle;
 $("newSession").onclick = startNewSession;
+$("importHistory").onclick = importHistoricalFile;
+$("downloadTemplate").onclick = downloadCsvTemplate;
 $("exportReplay").onclick = exportReplayCsv;
 window.addEventListener("resize", () => drawReplayChart(SuzyReplayCore.visibleCandles(replayState)));
 
