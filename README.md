@@ -22,6 +22,7 @@ Também é possível abrir `index.html` diretamente no navegador. Nesse modo, o 
 - Cotações demonstrativas com pequenas variações simuladas.
 - Scanner demo com ranking de força, popularidade e variação simulada.
 - Gráfico responsivo de velas japonesas com cenários artificiais, M1/M5/M15 e EMA 9/21.
+- Calendário econômico demo com eventos artificiais, filtros e contagem regressiva local.
 - Registro manual de WIN e LOSS.
 - Banca e resultado atualizados automaticamente.
 - Risco máximo por entrada.
@@ -67,7 +68,7 @@ Se o arquivo estiver indisponível, inválido ou o projeto for aberto diretament
 
 - Não existe autenticação.
 - Os dados ficam somente no navegador usado.
-- Não há feed real de preços ou calendário econômico.
+- Não há feed real de preços ou calendário econômico; ambos os cenários são artificiais.
 - Não há conexão com IQ Option ou qualquer corretora.
 - Não executa ordens reais ou automáticas.
 
@@ -75,7 +76,7 @@ Se o arquivo estiver indisponível, inválido ou o projeto for aberto diretament
 
 1. Adicionar testes de integração da interface no navegador.
 2. Criar backend Flask com SQLite para histórico persistente.
-3. Implementar calendário econômico por fonte autorizada.
+3. Integrar uma fonte autorizada de calendário econômico, mantendo o modo demo separado.
 4. Criar alertas via Telegram sem execução de ordens.
 5. Empacotar uma versão desktop após estabilizar o sistema.
 
