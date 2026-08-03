@@ -39,6 +39,10 @@ const defaultState={
 let state=loadState();
 let sortMode="default";
 let chartCandles=[];
+let chartDrawings=[];
+let drawingTool="cursor";
+let pendingDrawingPoint=null;
+const chartIndicators={ema:true,sma:false,bollinger:false,rsi:true};
 const $=id=>document.getElementById(id);
 
 async function loadAssetCatalog(){
@@ -128,28 +132,54 @@ function selectedChartAsset(){return assets.find(asset=>asset.ticker===$("chartA
 function chartPrice(value,asset=selectedChartAsset()){return Number(value).toFixed(Math.min(asset?.decimals??2,6));}
 function generateChartScenario(){
  const asset=selectedChartAsset();if(!asset)return;
- chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:48,intervalMinutes:Number($("chartTimeframe").value)});
+ chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:80,intervalMinutes:Number($("chartTimeframe").value)});
+ chartDrawings=[];pendingDrawingPoint=null;
  renderCandleChart();
+}
+function drawChartSeries(ctx,values,color,geometry,options={}){
+ const {margin,step,y}=geometry;ctx.save();ctx.strokeStyle=color;ctx.lineWidth=options.width||1.7;ctx.setLineDash(options.dash||[]);ctx.beginPath();let started=false;
+ values.forEach((value,index)=>{if(value===null||!Number.isFinite(Number(value)))return;const x=margin.left+step*index+step/2;const py=y(value);if(!started){ctx.moveTo(x,py);started=true;}else ctx.lineTo(x,py);});if(started)ctx.stroke();ctx.restore();
+}
+function drawManualLines(ctx,geometry){
+ const {margin,plotWidth,plotHeight}=geometry;ctx.save();ctx.strokeStyle="#f8fafc";ctx.lineWidth=1.5;ctx.setLineDash([7,5]);
+ chartDrawings.forEach(drawing=>{ctx.beginPath();ctx.moveTo(margin.left+drawing.from.x*plotWidth,margin.top+drawing.from.y*plotHeight);ctx.lineTo(margin.left+drawing.to.x*plotWidth,margin.top+drawing.to.y*plotHeight);ctx.stroke();});ctx.restore();
+}
+function renderRsiChart(){
+ const shell=$("rsiShell");shell.classList.toggle("hidden",!chartIndicators.rsi);if(!chartIndicators.rsi)return;
+ const canvas=$("rsiChart");const width=Math.max(canvas.parentElement.clientWidth,320);const height=130;const ratio=Math.min(window.devicePixelRatio||1,2);canvas.width=width*ratio;canvas.height=height*ratio;canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
+ const ctx=canvas.getContext("2d");ctx.scale(ratio,ratio);ctx.fillStyle="#06101d";ctx.fillRect(0,0,width,height);const margin={top:12,right:48,bottom:16,left:16};const plotHeight=height-margin.top-margin.bottom;const plotWidth=width-margin.left-margin.right;const y=value=>margin.top+(100-value)/100*plotHeight;
+ ctx.font="10px Segoe UI";ctx.fillStyle="#8fa4bd";ctx.strokeStyle="rgba(143,164,189,.25)";[30,50,70].forEach(level=>{ctx.beginPath();ctx.moveTo(margin.left,y(level));ctx.lineTo(width-margin.right,y(level));ctx.stroke();ctx.fillText(String(level),width-margin.right+8,y(level)+3);});
+ const values=SuzyCore.calculateRsi(chartCandles.map(candle=>candle.close),14);const step=plotWidth/chartCandles.length;ctx.strokeStyle="#38bdf8";ctx.lineWidth=1.8;ctx.beginPath();let started=false;values.forEach((value,index)=>{if(value===null)return;const x=margin.left+step*index+step/2;if(!started){ctx.moveTo(x,y(value));started=true;}else ctx.lineTo(x,y(value));});if(started)ctx.stroke();const last=values.filter(value=>value!==null).at(-1);$("rsiValue").textContent=last===undefined?"—":last.toFixed(1);
+}
+function renderPatternSummary(patterns,flag){
+ const recent=patterns.filter(pattern=>pattern.index>=chartCandles.length-12).slice(-8);$("candlePatterns").innerHTML=recent.length?recent.map(pattern=>`<span class="pattern-chip ${pattern.bias.toLowerCase()}">${escapeHtml(pattern.label)} • vela ${pattern.index+1}</span>`).join(""):"Nenhum padrão recente.";
+ $("flagPattern").textContent=flag?flag.label:"Não identificada";$("flagPattern").className=flag?(flag.bias==="BULLISH"?"green":"red"):"orange";
 }
 function renderCandleChart(){
  const canvas=$("candleChart");const asset=selectedChartAsset();if(!canvas||!asset||!chartCandles.length)return;
- const width=Math.max(canvas.parentElement.clientWidth,320);const height=430;const ratio=Math.min(window.devicePixelRatio||1,2);
+ const width=Math.max(canvas.parentElement.clientWidth,320);const height=480;const ratio=Math.min(window.devicePixelRatio||1,2);
  canvas.width=width*ratio;canvas.height=height*ratio;canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
  const ctx=canvas.getContext("2d");ctx.scale(ratio,ratio);ctx.clearRect(0,0,width,height);ctx.fillStyle="#06101d";ctx.fillRect(0,0,width,height);
  const margin={top:22,right:76,bottom:34,left:16};const plotWidth=width-margin.left-margin.right;const plotHeight=height-margin.top-margin.bottom;
  const highest=Math.max(...chartCandles.map(candle=>candle.high));const lowest=Math.min(...chartCandles.map(candle=>candle.low));const padding=(highest-lowest||highest*.01)*.08;const max=highest+padding;const min=lowest-padding;
- const y=value=>margin.top+(max-value)/(max-min)*plotHeight;const step=plotWidth/chartCandles.length;const bodyWidth=Math.max(3,Math.min(10,step*.62));
+ const y=value=>margin.top+(max-value)/(max-min)*plotHeight;const step=plotWidth/chartCandles.length;const bodyWidth=Math.max(2,Math.min(9,step*.62));const geometry={margin,plotWidth,plotHeight,y,step};
  ctx.strokeStyle="rgba(143,164,189,.16)";ctx.lineWidth=1;ctx.fillStyle="#8fa4bd";ctx.font="11px Segoe UI";ctx.textAlign="left";
  for(let line=0;line<=5;line++){const py=margin.top+plotHeight/5*line;ctx.beginPath();ctx.moveTo(margin.left,py);ctx.lineTo(width-margin.right,py);ctx.stroke();const price=max-(max-min)/5*line;ctx.fillText(chartPrice(price,asset),width-margin.right+8,py+4);}
  chartCandles.forEach((candle,index)=>{const x=margin.left+step*index+step/2;const rising=candle.close>=candle.open;const color=rising?"#22e582":"#ff5c5c";ctx.strokeStyle=color;ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x,y(candle.high));ctx.lineTo(x,y(candle.low));ctx.stroke();const top=y(Math.max(candle.open,candle.close));const bottom=y(Math.min(candle.open,candle.close));ctx.fillRect(x-bodyWidth/2,top,bodyWidth,Math.max(1,bottom-top));});
- const drawEma=(period,color)=>{const values=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),period);ctx.strokeStyle=color;ctx.lineWidth=1.7;ctx.beginPath();values.forEach((value,index)=>{const x=margin.left+step*index+step/2;const py=y(value);if(index===0)ctx.moveTo(x,py);else ctx.lineTo(x,py);});ctx.stroke();};
- drawEma(9,"#38bdf8");drawEma(21,"#ff5ec7");
- ctx.fillStyle="#8fa4bd";ctx.textAlign="center";for(let index=0;index<chartCandles.length;index+=12){const candle=chartCandles[index];ctx.fillText(new Date(candle.time).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),margin.left+step*index+step/2,height-12);}
+ const closes=chartCandles.map(candle=>candle.close);if(chartIndicators.bollinger){const bands=SuzyCore.calculateBollinger(closes,20,2);ctx.save();ctx.fillStyle="rgba(167,139,250,.08)";ctx.beginPath();bands.upper.forEach((value,index)=>{if(value===null)return;const x=margin.left+step*index+step/2;if(index===19)ctx.moveTo(x,y(value));else ctx.lineTo(x,y(value));});for(let index=bands.lower.length-1;index>=0;index-=1){if(bands.lower[index]!==null)ctx.lineTo(margin.left+step*index+step/2,y(bands.lower[index]));}ctx.closePath();ctx.fill();ctx.restore();drawChartSeries(ctx,bands.upper,"#a78bfa",geometry,{width:1});drawChartSeries(ctx,bands.lower,"#a78bfa",geometry,{width:1});}
+ if(chartIndicators.ema){drawChartSeries(ctx,SuzyCore.calculateEma(closes,9),"#38bdf8",geometry);drawChartSeries(ctx,SuzyCore.calculateEma(closes,21),"#ff5ec7",geometry);}
+ if(chartIndicators.sma)drawChartSeries(ctx,SuzyCore.calculateSma(closes,50),"#facc15",geometry,{width:1.8});
+ const patterns=SuzyCore.detectCandlePatterns(chartCandles);patterns.filter(pattern=>pattern.index>=chartCandles.length-12).slice(-6).forEach(pattern=>{const candle=chartCandles[pattern.index];const x=margin.left+step*pattern.index+step/2;ctx.fillStyle=pattern.bias==="BULLISH"?"#22e582":pattern.bias==="BEARISH"?"#ff5c5c":"#ff981a";ctx.font="bold 10px Segoe UI";ctx.textAlign="center";ctx.fillText("◆",x,Math.max(margin.top+10,y(candle.high)-7));});
+ drawManualLines(ctx,geometry);ctx.fillStyle="#8fa4bd";ctx.textAlign="center";for(let index=0;index<chartCandles.length;index+=20){const candle=chartCandles[index];ctx.fillText(new Date(candle.time).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),margin.left+step*index+step/2,height-12);}
  const last=chartCandles.at(-1);const ema9=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),9).at(-1);const ema21=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),21).at(-1);
  $("chartOpen").textContent=chartPrice(last.open,asset);$("chartHigh").textContent=chartPrice(last.high,asset);$("chartLow").textContent=chartPrice(last.low,asset);$("chartClose").textContent=chartPrice(last.close,asset);
  const trend=last.close>ema9&&ema9>ema21?{label:"ALTA DEMO",className:"green"}:last.close<ema9&&ema9<ema21?{label:"BAIXA DEMO",className:"red"}:{label:"LATERAL",className:"orange"};$("chartTrend").textContent=trend.label;$("chartTrend").className=trend.className;
+ renderRsiChart();renderPatternSummary(patterns,SuzyCore.detectFlagPattern(chartCandles));
  $("chartUpdated").textContent=`${asset.ticker} • ${$("chartTimeframe").selectedOptions[0].text} • cenário gerado às ${new Date().toLocaleTimeString("pt-BR")}`;
 }
+function setDrawingTool(tool){drawingTool=tool;pendingDrawingPoint=null;document.querySelectorAll("[data-drawing-tool]").forEach(button=>{const active=button.dataset.drawingTool===tool;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});$("candleChart").parentElement.classList.toggle("cursor-mode",tool==="cursor");$("drawingHelp").textContent=tool==="trend"?"Clique em dois pontos para traçar uma linha de tendência.":tool==="horizontal"?"Clique no nível desejado para traçar suporte ou resistência.":"Selecione Tendência ou Horizontal para desenhar diretamente no gráfico.";}
+function chartCanvasPoint(event){const canvas=$("candleChart");const rect=canvas.getBoundingClientRect();const margin={top:22,right:76,bottom:34,left:16};const width=rect.width;const height=rect.height;const plotWidth=width-margin.left-margin.right;const plotHeight=height-margin.top-margin.bottom;const x=Math.min(1,Math.max(0,(event.clientX-rect.left-margin.left)/plotWidth));const y=Math.min(1,Math.max(0,(event.clientY-rect.top-margin.top)/plotHeight));return{x,y};}
+function handleChartDrawing(event){if(drawingTool==="cursor")return;const point=chartCanvasPoint(event);if(drawingTool==="horizontal"){chartDrawings.push({type:"horizontal",from:{x:0,y:point.y},to:{x:1,y:point.y}});renderCandleChart();return;}if(!pendingDrawingPoint){pendingDrawingPoint=point;$("drawingHelp").textContent="Primeiro ponto marcado. Clique no segundo ponto.";return;}chartDrawings.push({type:"trend",from:pendingDrawingPoint,to:point});pendingDrawingPoint=null;$("drawingHelp").textContent="Linha criada. Continue desenhando ou escolha Cursor.";renderCandleChart();}
 function renderStats(){
  const stats=getStats();const limits=getLimits(stats);const risk=getRiskState(Number($("tradeAmount").value||0));
  const pnlClass=stats.dailyPnl>0?"green":stats.dailyPnl<0?"red":"";
@@ -187,5 +217,5 @@ function updateClock(){const now=new Date();$("today").textContent=now.toLocaleD
 function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();if($("scannerView").classList.contains("active"))renderScanner();}
 function initialize(){populateTradeAssets();populateChartAssets();fillMissionForm();renderAssets();renderStats();renderScanner();generateChartScenario();updateClock();loadAssetCatalog();}
 $("scannerCategory").addEventListener("change",renderScanner);$("scannerMinForce").addEventListener("change",renderScanner);$("scannerLimit").addEventListener("change",renderScanner);$("scanRefresh").onclick=renderScanner;
-$("chartAsset").addEventListener("change",generateChartScenario);$("chartTimeframe").addEventListener("change",generateChartScenario);$("newChartScenario").onclick=generateChartScenario;window.addEventListener("resize",()=>{if($("chartView").classList.contains("active"))renderCandleChart();});
+$("chartAsset").addEventListener("change",generateChartScenario);$("chartTimeframe").addEventListener("change",generateChartScenario);$("newChartScenario").onclick=generateChartScenario;$("candleChart").addEventListener("click",handleChartDrawing);document.querySelectorAll("[data-indicator]").forEach(button=>button.onclick=()=>{const indicator=button.dataset.indicator;chartIndicators[indicator]=!chartIndicators[indicator];button.classList.toggle("active",chartIndicators[indicator]);button.setAttribute("aria-pressed",String(chartIndicators[indicator]));renderCandleChart();});document.querySelectorAll("[data-drawing-tool]").forEach(button=>button.onclick=()=>setDrawingTool(button.dataset.drawingTool));$("undoDrawing").onclick=()=>{chartDrawings.pop();pendingDrawingPoint=null;renderCandleChart();};$("clearDrawings").onclick=()=>{chartDrawings=[];pendingDrawingPoint=null;renderCandleChart();};window.addEventListener("resize",()=>{if($("chartView").classList.contains("active"))renderCandleChart();});
 $("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
