@@ -82,11 +82,12 @@ São armazenados:
 - até 24 avaliações;
 - até 90 check-ins diários.
 
-O botão **Exportar JSON** cria uma cópia local com data de exportação. Nesta etapa, os dados comportamentais não são enviados ao SQLite e não são sincronizados entre computadores.
+O botão **Exportar JSON** cria uma cópia local com data de exportação. O estado completo da trilha e as respostas brutas não são enviados ao SQLite. Mediante consentimento explícito, o usuário pode vincular a uma operação do diário apenas um snapshot do check-in do mesmo dia, contendo data, pontuação, classificação, orientação e instante da vinculação. Esse snapshot passa a integrar o ciclo de vida criptografado daquela entrada.
 
 ## Privacidade e limites
 
 - nenhum dado é enviado automaticamente para serviços externos;
+- a integração com o diário vem desmarcada e não copia as respostas individuais do check-in;
 - o GitHub Pages mantém tudo no navegador;
 - limpar dados do navegador remove o histórico local;
 - a exportação JSON deve ser guardada pelo usuário quando necessária;
