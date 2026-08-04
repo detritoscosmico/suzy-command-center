@@ -79,14 +79,31 @@ test("classifica estados de sincronização dos registros ativos", () => {
 });
 
 test("clona sem compartilhar referências", () => {
-  const source = [entry("a")];
+  const source = [entry("a", { behavioralCheckIn: {
+    date: "2026-08-04",
+    score: 20,
+    statusKey: "ready",
+    statusLabel: "Estudo e simulação liberados",
+    guidance: "Mantenha o plano.",
+    capturedAt: "2026-08-04T10:00:00.000Z"
+  } })];
   const cloned = cloneJournal(source);
   cloned[0].asset = "BTC/USD";
+  cloned[0].behavioralCheckIn.statusLabel = "Alterado";
   assert.equal(source[0].asset, "EUR/USD");
+  assert.equal(source[0].behavioralCheckIn.statusLabel, "Estudo e simulação liberados");
 });
 
 test("codifica e recupera registros, versões e lixeira no envelope SQLite", () => {
   const original = state();
+  original.entries[0].behavioralCheckIn = {
+    date: "2026-08-04",
+    score: 62,
+    statusKey: "pause",
+    statusLabel: "Pausa técnica e revisão",
+    guidance: "Revise o diário.",
+    capturedAt: "2026-08-04T10:00:00.000Z"
+  };
   const remoteRows = encodeRemoteJournal(original.entries, original.trash, original.history, { chunkSize: 120 });
   const metadata = remoteRows.filter(row => row.id.startsWith(LIFECYCLE_META_PREFIX));
 
@@ -97,6 +114,7 @@ test("codifica e recupera registros, versões e lixeira no envelope SQLite", () 
   assert.equal(decoded.lifecycleFound, true);
   assert.equal(decoded.lifecycleError, null);
   assert.deepEqual(decoded.entries.map(item => item.id), ["active"]);
+  assert.equal(decoded.entries[0].behavioralCheckIn.statusKey, "pause");
   assert.deepEqual(decoded.trash.map(item => item.id), ["deleted"]);
   assert.equal(decoded.history.active[0].entry.setup, "Rompimento");
   assert.equal(countRevisions(decoded.history), 1);
