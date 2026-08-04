@@ -8,6 +8,7 @@ const publicPages = [
   "/replay.html",
   "/simulador.html",
   "/diario.html",
+  "/psicologia.html",
   "/calendario.html",
   "/login.html"
 ];
