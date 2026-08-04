@@ -94,6 +94,8 @@ A interface exige confirmação quando a operação substituir dados existentes.
 
 Depois que as cópias ficam iguais, novos registros, edições, revisões, exclusões, restaurações e limpezas são enviados automaticamente ao SQLite. A cópia no navegador continua sendo mantida para permitir uso local e recuperação imediata da interface.
 
+Se uma entrada tiver um snapshot de prontidão vinculado com consentimento, esse resumo acompanha o registro e recebe a mesma proteção criptográfica. O estado completo da trilha comportamental e as respostas individuais não fazem parte da sincronização.
+
 ### Metadados inconsistentes
 
 O envelope está incompleto, fora de ordem ou não pode ser decodificado. A restauração automática fica bloqueada e a interface informa o problema. Nenhum dado é substituído silenciosamente.
