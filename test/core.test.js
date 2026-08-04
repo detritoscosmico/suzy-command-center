@@ -12,6 +12,7 @@ const {
   normalizeCatalog,
   analyzeDemoAssets,
   timeframeDuration,
+  chartTimeLabelMode,
   generateDemoCandles,
   calculateEma,
   calculateSma,
@@ -218,11 +219,22 @@ test("converte todos os períodos do gráfico em milissegundos", () => {
   assert.equal(timeframeDuration("desconhecido"), 300000);
 });
 
+test("escolhe rótulos de eixo conforme o período total exibido", () => {
+  assert.equal(chartTimeLabelMode(timeframeDuration("S5"), 79 * timeframeDuration("S5")), "TIME_SECONDS");
+  assert.equal(chartTimeLabelMode(timeframeDuration("M5"), 79 * timeframeDuration("M5")), "TIME");
+  assert.equal(chartTimeLabelMode(timeframeDuration("H12"), 79 * timeframeDuration("H12")), "DATE_TIME");
+  assert.equal(chartTimeLabelMode(timeframeDuration("D1"), 79 * timeframeDuration("D1")), "DATE");
+  assert.equal(chartTimeLabelMode(timeframeDuration("MN1"), 79 * timeframeDuration("MN1")), "DATE_YEAR");
+});
+
 test("gera candles em períodos de segundos e longo prazo", () => {
   const seconds = generateDemoCandles({ basePrice: 100, count: 10, intervalMilliseconds: timeframeDuration("S5"), endTime: 300000, random: () => 0.5 });
-  const monthly = generateDemoCandles({ basePrice: 100, count: 10, intervalMilliseconds: timeframeDuration("MN1"), endTime: 30000000000, random: () => 0.5 });
+  const endTime = Date.UTC(2026, 7, 31, 12);
+  const monthly = generateDemoCandles({ basePrice: 100, count: 10, timeframeCode: "MN1", intervalMilliseconds: timeframeDuration("MN1"), endTime, random: () => 0.5 });
   assert.equal(seconds[1].time - seconds[0].time, 5000);
-  assert.equal(monthly[1].time - monthly[0].time, 2592000000);
+  assert.equal(monthly.at(-1).time, endTime);
+  assert.equal(monthly.at(-2).time, Date.UTC(2026, 6, 31, 12));
+  assert.equal(monthly.at(-3).time, Date.UTC(2026, 5, 30, 12));
 });
 
 test("não gera velas para preço base inválido", () => {
