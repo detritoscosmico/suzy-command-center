@@ -25,6 +25,7 @@
     "errorType",
     "context",
     "lesson",
+    "behavioralCheckIn",
     "createdAt"
   ];
   const LIFECYCLE_META_PREFIX = "__suzy_lifecycle_v1__";
@@ -58,7 +59,10 @@
 
   function canonicalEntry(entry = {}) {
     const canonical = {};
-    for (const field of JOURNAL_FIELDS) canonical[field] = entry[field] ?? null;
+    for (const field of JOURNAL_FIELDS) {
+      const value = entry[field] ?? null;
+      canonical[field] = value && typeof value === "object" ? deepClone(value) : value;
+    }
     return canonical;
   }
 
@@ -170,7 +174,7 @@
   }
 
   function cloneJournal(entries = []) {
-    return normalizeSnapshot(entries).map(entry => ({ ...entry }));
+    return normalizeSnapshot(entries).map(deepClone);
   }
 
   function cloneJournalState(state = {}) {
