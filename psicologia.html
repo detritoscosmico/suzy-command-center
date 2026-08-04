@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trilha educacional da Academia Suzy para psicologia, disciplina, prontidão e avaliação comportamental." />
+  <title>Academia Suzy — Psicologia e Disciplina</title>
+  <link rel="stylesheet" href="css/psicologia.css" />
+</head>
+<body>
+  <div class="psychology-shell">
+    <aside class="psychology-sidebar">
+      <a class="psychology-brand" href="academia.html" aria-label="Voltar à Academia Suzy">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>CONTROLE COMPORTAMENTAL</span></div>
+      </a>
+
+      <div class="mode-badge">EDUCACIONAL • DADOS LOCAIS</div>
+
+      <section class="sidebar-card">
+        <span>OBJETIVO</span>
+        <p>Identificar padrões de impulsividade, reação a perdas, quebra de regras e baixa prontidão antes que eles dominem o processo.</p>
+      </section>
+
+      <section class="sidebar-card">
+        <span>REGRA CENTRAL</span>
+        <p>Disciplina não é força de vontade infinita. É reduzir decisões improvisadas por meio de limites, pausas e protocolos verificáveis.</p>
+      </section>
+
+      <section class="sidebar-card warning-card">
+        <span>LIMITE DO MÓDULO</span>
+        <p>Esta avaliação não é diagnóstico psicológico ou médico. Ela organiza autorrelatos para estudo e revisão de comportamento.</p>
+      </section>
+
+      <div class="sidebar-links">
+        <a href="academia.html">← Academia Nível 1</a>
+        <a href="academia-nivel2.html">Academia Nível 2</a>
+        <a href="replay.html">Laboratório de replay</a>
+        <a href="simulador.html">Simulador de ordens</a>
+        <a href="diario.html">Diário profissional</a>
+        <a href="index.html">Command Center</a>
+      </div>
+    </aside>
+
+    <main class="psychology-main">
+      <header class="psychology-hero">
+        <div>
+          <span class="eyebrow">ACADEMIA SUZY • TRILHA COMPORTAMENTAL</span>
+          <h1>Psicologia, Disciplina e Avaliação Comportamental</h1>
+          <p>Treine autoconsciência, controle de impulsos, aceitação de risco e aderência ao plano com protocolos mensuráveis.</p>
+        </div>
+        <div class="hero-summary" aria-label="Resumo do progresso">
+          <article><span>Aulas concluídas</span><strong id="heroLessons">0 / 5</strong></article>
+          <article><span>Sequência de check-ins</span><strong id="heroStreak">0 dias</strong></article>
+          <article><span>Último risco</span><strong id="heroRisk">Sem avaliação</strong></article>
+        </div>
+      </header>
+
+      <section class="overview-grid" aria-label="Indicadores comportamentais">
+        <article><span>Check-ins salvos</span><strong id="kpiCheckIns">0</strong><small>máximo de 90 dias</small></article>
+        <article><span>Avaliações completas</span><strong id="kpiAssessments">0</strong><small>máximo de 24 ciclos</small></article>
+        <article><span>Prontidão de hoje</span><strong id="kpiReadiness">Não avaliada</strong><small id="kpiReadinessScore">—</small></article>
+        <article><span>Prioridade atual</span><strong id="kpiPriority">Sem dados</strong><small>maior risco identificado</small></article>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="lessonTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">TRILHA DE 5 AULAS</span><h2 id="lessonTitle">Fundamentos de disciplina operacional</h2></div>
+          <div class="progress-shell" aria-label="Progresso das aulas"><div id="lessonProgress" class="progress-bar"></div></div>
+        </div>
+        <div id="lessonGrid" class="lesson-grid"></div>
+      </section>
+
+      <div class="two-column">
+        <section class="card" aria-labelledby="readinessTitle">
+          <div class="card-head">
+            <div><span class="eyebrow">PROTOCOLO DIÁRIO</span><h2 id="readinessTitle">Check-in de prontidão</h2></div>
+            <span class="counter-badge">1 por dia</span>
+          </div>
+          <p class="section-note">Responda antes do treinamento. Um novo envio no mesmo dia substitui o check-in anterior.</p>
+
+          <form id="readinessForm">
+            <div class="form-grid">
+              <label>Qualidade do sono
+                <select id="sleepQuality" required>
+                  <option value="">Selecione</option>
+                  <option value="1">1 — Muito ruim</option>
+                  <option value="2">2 — Ruim</option>
+                  <option value="3">3 — Regular</option>
+                  <option value="4">4 — Boa</option>
+                  <option value="5">5 — Muito boa</option>
+                </select>
+              </label>
+              <label>Ativação emocional
+                <select id="emotionalActivation" required>
+                  <option value="">Selecione</option>
+                  <option value="1">1 — Muito baixa</option>
+                  <option value="2">2 — Baixa</option>
+                  <option value="3">3 — Moderada</option>
+                  <option value="4">4 — Alta</option>
+                  <option value="5">5 — Muito alta</option>
+                </select>
+              </label>
+              <label>Vontade de recuperar perdas
+                <select id="recoveryUrge" required>
+                  <option value="">Selecione</option>
+                  <option value="1">1 — Nenhuma</option>
+                  <option value="2">2 — Baixa</option>
+                  <option value="3">3 — Moderada</option>
+                  <option value="4">4 — Alta</option>
+                  <option value="5">5 — Muito alta</option>
+                </select>
+              </label>
+              <label>Clareza do plano
+                <select id="planClarity" required>
+                  <option value="">Selecione</option>
+                  <option value="1">1 — Nenhuma</option>
+                  <option value="2">2 — Baixa</option>
+                  <option value="3">3 — Parcial</option>
+                  <option value="4">4 — Clara</option>
+                  <option value="5">5 — Muito clara</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="check-row"><input id="acceptsStop" type="checkbox" /> Aceito encerrar a sessão ao atingir o limite definido, sem tentar recuperar.</label>
+            <label class="check-row"><input id="recentRuleBreak" type="checkbox" /> Quebrei alguma regra relevante na sessão anterior.</label>
+
+            <button class="primary-button" type="submit">CALCULAR PRONTIDÃO</button>
+          </form>
+          <p id="readinessFeedback" class="feedback" aria-live="polite"></p>
+          <div id="readinessResult" class="result-panel" hidden></div>
+        </section>
+
+        <section class="card" aria-labelledby="assessmentTitle">
+          <div class="card-head">
+            <div><span class="eyebrow">AUTOAVALIAÇÃO ESTRUTURADA</span><h2 id="assessmentTitle">Mapa de risco comportamental</h2></div>
+            <span class="counter-badge">18 afirmações</span>
+          </div>
+          <p class="section-note">Use a frequência real das últimas semanas. Não responda como gostaria de agir.</p>
+
+          <form id="assessmentForm">
+            <div id="questionList" class="question-list"></div>
+            <button class="primary-button" type="submit">GERAR MAPA COMPORTAMENTAL</button>
+          </form>
+          <p id="assessmentFeedback" class="feedback" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <section id="assessmentResult" class="assessment-result" hidden aria-labelledby="resultTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">RESULTADO EDUCACIONAL</span><h2 id="resultTitle">Mapa atual</h2></div>
+          <strong id="overallScore" class="overall-score">0</strong>
+        </div>
+        <div id="riskBand" class="risk-band"></div>
+        <div id="dimensionBars" class="dimension-bars"></div>
+        <div class="action-plan">
+          <h3>Plano de ação prioritário</h3>
+          <ol id="actionPlan"></ol>
+        </div>
+      </section>
+
+      <section class="history-card" aria-labelledby="historyTitle">
+        <div class="card-head">
+          <div><span class="eyebrow">HISTÓRICO LOCAL</span><h2 id="historyTitle">Revisão de prontidão</h2></div>
+          <div class="history-actions">
+            <button id="exportPsychology" type="button">Exportar JSON</button>
+            <button id="resetPsychology" class="danger" type="button">Apagar dados</button>
+          </div>
+        </div>
+        <p class="section-note">Os dados permanecem somente neste navegador e não são enviados ao SQLite nesta etapa.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Pontuação</th><th>Protocolo</th><th>Orientação</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="4" class="empty-row">Nenhum check-in registrado.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="psychology-footer">
+        <p><strong>Aviso:</strong> o módulo é educacional, não prevê desempenho, não substitui atendimento profissional e não autoriza operações reais.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/psychology-core.js"></script>
+  <script src="js/psicologia.js"></script>
+</body>
+</html>

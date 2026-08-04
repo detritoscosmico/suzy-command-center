@@ -60,6 +60,23 @@ Arquivo: `academia-nivel2.html`
 
 Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliação final com nota mínima de 75%. Abrange estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist e playbook.
 
+### Psicologia, Disciplina e Avaliação Comportamental
+
+Arquivo: `psicologia.html`
+
+- trilha educacional de cinco aulas sobre processo, ativação emocional, reação a perdas, pré-compromisso e revisão;
+- check-in diário de prontidão com seis fatores;
+- classificação conservadora para estudo, simulação reduzida, pausa ou encerramento da sessão de treinamento;
+- avaliação de 18 afirmações em seis dimensões comportamentais;
+- pontuação de impulsividade, reação a perdas, aderência ao plano, regulação emocional, paciência e aceitação do risco;
+- plano de ação gerado pelas três maiores prioridades;
+- sequência diária e histórico de até 90 check-ins;
+- até 24 avaliações salvas no navegador;
+- exportação JSON local;
+- aviso explícito de que o módulo não é diagnóstico psicológico ou médico.
+
+A metodologia, as fórmulas e os limites estão documentados em `docs/trilha-psicologia-disciplina.md`.
+
 ### Calendário Econômico Educacional
 
 Arquivo: `calendario.html`
@@ -190,6 +207,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 ## Recursos atuais
 
 - Academia Suzy — Níveis 1 e 2;
+- trilha de psicologia, disciplina e avaliação comportamental;
 - calendário econômico educacional com importação autorizada;
 - replay com dados artificiais ou históricos importados;
 - simulador de ordens com custos operacionais;
@@ -221,6 +239,7 @@ suzy-command-center/
 ├── diario.html
 ├── index.html
 ├── login.html
+├── psicologia.html
 ├── replay.html
 ├── simulador.html
 ├── playwright.config.js
@@ -229,7 +248,8 @@ suzy-command-center/
 │   ├── calendario.css
 │   ├── diario.css
 │   ├── diario-sync.css
-│   └── login.css
+│   ├── login.css
+│   └── psicologia.css
 ├── dados/
 ├── docs/
 │   ├── backend-local-seguro.md
@@ -239,7 +259,8 @@ suzy-command-center/
 │   ├── recuperacao-senha-local.md
 │   ├── simulador-custos-operacionais.md
 │   ├── sincronizacao-direta-diario.md
-│   └── testes-multinavegador-acessibilidade.md
+│   ├── testes-multinavegador-acessibilidade.md
+│   └── trilha-psicologia-disciplina.md
 ├── js/
 │   ├── calendario.js
 │   ├── calendar-core.js
@@ -248,7 +269,9 @@ suzy-command-center/
 │   ├── journal-core.js
 │   ├── journal-lifecycle-core.js
 │   ├── journal-sync-core.js
-│   └── login.js
+│   ├── login.js
+│   ├── psicologia.js
+│   └── psychology-core.js
 ├── server/
 │   ├── database.js
 │   ├── security.js
@@ -262,6 +285,7 @@ suzy-command-center/
 │   ├── journal-lifecycle.test.js
 │   ├── journal-sqlite-lifecycle.test.js
 │   ├── journal-sync.test.js
+│   ├── psychology.test.js
 │   ├── server-api.test.js
 │   ├── server-security.test.js
 │   └── demais testes unitários
@@ -316,6 +340,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
 - o envelope de versões e lixeira possui limite conservador de 350.000 caracteres codificados, além do limite geral de 2 MB da API;
+- os dados da trilha comportamental permanecem somente no navegador e na exportação JSON;
 - sem a senha e sem uma chave de recuperação válida, não existe recuperação automática;
 - o banco local não é criptografado em repouso;
 - não há feed real de preços ou calendário econômico oficial;
@@ -327,11 +352,11 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Criar trilha de psicologia, disciplina e avaliação comportamental.
-2. Avaliar criptografia em repouso para o banco local.
-3. Ampliar testes manuais com leitores de tela.
-4. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
+1. Avaliar criptografia em repouso para o banco local.
+2. Ampliar testes manuais com leitores de tela.
+3. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
+4. Integrar, de forma opcional e consentida, o check-in comportamental ao diário local.
 
 ## Aviso
 
-Este software é educacional e demonstrativo. Ele não promete lucro, não fornece garantia de resultado e não substitui formação, supervisão ou avaliação financeira independente. Mercados alavancados e operações de curto prazo envolvem risco elevado de perda.
+Este software é educacional e demonstrativo. Ele não promete lucro, não fornece garantia de resultado e não substitui formação, supervisão, atendimento psicológico ou avaliação financeira independente. Mercados alavancados e operações de curto prazo envolvem risco elevado de perda.
