@@ -75,6 +75,7 @@ Arquivo: `psicologia.html`
 - plano de ação gerado pelas três maiores prioridades;
 - sequência diária e histórico de até 90 check-ins;
 - até 24 avaliações salvas no navegador;
+- integração opcional e consentida com o diário, limitada a data, pontuação, classificação e orientação do check-in;
 - exportação JSON local;
 - aviso explícito de que o módulo não é diagnóstico psicológico ou médico.
 
@@ -139,6 +140,7 @@ Arquivo: `diario.html`
 - resultado em `R` e qualidade da execução;
 - aderência ao plano;
 - emoções antes e depois;
+- resumo opcional do check-in de prontidão do mesmo dia, mediante consentimento explícito;
 - erros de processo, contexto e lição aprendida;
 - expectativa, profit factor e drawdown máximo;
 - curva acumulada em `R`;
@@ -355,7 +357,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
 - o envelope de versões e lixeira possui limite conservador de 350.000 caracteres codificados, além do limite geral de 2 MB da API;
-- os dados da trilha comportamental permanecem somente no navegador e na exportação JSON;
+- respostas brutas e o estado completo da trilha comportamental permanecem somente no navegador e na exportação JSON; apenas o resumo consentido de um check-in pode acompanhar uma entrada do diário;
 - sem a senha e sem uma chave de recuperação válida, não existe recuperação automática da conta;
 - sem a chave AES correspondente, o conteúdo criptografado do diário não pode ser recuperado;
 - identificadores, vínculo com usuário, datas técnicas e quantidade de registros permanecem visíveis no SQLite;
@@ -373,7 +375,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 1. Ampliar testes manuais com leitores de tela.
 2. Avaliar rotação assistida da chave AES com recriptografia transacional.
 3. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
-4. Integrar, de forma opcional e consentida, o check-in comportamental ao diário local.
+4. Criar relatórios agregados de processo por faixa de prontidão, sem transformar correlação em sinal operacional.
 
 ## Aviso
 
