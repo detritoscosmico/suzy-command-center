@@ -151,14 +151,66 @@
       .slice(0, limit);
   }
 
+  function timeframeDuration(code = "M5") {
+    const durations = {
+      S5: 5 * 1000,
+      S10: 10 * 1000,
+      S15: 15 * 1000,
+      S30: 30 * 1000,
+      M1: 60 * 1000,
+      M5: 5 * 60 * 1000,
+      M15: 15 * 60 * 1000,
+      M30: 30 * 60 * 1000,
+      H1: 60 * 60 * 1000,
+      H2: 2 * 60 * 60 * 1000,
+      H3: 3 * 60 * 60 * 1000,
+      H4: 4 * 60 * 60 * 1000,
+      H12: 12 * 60 * 60 * 1000,
+      D1: 24 * 60 * 60 * 1000,
+      W1: 7 * 24 * 60 * 60 * 1000,
+      MN1: 30 * 24 * 60 * 60 * 1000
+    };
+    return durations[String(code).toUpperCase()] || durations.M5;
+  }
+
+  function chartTimeLabelMode(intervalMilliseconds, displayedSpanMilliseconds = 0) {
+    const interval = Number(intervalMilliseconds);
+    const displayedSpan = Math.max(0, Number(displayedSpanMilliseconds) || 0);
+    if (interval >= timeframeDuration("MN1")) return "DATE_YEAR";
+    if (interval >= timeframeDuration("D1")) return displayedSpan >= 365 * timeframeDuration("D1") ? "DATE_YEAR" : "DATE";
+    if (displayedSpan >= timeframeDuration("D1")) return "DATE_TIME";
+    if (interval < timeframeDuration("M1")) return "TIME_SECONDS";
+    return "TIME";
+  }
+
+  function shiftUtcMonths(timestamp, monthOffset) {
+    const source = new Date(timestamp);
+    const target = new Date(Date.UTC(
+      source.getUTCFullYear(),
+      source.getUTCMonth() + monthOffset,
+      1,
+      source.getUTCHours(),
+      source.getUTCMinutes(),
+      source.getUTCSeconds(),
+      source.getUTCMilliseconds()
+    ));
+    const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+    target.setUTCDate(Math.min(source.getUTCDate(), lastDay));
+    return target.getTime();
+  }
+
   function generateDemoCandles(options = {}) {
     const basePrice = Number(options.basePrice);
     if (!Number.isFinite(basePrice) || basePrice <= 0) return [];
 
     const count = clampInteger(options.count, 10, 500, 48);
-    const intervalMinutes = clampInteger(options.intervalMinutes, 1, 60, 1);
+    const requestedMilliseconds = Number(options.intervalMilliseconds);
+    const intervalMilliseconds = Number.isFinite(requestedMilliseconds) && requestedMilliseconds >= 1000
+      ? Math.min(31 * 24 * 60 * 60 * 1000, Math.round(requestedMilliseconds))
+      : clampInteger(options.intervalMinutes, 1, 60, 1) * 60000;
     const random = typeof options.random === "function" ? options.random : Math.random;
     const endTime = Number.isFinite(Number(options.endTime)) ? Number(options.endTime) : Date.now();
+    const timeframeCode = String(options.timeframeCode || "").toUpperCase();
     const volatility = basePrice * 0.0015;
     const candles = [];
     let previousClose = basePrice;
@@ -170,7 +222,10 @@
       const wickDown = random() * volatility * 0.55;
       const high = Math.max(open, close) + wickUp;
       const low = Math.max(0.00000001, Math.min(open, close) - wickDown);
-      const time = endTime - (count - 1 - index) * intervalMinutes * 60000;
+      const periodsBack = count - 1 - index;
+      const time = timeframeCode === "MN1"
+        ? shiftUtcMonths(endTime, -periodsBack)
+        : endTime - periodsBack * intervalMilliseconds;
 
       candles.push({ time, open, high, low, close });
       previousClose = close;
@@ -312,6 +367,8 @@
     normalizeAsset,
     normalizeCatalog,
     analyzeDemoAssets,
+    timeframeDuration,
+    chartTimeLabelMode,
     generateDemoCandles,
     calculateEma,
     calculateSma,

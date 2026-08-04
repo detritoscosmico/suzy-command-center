@@ -131,9 +131,12 @@ function populateChartAssets(){
 }
 function selectedChartAsset(){return assets.find(asset=>asset.ticker===$("chartAsset").value)||assets[0];}
 function chartPrice(value,asset=selectedChartAsset()){return Number(value).toFixed(Math.min(asset?.decimals??2,6));}
+function chartTimeframeDuration(){return SuzyCore.timeframeDuration($("chartTimeframe").value);}
+function chartDisplayedSpan(){return chartCandles.length>1?chartCandles.at(-1).time-chartCandles[0].time:0;}
+function formatChartTimestamp(time){const mode=SuzyCore.chartTimeLabelMode(chartTimeframeDuration(),chartDisplayedSpan());const date=new Date(time);if(mode==="DATE_YEAR")return date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit"});if(mode==="DATE")return date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});if(mode==="DATE_TIME")return date.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});return date.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:mode==="TIME_SECONDS"?"2-digit":undefined});}
 function generateChartScenario(){
  const asset=selectedChartAsset();if(!asset)return;
- chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:80,intervalMinutes:Number($("chartTimeframe").value)});
+ chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:80,timeframeCode:$("chartTimeframe").value,intervalMilliseconds:chartTimeframeDuration()});
  chartDrawings=[];pendingDrawingPoint=null;chartKeyboardPoint={x:.5,y:.5};
  renderCandleChart();
 }
@@ -171,7 +174,7 @@ function renderCandleChart(){
  if(chartIndicators.ema){drawChartSeries(ctx,SuzyCore.calculateEma(closes,9),"#38bdf8",geometry);drawChartSeries(ctx,SuzyCore.calculateEma(closes,21),"#ff5ec7",geometry);}
  if(chartIndicators.sma)drawChartSeries(ctx,SuzyCore.calculateSma(closes,50),"#facc15",geometry,{width:1.8});
  const patterns=SuzyCore.detectCandlePatterns(chartCandles);patterns.filter(pattern=>pattern.index>=chartCandles.length-12).slice(-6).forEach(pattern=>{const candle=chartCandles[pattern.index];const x=margin.left+step*pattern.index+step/2;ctx.fillStyle=pattern.bias==="BULLISH"?"#22e582":pattern.bias==="BEARISH"?"#ff5c5c":"#ff981a";ctx.font="bold 10px Segoe UI";ctx.textAlign="center";ctx.fillText("◆",x,Math.max(margin.top+10,y(candle.high)-7));});
- drawManualLines(ctx,geometry);if(drawingTool!=="cursor"&&document.activeElement===canvas){const cursorX=margin.left+chartKeyboardPoint.x*plotWidth;const cursorY=margin.top+chartKeyboardPoint.y*plotHeight;ctx.save();ctx.strokeStyle="#facc15";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(cursorX-8,cursorY);ctx.lineTo(cursorX+8,cursorY);ctx.moveTo(cursorX,cursorY-8);ctx.lineTo(cursorX,cursorY+8);ctx.stroke();ctx.restore();}ctx.fillStyle="#8fa4bd";ctx.textAlign="center";for(let index=0;index<chartCandles.length;index+=20){const candle=chartCandles[index];ctx.fillText(new Date(candle.time).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),margin.left+step*index+step/2,height-12);}
+ drawManualLines(ctx,geometry);if(drawingTool!=="cursor"&&document.activeElement===canvas){const cursorX=margin.left+chartKeyboardPoint.x*plotWidth;const cursorY=margin.top+chartKeyboardPoint.y*plotHeight;ctx.save();ctx.strokeStyle="#facc15";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(cursorX-8,cursorY);ctx.lineTo(cursorX+8,cursorY);ctx.moveTo(cursorX,cursorY-8);ctx.lineTo(cursorX,cursorY+8);ctx.stroke();ctx.restore();}ctx.fillStyle="#8fa4bd";ctx.textAlign="center";for(let index=0;index<chartCandles.length;index+=20){const candle=chartCandles[index];ctx.fillText(formatChartTimestamp(candle.time),margin.left+step*index+step/2,height-12);}
  const last=chartCandles.at(-1);const ema9=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),9).at(-1);const ema21=SuzyCore.calculateEma(chartCandles.map(candle=>candle.close),21).at(-1);
  $("chartOpen").textContent=chartPrice(last.open,asset);$("chartHigh").textContent=chartPrice(last.high,asset);$("chartLow").textContent=chartPrice(last.low,asset);$("chartClose").textContent=chartPrice(last.close,asset);
  const trend=last.close>ema9&&ema9>ema21?{label:"ALTA DEMO",className:"green"}:last.close<ema9&&ema9<ema21?{label:"BAIXA DEMO",className:"red"}:{label:"LATERAL",className:"orange"};$("chartTrend").textContent=trend.label;$("chartTrend").className=trend.className;

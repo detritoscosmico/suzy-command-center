@@ -11,6 +11,8 @@ const {
   normalizeAsset,
   normalizeCatalog,
   analyzeDemoAssets,
+  timeframeDuration,
+  chartTimeLabelMode,
   generateDemoCandles,
   calculateEma,
   calculateSma,
@@ -204,6 +206,35 @@ test("gera velas demo com OHLC válido e intervalo correto", () => {
     assert.ok(candle.low <= Math.min(candle.open, candle.close));
     assert.ok(candle.low > 0);
   }
+});
+
+test("converte todos os períodos do gráfico em milissegundos", () => {
+  assert.equal(timeframeDuration("S5"), 5000);
+  assert.equal(timeframeDuration("S30"), 30000);
+  assert.equal(timeframeDuration("M30"), 1800000);
+  assert.equal(timeframeDuration("H12"), 43200000);
+  assert.equal(timeframeDuration("D1"), 86400000);
+  assert.equal(timeframeDuration("W1"), 604800000);
+  assert.equal(timeframeDuration("MN1"), 2592000000);
+  assert.equal(timeframeDuration("desconhecido"), 300000);
+});
+
+test("escolhe rótulos de eixo conforme o período total exibido", () => {
+  assert.equal(chartTimeLabelMode(timeframeDuration("S5"), 79 * timeframeDuration("S5")), "TIME_SECONDS");
+  assert.equal(chartTimeLabelMode(timeframeDuration("M5"), 79 * timeframeDuration("M5")), "TIME");
+  assert.equal(chartTimeLabelMode(timeframeDuration("H12"), 79 * timeframeDuration("H12")), "DATE_TIME");
+  assert.equal(chartTimeLabelMode(timeframeDuration("D1"), 79 * timeframeDuration("D1")), "DATE");
+  assert.equal(chartTimeLabelMode(timeframeDuration("MN1"), 79 * timeframeDuration("MN1")), "DATE_YEAR");
+});
+
+test("gera candles em períodos de segundos e longo prazo", () => {
+  const seconds = generateDemoCandles({ basePrice: 100, count: 10, intervalMilliseconds: timeframeDuration("S5"), endTime: 300000, random: () => 0.5 });
+  const endTime = Date.UTC(2026, 7, 31, 12);
+  const monthly = generateDemoCandles({ basePrice: 100, count: 10, timeframeCode: "MN1", intervalMilliseconds: timeframeDuration("MN1"), endTime, random: () => 0.5 });
+  assert.equal(seconds[1].time - seconds[0].time, 5000);
+  assert.equal(monthly.at(-1).time, endTime);
+  assert.equal(monthly.at(-2).time, Date.UTC(2026, 6, 31, 12));
+  assert.equal(monthly.at(-3).time, Date.UTC(2026, 5, 30, 12));
 });
 
 test("não gera velas para preço base inválido", () => {

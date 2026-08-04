@@ -77,6 +77,16 @@ test("permite desenhar no gráfico usando somente o teclado", async ({ page }, t
   await expect(page.locator("#drawingHelp")).toHaveText("Linha de tendência criada.");
 });
 
+test("alterna entre períodos de segundos e longo prazo", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/index.html");
+  await page.locator('button[data-view="chart"]').click();
+  await page.locator("#chartTimeframe").selectOption("S5");
+  await expect(page.locator("#chartUpdated")).toContainText("5s");
+  await page.locator("#chartTimeframe").selectOption("MN1");
+  await expect(page.locator("#chartUpdated")).toContainText("1 mês");
+});
+
 test("conclui a primeira aula e libera a segunda", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/academia.html");
