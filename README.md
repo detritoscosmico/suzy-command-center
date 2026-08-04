@@ -181,7 +181,7 @@ No modo local seguro, essa página oferece:
 - alteração e recuperação segura da senha local;
 - sincronização direta dos registros ativos do diário com SQLite;
 - restauração direta e resolução explícita de divergências;
-- catálogo estruturado em JSON com fallback local;
+- catálogo estruturado em JSON com fallback local e 24 ações globais para estudo;
 - scanner demonstrativo e gráfico de velas artificiais;
 - registro manual de WIN e LOSS;
 - gestão de risco com entrada máxima, stop diário e limites operacionais;
