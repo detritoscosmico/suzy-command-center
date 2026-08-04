@@ -132,10 +132,11 @@ function populateChartAssets(){
 function selectedChartAsset(){return assets.find(asset=>asset.ticker===$("chartAsset").value)||assets[0];}
 function chartPrice(value,asset=selectedChartAsset()){return Number(value).toFixed(Math.min(asset?.decimals??2,6));}
 function chartTimeframeDuration(){return SuzyCore.timeframeDuration($("chartTimeframe").value);}
-function formatChartTimestamp(time){const duration=chartTimeframeDuration();if(duration>=86400000)return new Date(time).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:duration>=2592000000?"2-digit":undefined});return new Date(time).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:duration<60000?"2-digit":undefined});}
+function chartDisplayedSpan(){return chartCandles.length>1?chartCandles.at(-1).time-chartCandles[0].time:0;}
+function formatChartTimestamp(time){const mode=SuzyCore.chartTimeLabelMode(chartTimeframeDuration(),chartDisplayedSpan());const date=new Date(time);if(mode==="DATE_YEAR")return date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit"});if(mode==="DATE")return date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});if(mode==="DATE_TIME")return date.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});return date.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:mode==="TIME_SECONDS"?"2-digit":undefined});}
 function generateChartScenario(){
  const asset=selectedChartAsset();if(!asset)return;
- chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:80,intervalMilliseconds:chartTimeframeDuration()});
+ chartCandles=SuzyCore.generateDemoCandles({basePrice:asset.price,count:80,timeframeCode:$("chartTimeframe").value,intervalMilliseconds:chartTimeframeDuration()});
  chartDrawings=[];pendingDrawingPoint=null;chartKeyboardPoint={x:.5,y:.5};
  renderCandleChart();
 }
