@@ -243,7 +243,8 @@
   function normalizeState(candidate = {}) {
     const lessonProgress = [...new Set(
       (Array.isArray(candidate.lessonProgress) ? candidate.lessonProgress : [])
-        .map(value => String(value).trim())
+        .filter(value => typeof value === "string")
+        .map(value => value.trim())
         .filter(Boolean)
     )].slice(0, 20);
 
