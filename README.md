@@ -9,7 +9,7 @@ Central educacional para treinamento, registro de operações, gestão de risco 
 
 A versão publicada no GitHub Pages continua funcionando sem backend. Ela não conecta com corretora, não executa ordens e não utiliza cotações reais.
 
-O painel de velas inclui um laboratório gráfico artificial com EMA 9/21, SMA 50, Bandas de Bollinger, RSI 14, reconhecimento heurístico de padrões de velas e bandeiras, além de linhas manuais de tendência, suporte e resistência. Esses recursos servem apenas para estudo e não produzem sinais operacionais.
+O painel de velas inclui um laboratório gráfico artificial com períodos de 5 segundos a 1 mês, EMA 9/21, SMA 50, Bandas de Bollinger, RSI 14, reconhecimento heurístico de padrões de velas e bandeiras, além de linhas manuais de tendência, suporte e resistência. Esses recursos servem apenas para estudo e não produzem sinais operacionais.
 
 ## Executar a versão estática
 
