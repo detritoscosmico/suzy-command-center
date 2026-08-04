@@ -73,7 +73,7 @@ function loadDataKey(options = {}) {
     };
   }
 
-  const configuredPath = options.keyPath ?? process.env.SUZY_KEY_PATH;
+  const configuredPath = process.env.SUZY_KEY_PATH ?? options.keyPath;
   if (!configuredPath) {
     throw new Error("Defina um caminho para a chave local ou informe SUZY_DATA_KEY.");
   }
