@@ -53,6 +53,18 @@ function createTestUser(database) {
   });
 }
 
+function assertFilesDoNotContain(paths, text) {
+  const needle = Buffer.from(text, "utf8");
+  for (const filePath of paths) {
+    if (!fs.existsSync(filePath)) continue;
+    assert.equal(
+      fs.readFileSync(filePath).includes(needle),
+      false,
+      `${path.basename(filePath)} não deve manter ${text} em texto aberto.`
+    );
+  }
+}
+
 test("criptografa JSON com AES-GCM e detecta adulteração ou chave incorreta", () => {
   const payload = { asset: "BTC/USDT", note: "dado sensível" };
   const encrypted = encryptJson(payload, KEY_A, "journal:1:trade-1:v1");
@@ -218,4 +230,8 @@ test("migra registros legados, preserva leitura e remove texto sensível", t => 
   assert.equal(raw.encrypted_payload.includes("Contexto legado sensível"), false);
 
   database.close();
+  const sqliteFiles = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`];
+  assertFilesDoNotContain(sqliteFiles, "XAU/USD");
+  assertFilesDoNotContain(sqliteFiles, "Contexto legado sensível");
+  assertFilesDoNotContain(sqliteFiles, "Respeitar o stop");
 });
