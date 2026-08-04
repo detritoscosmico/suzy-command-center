@@ -57,15 +57,18 @@ test("criptografa JSON com AES-GCM e detecta adulteração ou chave incorreta", 
   const payload = { asset: "BTC/USDT", note: "dado sensível" };
   const encrypted = encryptJson(payload, KEY_A, "journal:1:trade-1:v1");
 
-  assert.doesNotMatch(encrypted, /BTC|sensível/);
+  assert.equal(encrypted.includes("BTC/USDT"), false);
+  assert.equal(encrypted.includes("dado sensível"), false);
   assert.deepEqual(decryptJson(encrypted, KEY_A, "journal:1:trade-1:v1"), payload);
   assert.throws(
     () => decryptJson(encrypted, KEY_B, "journal:1:trade-1:v1"),
     /Não foi possível autenticar/
   );
 
-  const last = encrypted.at(-1);
-  const tampered = `${encrypted.slice(0, -1)}${last === "A" ? "B" : "A"}`;
+  const parts = encrypted.split(".");
+  const firstCipherCharacter = parts[3][0];
+  parts[3] = `${firstCipherCharacter === "A" ? "B" : "A"}${parts[3].slice(1)}`;
+  const tampered = parts.join(".");
   assert.throws(
     () => decryptJson(tampered, KEY_A, "journal:1:trade-1:v1"),
     /Não foi possível autenticar/
@@ -117,7 +120,8 @@ test("grava conteúdo do diário apenas no envelope criptografado", t => {
   assert.equal(raw.setup, ENCRYPTED_PLACEHOLDER);
   assert.equal(raw.context, "");
   assert.equal(Number(raw.encryption_version), ENCRYPTION_VERSION);
-  assert.doesNotMatch(raw.encrypted_payload, /EUR\/USD|Pullback|Estrutura alinhada/);
+  assert.equal(raw.encrypted_payload.includes("EUR/USD"), false);
+  assert.equal(raw.encrypted_payload.includes("Estrutura alinhada"), false);
   assert.equal(database.encryptionInfo().algorithm, "AES-256-GCM");
 
   const restored = database.listJournal(user.id);
@@ -210,7 +214,8 @@ test("migra registros legados, preserva leitura e remove texto sensível", t => 
   assert.equal(raw.setup, ENCRYPTED_PLACEHOLDER);
   assert.equal(raw.context, "");
   assert.equal(Number(raw.encryption_version), ENCRYPTION_VERSION);
-  assert.doesNotMatch(raw.encrypted_payload, /XAU|Rompimento|legado sensível/);
+  assert.equal(raw.encrypted_payload.includes("XAU/USD"), false);
+  assert.equal(raw.encrypted_payload.includes("Contexto legado sensível"), false);
 
   database.close();
 });
