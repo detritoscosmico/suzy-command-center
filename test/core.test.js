@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const assetCatalog = require("../dados/ativos.json");
 const {
   localDateKey,
   consecutiveLosses,
@@ -166,6 +167,16 @@ test("usa catálogo de segurança quando o JSON não possui ativos válidos", ()
   assert.equal(catalog.length, 1);
   assert.equal(catalog[0].ticker, "XLM/USD");
   assert.notEqual(catalog[0], fallback[0]);
+});
+
+test("catálogo inclui 24 ações globais sem tickers duplicados", () => {
+  const stocks = normalizeCatalog(assetCatalog).filter(asset => asset.cat === "Ações");
+  const requestedTickers = ["TSLA", "GS", "AAPL", "AA", "MSFT", "AMZN", "GOOGL", "NVDA", "BAC", "VALE3", "WEGE3", "PETR4"];
+
+  assert.ok(assetCatalog.categorias.includes("Ações"));
+  assert.equal(stocks.length, 24);
+  assert.equal(new Set(stocks.map(asset => asset.ticker)).size, stocks.length);
+  for (const ticker of requestedTickers) assert.ok(stocks.some(asset => asset.ticker === ticker), `${ticker} ausente do catálogo`);
 });
 
 test("scanner demo classifica direção e ordena pela pontuação", () => {
