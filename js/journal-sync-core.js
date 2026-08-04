@@ -37,6 +37,25 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function encodeUtf8Base64(value) {
+    const text = String(value ?? "");
+    if (typeof Buffer !== "undefined") return Buffer.from(text, "utf8").toString("base64");
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (let offset = 0; offset < bytes.length; offset += 32_768) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 32_768));
+    }
+    return btoa(binary);
+  }
+
+  function decodeUtf8Base64(value) {
+    const encoded = String(value ?? "");
+    if (typeof Buffer !== "undefined") return Buffer.from(encoded, "base64").toString("utf8");
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
   function canonicalEntry(entry = {}) {
     const canonical = {};
     for (const field of JOURNAL_FIELDS) canonical[field] = entry[field] ?? null;
@@ -159,11 +178,13 @@
   }
 
   function lifecyclePayload(trash = [], history = {}) {
-    return JSON.stringify({
+    const json = JSON.stringify({
       version: 1,
+      encoding: "base64-utf8",
       trash: normalizeTrashSnapshot(trash),
       history: normalizeHistorySnapshot(history)
     });
+    return encodeUtf8Base64(json);
   }
 
   function lifecycleEnvelopeRecord(chunk, index, total) {
@@ -237,8 +258,9 @@
     }
 
     try {
-      const parsed = JSON.parse(metadata.map(entry => String(entry.context ?? "")).join(""));
-      if (parsed?.version !== 1) throw new Error("Versão incompatível.");
+      const encoded = metadata.map(entry => String(entry.context ?? "")).join("");
+      const parsed = JSON.parse(decodeUtf8Base64(encoded));
+      if (parsed?.version !== 1 || parsed?.encoding !== "base64-utf8") throw new Error("Versão incompatível.");
       return {
         entries,
         trash: normalizeTrashSnapshot(parsed.trash),
@@ -267,6 +289,8 @@
     LIFECYCLE_META_ASSET,
     LIFECYCLE_CHUNK_SIZE,
     MAX_LIFECYCLE_CHARS,
+    encodeUtf8Base64,
+    decodeUtf8Base64,
     canonicalEntry,
     normalizeSnapshot,
     normalizeTrashSnapshot,
