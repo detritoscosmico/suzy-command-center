@@ -63,6 +63,37 @@ test("salva check-in comportamental e atualiza prontidão", async ({ page }, tes
   await expect(page.locator("#readinessFeedback")).toContainText("salvo neste navegador");
 });
 
+test("vincula prontidão ao diário somente com consentimento", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/psicologia.html");
+  await page.locator("#sleepQuality").selectOption("5");
+  await page.locator("#emotionalActivation").selectOption("1");
+  await page.locator("#recoveryUrge").selectOption("1");
+  await page.locator("#planClarity").selectOption("5");
+  await page.locator("#acceptsStop").check();
+  await page.locator("#readinessForm button[type=submit]").click();
+
+  const today = await page.evaluate(() => {
+    const date = new Date();
+    const pad = value => String(value).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  });
+  await page.goto("/diario.html");
+  await page.locator("#entryTimestamp").fill(`${today}T10:00`);
+  await page.locator("#entryTimestamp").dispatchEvent("change");
+  await expect(page.locator("#entryReadinessStatus")).toContainText("Estudo e simulação liberados");
+  await expect(page.locator("#entryLinkReadiness")).toBeEnabled();
+  await page.locator("#entryLinkReadiness").check();
+  await page.locator("#entryAsset").fill("EUR/USD");
+  await page.locator("#entrySetup").fill("Pullback disciplinado");
+  await page.locator("#journalForm button[type=submit]").click();
+
+  await expect(page.locator("#historyBody")).toContainText("Estudo e simulação liberados");
+  const linked = await page.evaluate(() => JSON.parse(localStorage.getItem("suzy-professional-journal-v1"))[0].behavioralCheckIn);
+  expect(linked).toMatchObject({ date: today, statusKey: "ready", statusLabel: "Estudo e simulação liberados" });
+  expect(linked.inputs).toBeUndefined();
+});
+
 test("registra uma operação demo no Command Center", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/index.html");

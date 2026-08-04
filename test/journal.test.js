@@ -2,6 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
   normalizeJournalEntry,
+  normalizeBehavioralCheckIn,
+  behavioralSnapshotFromCheckIn,
   calculateMaxDrawdown,
   summarizeJournal,
   groupJournal,
@@ -27,7 +29,8 @@ function entry(overrides = {}) {
     emotionAfter: overrides.emotionAfter ?? "Neutro",
     errorType: overrides.errorType ?? "Nenhum",
     context: overrides.context ?? "Estrutura favorável",
-    lesson: overrides.lesson ?? "Repetir processo"
+    lesson: overrides.lesson ?? "Repetir processo",
+    behavioralCheckIn: overrides.behavioralCheckIn ?? null
   };
 }
 
@@ -45,6 +48,30 @@ test("rejeita registro sem data, ativo, setup ou resultado válido", () => {
   assert.equal(normalizeJournalEntry(entry({ asset: "" })), null);
   assert.equal(normalizeJournalEntry(entry({ setup: "" })), null);
   assert.equal(normalizeJournalEntry(entry({ rMultiple: "abc" })), null);
+});
+
+test("normaliza e vincula somente snapshots comportamentais válidos", () => {
+  const snapshot = behavioralSnapshotFromCheckIn({
+    date: "2026-08-04",
+    score: 18.26,
+    status: {
+      key: "ready",
+      label: "Estudo e simulação liberados",
+      guidance: "Mantenha o plano e o limite."
+    }
+  }, "2026-08-04T10:00:00.000Z");
+
+  assert.deepEqual(snapshot, {
+    date: "2026-08-04",
+    score: 18.3,
+    statusKey: "ready",
+    statusLabel: "Estudo e simulação liberados",
+    guidance: "Mantenha o plano e o limite.",
+    capturedAt: "2026-08-04T10:00:00.000Z"
+  });
+  assert.deepEqual(normalizeJournalEntry(entry({ behavioralCheckIn: snapshot })).behavioralCheckIn, snapshot);
+  assert.equal(normalizeBehavioralCheckIn({ ...snapshot, statusKey: "desconhecido" }), null);
+  assert.equal(normalizeJournalEntry(entry({ behavioralCheckIn: { score: 10 } })).behavioralCheckIn, null);
 });
 
 test("calcula expectativa, profit factor, aderência e drawdown", () => {

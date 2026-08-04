@@ -3,6 +3,7 @@ const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 const { hashToken, randomToken } = require("./security.js");
 const { createAtRestCipher } = require("./encryption.js");
+const { normalizeJournalEntry } = require("../js/journal-core.js");
 
 const ENCRYPTION_VERSION = 1;
 const ENCRYPTION_CHECK_KEY = "journal_encryption_check_v1";
@@ -193,27 +194,13 @@ class SuzyDatabase {
       throw new Error("O registro criptografado não corresponde ao identificador armazenado.");
     }
 
-    const rMultiple = Number(entry.rMultiple);
-    return {
+    const normalized = normalizeJournalEntry({
+      ...entry,
       id: row.id,
-      timestamp: String(entry.timestamp),
-      asset: String(entry.asset),
-      market: String(entry.market),
-      session: String(entry.session),
-      timeframe: String(entry.timeframe),
-      direction: String(entry.direction),
-      setup: String(entry.setup),
-      rMultiple,
-      result: rMultiple > 0 ? "WIN" : rMultiple < 0 ? "LOSS" : "BREAKEVEN",
-      followedPlan: Boolean(entry.followedPlan),
-      quality: Number(entry.quality),
-      emotionBefore: String(entry.emotionBefore),
-      emotionAfter: String(entry.emotionAfter),
-      errorType: String(entry.errorType),
-      context: String(entry.context),
-      lesson: String(entry.lesson),
-      createdAt: String(entry.createdAt || row.created_at)
-    };
+      createdAt: entry.createdAt || row.created_at
+    });
+    if (!normalized) throw new Error("O registro criptografado contém dados operacionais inválidos.");
+    return normalized;
   }
 
   migratePlaintextJournal() {

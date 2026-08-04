@@ -1,6 +1,7 @@
 const JOURNAL_STORAGE_KEY = "suzy-professional-journal-v1";
 const JOURNAL_TRASH_KEY = "suzy-professional-journal-trash-v1";
 const JOURNAL_HISTORY_KEY = "suzy-professional-journal-history-v1";
+const PSYCHOLOGY_STORAGE_KEY = "suzy_psychology_v1";
 const $ = id => document.getElementById(id);
 
 let entries = loadEntries();
@@ -57,6 +58,42 @@ function localInputValue(date = new Date()) {
 function isoToLocalInput(value) {
   const date = new Date(value);
   return Number.isFinite(date.getTime()) ? localInputValue(date) : localInputValue();
+}
+
+function psychologyState() {
+  try {
+    const raw = localStorage.getItem(PSYCHOLOGY_STORAGE_KEY);
+    return SuzyPsychologyCore.normalizeState(raw ? JSON.parse(raw) : SuzyPsychologyCore.DEFAULT_STATE);
+  } catch (error) {
+    console.warn("Não foi possível consultar a prontidão comportamental.", error);
+    return SuzyPsychologyCore.cloneState(SuzyPsychologyCore.DEFAULT_STATE);
+  }
+}
+
+function formBehavioralSnapshot(existingEntry) {
+  const date = String($("entryTimestamp").value || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  if (existingEntry?.behavioralCheckIn?.date === date) return existingEntry.behavioralCheckIn;
+  const checkIn = psychologyState().checkIns.find(item => item.date === date);
+  return SuzyJournalCore.behavioralSnapshotFromCheckIn(checkIn);
+}
+
+function renderBehavioralIntegration(forceConsent) {
+  const checkbox = $("entryLinkReadiness");
+  const existingEntry = editingEntryId ? entries.find(entry => entry.id === editingEntryId) : null;
+  const snapshot = formBehavioralSnapshot(existingEntry);
+  const keepChecked = typeof forceConsent === "boolean" ? forceConsent : checkbox.checked;
+  checkbox.disabled = !snapshot;
+  checkbox.checked = Boolean(snapshot) && keepChecked;
+
+  const status = $("entryReadinessStatus");
+  if (!snapshot) {
+    status.className = "readiness-link-status";
+    status.textContent = "Nenhum check-in encontrado para a data escolhida. Faça o protocolo na trilha de Psicologia para habilitar o vínculo.";
+    return;
+  }
+  status.className = `readiness-link-status ${snapshot.statusKey}`;
+  status.textContent = `${snapshot.statusLabel} • ${snapshot.score.toFixed(1)}/100. ${snapshot.guidance}`;
 }
 
 function escapeHtml(value) {
@@ -158,6 +195,7 @@ function renderHistory(sample) {
         <td class="${entry.rMultiple > 0 ? "green" : entry.rMultiple < 0 ? "red" : ""}">${signedR(entry.rMultiple)}</td>
         <td>${entry.followedPlan ? "SIM" : "NÃO"}</td>
         <td>${entry.quality}/5</td>
+        <td><span class="readiness-badge">${entry.behavioralCheckIn ? `${escapeHtml(entry.behavioralCheckIn.statusLabel)} • ${entry.behavioralCheckIn.score.toFixed(1)}` : "Não vinculada"}</span></td>
         <td>
           <div class="row-actions">
             <button data-edit="${escapeHtml(entry.id)}" type="button">Editar</button>
@@ -166,7 +204,7 @@ function renderHistory(sample) {
           </div>
         </td>
       </tr>`).join("")
-    : '<tr><td colspan="10" class="empty-row">Nenhuma operação registrada.</td></tr>';
+    : '<tr><td colspan="11" class="empty-row">Nenhuma operação registrada.</td></tr>';
 }
 
 function renderErrors(sample) {
@@ -301,6 +339,7 @@ function drawEquityCurve(sample) {
 }
 
 function entryFromForm(existingEntry) {
+  const behavioralCheckIn = $("entryLinkReadiness").checked ? formBehavioralSnapshot(existingEntry) : null;
   return SuzyJournalCore.normalizeJournalEntry({
     id: existingEntry?.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
     timestamp: $("entryTimestamp").value,
@@ -318,6 +357,7 @@ function entryFromForm(existingEntry) {
     errorType: $("entryError").value,
     context: $("entryContext").value,
     lesson: $("entryLesson").value,
+    behavioralCheckIn,
     createdAt: existingEntry?.createdAt
   });
 }
@@ -325,6 +365,11 @@ function entryFromForm(existingEntry) {
 function submitEntry(event) {
   event.preventDefault();
   const current = editingEntryId ? entries.find(entry => entry.id === editingEntryId) : null;
+  if ($("entryLinkReadiness").checked && !formBehavioralSnapshot(current)) {
+    setFeedback("O check-in da data escolhida não está mais disponível. Atualize a data ou refaça o protocolo.", "error");
+    renderBehavioralIntegration(false);
+    return;
+  }
   const normalized = entryFromForm(current);
 
   if (!normalized) {
@@ -359,6 +404,7 @@ function clearEntryForm(clearFeedback = true) {
   $("entryR").value = "0";
   $("entryQuality").value = "3";
   $("entryFollowedPlan").checked = true;
+  renderBehavioralIntegration(false);
   $("submitEntryButton").textContent = "SALVAR REGISTRO";
   $("formMode").textContent = "NOVO REGISTRO";
   $("cancelEdit").hidden = true;
@@ -385,6 +431,7 @@ function editEntry(id) {
   $("entryFollowedPlan").checked = entry.followedPlan;
   $("entryContext").value = entry.context;
   $("entryLesson").value = entry.lesson;
+  renderBehavioralIntegration(Boolean(entry.behavioralCheckIn));
   $("submitEntryButton").textContent = "SALVAR ALTERAÇÕES";
   $("formMode").textContent = "EDITANDO REGISTRO";
   $("cancelEdit").hidden = false;
@@ -465,8 +512,8 @@ function resetFilters() {
 function exportCsv() {
   const sample = filteredEntries();
   if (!sample.length) return alert("Nenhum registro disponível para exportar.");
-  const header = ["data", "ativo", "mercado", "sessao", "timeframe", "direcao", "setup", "resultado", "r_multiplo", "seguiu_plano", "qualidade", "emocao_antes", "emocao_depois", "erro", "contexto", "licao"];
-  const rows = sample.map(entry => [entry.timestamp, entry.asset, entry.market, entry.session, entry.timeframe, entry.direction, entry.setup, entry.result, entry.rMultiple, entry.followedPlan ? "SIM" : "NAO", entry.quality, entry.emotionBefore, entry.emotionAfter, entry.errorType, entry.context, entry.lesson]);
+  const header = ["data", "ativo", "mercado", "sessao", "timeframe", "direcao", "setup", "resultado", "r_multiplo", "seguiu_plano", "qualidade", "emocao_antes", "emocao_depois", "erro", "contexto", "licao", "prontidao_data", "prontidao_score", "prontidao_status"];
+  const rows = sample.map(entry => [entry.timestamp, entry.asset, entry.market, entry.session, entry.timeframe, entry.direction, entry.setup, entry.result, entry.rMultiple, entry.followedPlan ? "SIM" : "NAO", entry.quality, entry.emotionBefore, entry.emotionAfter, entry.errorType, entry.context, entry.lesson, entry.behavioralCheckIn?.date || "", entry.behavioralCheckIn?.score ?? "", entry.behavioralCheckIn?.statusLabel || ""]);
   downloadBlob("\ufeff" + SuzyCore.serializeCsv([header, ...rows]), `suzy-diario-${new Date().toISOString().slice(0, 10)}.csv`, "text/csv;charset=utf-8");
 }
 
@@ -510,6 +557,11 @@ $("exportCsv").addEventListener("click", exportCsv);
 $("exportJson").addEventListener("click", exportJson);
 $("clearJournal").addEventListener("click", clearJournal);
 $("emptyTrash").addEventListener("click", emptyTrash);
+$("entryTimestamp").addEventListener("change", () => renderBehavioralIntegration());
+window.addEventListener("storage", event => {
+  if (event.key === PSYCHOLOGY_STORAGE_KEY) renderBehavioralIntegration();
+});
+document.addEventListener("suzy:psychology-updated", () => renderBehavioralIntegration());
 
 $("historyBody").addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");

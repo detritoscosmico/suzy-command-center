@@ -103,6 +103,15 @@
             </div>
 
             <label class="check-line"><input id="entryFollowedPlan" type="checkbox" checked /> A operação respeitou integralmente o plano.</label>
+            <section class="readiness-integration" aria-labelledby="readinessIntegrationTitle">
+              <div>
+                <span class="eyebrow">VÍNCULO OPCIONAL</span>
+                <h3 id="readinessIntegrationTitle">Prontidão comportamental do dia</h3>
+              </div>
+              <p id="entryReadinessStatus" class="readiness-link-status" aria-live="polite">Verificando o check-in do dia...</p>
+              <label class="check-line"><input id="entryLinkReadiness" type="checkbox" /> Vincular este snapshot comportamental ao registro.</label>
+              <small>Somente data, pontuação, faixa e orientação serão copiadas. As respostas brutas permanecem na trilha local. <a href="psicologia.html#readinessTitle">Abrir check-in</a></small>
+            </section>
             <label>Contexto e justificativa<textarea id="entryContext" maxlength="600" placeholder="Estrutura, região, gatilho, invalidação e cenário macro."></textarea></label>
             <label>Lição e próxima correção<textarea id="entryLesson" maxlength="600" placeholder="O que repetir, eliminar ou testar na próxima amostra."></textarea></label>
 
@@ -165,8 +174,8 @@
         </div>
         <div class="table-wrap history-table">
           <table>
-            <thead><tr><th>Data</th><th>Ativo</th><th>Setup</th><th>Sessão</th><th>Direção</th><th>Resultado</th><th>R</th><th>Plano</th><th>Qualidade</th><th>Ações</th></tr></thead>
-            <tbody id="historyBody"><tr><td colspan="10" class="empty-row">Nenhuma operação registrada.</td></tr></tbody>
+            <thead><tr><th>Data</th><th>Ativo</th><th>Setup</th><th>Sessão</th><th>Direção</th><th>Resultado</th><th>R</th><th>Plano</th><th>Qualidade</th><th>Prontidão</th><th>Ações</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="11" class="empty-row">Nenhuma operação registrada.</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -202,6 +211,7 @@
   </div>
 
   <script src="js/core.js"></script>
+  <script src="js/psychology-core.js"></script>
   <script src="js/journal-core.js"></script>
   <script src="js/journal-lifecycle-core.js"></script>
   <script src="js/journal-sync-core.js"></script>
