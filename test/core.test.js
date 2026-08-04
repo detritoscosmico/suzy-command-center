@@ -11,6 +11,7 @@ const {
   normalizeAsset,
   normalizeCatalog,
   analyzeDemoAssets,
+  timeframeDuration,
   generateDemoCandles,
   calculateEma,
   calculateSma,
@@ -204,6 +205,24 @@ test("gera velas demo com OHLC válido e intervalo correto", () => {
     assert.ok(candle.low <= Math.min(candle.open, candle.close));
     assert.ok(candle.low > 0);
   }
+});
+
+test("converte todos os períodos do gráfico em milissegundos", () => {
+  assert.equal(timeframeDuration("S5"), 5000);
+  assert.equal(timeframeDuration("S30"), 30000);
+  assert.equal(timeframeDuration("M30"), 1800000);
+  assert.equal(timeframeDuration("H12"), 43200000);
+  assert.equal(timeframeDuration("D1"), 86400000);
+  assert.equal(timeframeDuration("W1"), 604800000);
+  assert.equal(timeframeDuration("MN1"), 2592000000);
+  assert.equal(timeframeDuration("desconhecido"), 300000);
+});
+
+test("gera candles em períodos de segundos e longo prazo", () => {
+  const seconds = generateDemoCandles({ basePrice: 100, count: 10, intervalMilliseconds: timeframeDuration("S5"), endTime: 300000, random: () => 0.5 });
+  const monthly = generateDemoCandles({ basePrice: 100, count: 10, intervalMilliseconds: timeframeDuration("MN1"), endTime: 30000000000, random: () => 0.5 });
+  assert.equal(seconds[1].time - seconds[0].time, 5000);
+  assert.equal(monthly[1].time - monthly[0].time, 2592000000);
 });
 
 test("não gera velas para preço base inválido", () => {
