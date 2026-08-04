@@ -6,6 +6,7 @@ const { createAtRestCipher } = require("./encryption.js");
 
 const ENCRYPTION_VERSION = 1;
 const ENCRYPTION_CHECK_KEY = "journal_encryption_check_v1";
+const ENCRYPTION_COMPACTION_PENDING_KEY = "journal_encryption_compaction_pending_v1";
 const ENCRYPTED_PLACEHOLDER = "__encrypted__";
 
 class SuzyDatabase {
@@ -31,6 +32,7 @@ class SuzyDatabase {
       PRAGMA foreign_keys = ON;
       PRAGMA journal_mode = WAL;
       PRAGMA synchronous = NORMAL;
+      PRAGMA secure_delete = ON;
       PRAGMA busy_timeout = 5000;
 
       CREATE TABLE IF NOT EXISTS users (
@@ -105,6 +107,18 @@ class SuzyDatabase {
     this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
   }
 
+  setMetadata(key, value) {
+    this.db.prepare(`
+      INSERT INTO app_metadata (key, value, updated_at)
+      VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `).run(key, value, new Date().toISOString());
+  }
+
+  deleteMetadata(key) {
+    this.db.prepare("DELETE FROM app_metadata WHERE key = ?").run(key);
+  }
+
   journalAad(userId, entryId) {
     return `journal:${Number(userId)}:${String(entryId)}:v${ENCRYPTION_VERSION}`;
   }
@@ -135,12 +149,11 @@ class SuzyDatabase {
         { purpose: "journal", version: ENCRYPTION_VERSION },
         "metadata:journal:v1"
       );
-      this.db.prepare(`
-        INSERT INTO app_metadata (key, value, updated_at) VALUES (?, ?, ?)
-      `).run(ENCRYPTION_CHECK_KEY, value, new Date().toISOString());
+      this.setMetadata(ENCRYPTION_CHECK_KEY, value);
     }
 
     this.migratePlaintextJournal();
+    this.finishPendingEncryptionCompaction();
   }
 
   legacyRowToEntry(row) {
@@ -215,6 +228,7 @@ class SuzyDatabase {
 
     if (!rows.length) return 0;
 
+    this.setMetadata(ENCRYPTION_COMPACTION_PENDING_KEY, "1");
     const update = this.db.prepare(`
       UPDATE journal_entries
       SET timestamp = ?, asset = ?, market = ?, session_name = ?, timeframe = ?,
@@ -259,6 +273,18 @@ class SuzyDatabase {
     }
 
     return rows.length;
+  }
+
+  finishPendingEncryptionCompaction() {
+    const pending = this.db.prepare("SELECT 1 AS pending FROM app_metadata WHERE key = ?")
+      .get(ENCRYPTION_COMPACTION_PENDING_KEY);
+    if (!pending) return false;
+
+    this.db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    this.db.exec("VACUUM");
+    this.deleteMetadata(ENCRYPTION_COMPACTION_PENDING_KEY);
+    this.db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    return true;
   }
 
   encryptionInfo() {
@@ -470,6 +496,7 @@ class SuzyDatabase {
 module.exports = {
   ENCRYPTION_VERSION,
   ENCRYPTION_CHECK_KEY,
+  ENCRYPTION_COMPACTION_PENDING_KEY,
   ENCRYPTED_PLACEHOLDER,
   SuzyDatabase
 };
