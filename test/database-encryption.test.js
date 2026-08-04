@@ -38,6 +38,14 @@ function journalEntry(overrides = {}) {
     errorType: "Nenhum",
     context: "Estrutura alinhada",
     lesson: "Repetir processo",
+    behavioralCheckIn: {
+      date: "2026-08-04",
+      score: 18.3,
+      statusKey: "ready",
+      statusLabel: "Estudo e simulação liberados",
+      guidance: "Mantenha o plano e o limite.",
+      capturedAt: "2026-08-04T10:00:00.000Z"
+    },
     createdAt: "2026-08-04T10:01:00.000Z",
     ...overrides
   };
@@ -134,6 +142,7 @@ test("grava conteúdo do diário apenas no envelope criptografado", t => {
   assert.equal(Number(raw.encryption_version), ENCRYPTION_VERSION);
   assert.equal(raw.encrypted_payload.includes("EUR/USD"), false);
   assert.equal(raw.encrypted_payload.includes("Estrutura alinhada"), false);
+  assert.equal(raw.encrypted_payload.includes("Estudo e simulação liberados"), false);
   assert.equal(database.encryptionInfo().algorithm, "AES-256-GCM");
 
   const restored = database.listJournal(user.id);
@@ -141,6 +150,7 @@ test("grava conteúdo do diário apenas no envelope criptografado", t => {
   assert.equal(restored[0].asset, entry.asset);
   assert.equal(restored[0].setup, entry.setup);
   assert.equal(restored[0].context, entry.context);
+  assert.deepEqual(restored[0].behavioralCheckIn, entry.behavioralCheckIn);
   assert.equal(restored[0].rMultiple, 2);
   database.close();
 
