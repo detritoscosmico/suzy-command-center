@@ -109,8 +109,8 @@
 
         <div class="storage-panel">
           <span class="eyebrow">HISTÓRICO PERSISTENTE</span>
-          <h3>Backup do diário no SQLite</h3>
-          <p>Registros armazenados: <strong id="remoteJournalCount">0</strong></p>
+          <h3>Backup completo do diário no SQLite</h3>
+          <p>Registros ativos armazenados: <strong id="remoteJournalCount">0</strong></p>
           <label class="file-label">Selecionar backup JSON do diário
             <input id="backupFile" type="file" accept="application/json,.json" />
           </label>
@@ -119,7 +119,7 @@
             <button id="downloadBackup" type="button">BAIXAR DO BANCO</button>
             <button id="clearRemoteJournal" class="danger" type="button">LIMPAR HISTÓRICO REMOTO</button>
           </div>
-          <p class="storage-note">O Diário Profissional também oferece sincronização direta com o SQLite.</p>
+          <p class="storage-note">Registros ativos, versões anteriores e lixeira são incluídos no backup completo. O Diário Profissional também oferece sincronização direta.</p>
         </div>
       </section>
 
@@ -149,6 +149,9 @@
       </ul>
     </section>
   </main>
+  <script src="js/journal-core.js"></script>
+  <script src="js/journal-lifecycle-core.js"></script>
+  <script src="js/journal-sync-core.js"></script>
   <script src="js/login.js"></script>
 </body>
 </html>

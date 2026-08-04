@@ -73,10 +73,59 @@ function dismissRecoveryKey() {
   byId("recoveryKeyPanel").hidden = true;
 }
 
+function normalizeEntries(source) {
+  if (!Array.isArray(source)) return [];
+  return source.map(SuzyJournalCore.normalizeJournalEntry).filter(Boolean);
+}
+
+function normalizeTrash(source) {
+  if (!Array.isArray(source)) return [];
+  return source.map(candidate => {
+    const normalized = SuzyJournalCore.normalizeJournalEntry(candidate);
+    const deletedAt = SuzyJournalLifecycleCore.validIso(candidate?.deletedAt);
+    return normalized && deletedAt ? { ...normalized, deletedAt } : null;
+  }).filter(Boolean);
+}
+
+function normalizeBackupState(parsed) {
+  const entriesSource = Array.isArray(parsed) ? parsed : parsed?.entries;
+  if (!Array.isArray(entriesSource)) throw new Error("O arquivo não contém uma lista de registros ativos.");
+  return {
+    entries: normalizeEntries(entriesSource),
+    trash: normalizeTrash(Array.isArray(parsed) ? [] : parsed?.trash),
+    history: SuzyJournalLifecycleCore.normalizeHistoryMap(Array.isArray(parsed) ? {} : parsed?.history)
+  };
+}
+
+function decodeRemoteState(rows) {
+  const decoded = SuzyJournalSyncCore.decodeRemoteJournal(rows);
+  if (decoded.lifecycleError) throw new Error(decoded.lifecycleError);
+  return {
+    entries: normalizeEntries(decoded.entries),
+    trash: normalizeTrash(decoded.trash),
+    history: SuzyJournalLifecycleCore.normalizeHistoryMap(decoded.history),
+    lifecycleFound: decoded.lifecycleFound
+  };
+}
+
+function stateTotals(state) {
+  return {
+    entries: state.entries.length,
+    trash: state.trash.length,
+    revisions: SuzyJournalSyncCore.countRevisions(state.history)
+  };
+}
+
+function stateDescription(state) {
+  const totals = stateTotals(state);
+  return `${totals.entries} registro${totals.entries === 1 ? "" : "s"} ativo${totals.entries === 1 ? "" : "s"}, ${totals.trash} item${totals.trash === 1 ? "" : "s"} na lixeira e ${totals.revisions} vers${totals.revisions === 1 ? "ão" : "ões"}`;
+}
+
 async function refreshRemoteSummary() {
   if (!authState.authenticated) return;
   const journal = await api("/api/journal", { method: "GET", headers: {} });
-  byId("remoteJournalCount").textContent = String(journal.total);
+  const state = decodeRemoteState(journal.entries);
+  byId("remoteJournalCount").textContent = String(state.entries.length);
 }
 
 async function refreshStatus() {
@@ -296,18 +345,17 @@ byId("uploadBackup").addEventListener("click", async () => {
   if (!file) return feedback("Selecione um backup JSON do diário.", "error");
   if (file.size > 2 * 1024 * 1024) return feedback("O arquivo excede o limite de 2 MB.", "error");
   try {
-    const parsed = JSON.parse(await file.text());
-    const entries = Array.isArray(parsed) ? parsed : parsed.entries;
-    if (!Array.isArray(entries)) throw new Error("O arquivo não contém uma lista de registros.");
-    if (!confirm(`Importar ${entries.length} registro(s)? O histórico atualmente salvo no banco será substituído.`)) return;
-    const result = await api("/api/journal", {
+    const state = normalizeBackupState(JSON.parse(await file.text()));
+    if (!confirm(`Importar ${stateDescription(state)}? O estado completo atualmente salvo no banco será substituído.`)) return;
+    const remoteRows = SuzyJournalSyncCore.encodeRemoteJournal(state.entries, state.trash, state.history);
+    await api("/api/journal", {
       method: "PUT",
       headers: { "X-CSRF-Token": authState.csrfToken || "" },
-      body: JSON.stringify({ entries })
+      body: JSON.stringify({ entries: remoteRows })
     });
     byId("backupFile").value = "";
-    byId("remoteJournalCount").textContent = String(result.total);
-    feedback(`${result.total} registro(s) persistidos no banco local.`, "success");
+    byId("remoteJournalCount").textContent = String(state.entries.length);
+    feedback(`Backup completo persistido: ${stateDescription(state)}.`, "success");
   } catch (error) {
     feedback(error.message, "error");
   }
@@ -316,15 +364,22 @@ byId("uploadBackup").addEventListener("click", async () => {
 byId("downloadBackup").addEventListener("click", async () => {
   try {
     const result = await api("/api/journal", { method: "GET", headers: {} });
-    downloadJson({ version: 1, exportedAt: new Date().toISOString(), entries: result.entries }, `suzy-diario-sqlite-${new Date().toISOString().slice(0, 10)}.json`);
-    feedback(`${result.total} registro(s) exportados do banco local.`, "success");
+    const state = decodeRemoteState(result.entries);
+    downloadJson({
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      entries: state.entries,
+      trash: state.trash,
+      history: state.history
+    }, `suzy-diario-sqlite-${new Date().toISOString().slice(0, 10)}.json`);
+    feedback(`Backup completo exportado: ${stateDescription(state)}.`, "success");
   } catch (error) {
     feedback(error.message, "error");
   }
 });
 
 byId("clearRemoteJournal").addEventListener("click", async () => {
-  if (!confirm("Apagar definitivamente o histórico persistido no banco local?")) return;
+  if (!confirm("Apagar definitivamente registros ativos, versões e lixeira persistidos no banco local?")) return;
   try {
     const result = await api("/api/journal", {
       method: "PUT",
@@ -332,7 +387,7 @@ byId("clearRemoteJournal").addEventListener("click", async () => {
       body: JSON.stringify({ entries: [] })
     });
     byId("remoteJournalCount").textContent = String(result.total);
-    feedback("Histórico remoto apagado.", "success");
+    feedback("Estado completo do diário removido do SQLite.", "success");
   } catch (error) {
     feedback(error.message, "error");
   }

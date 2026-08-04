@@ -36,7 +36,7 @@ O terminal informa um endereço semelhante a:
 http://127.0.0.1:8787
 ```
 
-Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e guarde a chave de recuperação exibida. Depois use `http://127.0.0.1:8787/diario.html` para sincronizar o histórico diretamente com o SQLite.
+Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e guarde a chave de recuperação exibida. Depois use `http://127.0.0.1:8787/diario.html` para sincronizar registros ativos, versões anteriores e lixeira diretamente com o SQLite.
 
 O banco padrão fica em:
 
@@ -131,7 +131,8 @@ Arquivo: `diario.html`
 - lixeira com restauração e exclusão definitiva;
 - exportação CSV e backup JSON completo com registros, versões e lixeira;
 - detecção automática do backend local;
-- envio e restauração direta dos registros ativos no SQLite;
+- envio e restauração direta do estado completo no SQLite;
+- migração automática e segura de bancos antigos que continham somente registros ativos;
 - confirmação explícita quando as cópias divergem;
 - sincronização automática após o alinhamento inicial.
 
@@ -150,10 +151,25 @@ No modo local seguro, essa página oferece:
 - rotação manual da chave de recuperação;
 - encerramento de sessões antigas após troca ou recuperação;
 - sessão com cookie HttpOnly;
-- importação manual de backup JSON como recurso adicional;
-- exportação do histórico persistido;
-- remoção confirmada do histórico remoto;
-- indicador da quantidade de registros no SQLite.
+- importação manual de backup JSON completo;
+- exportação de registros ativos, versões e lixeira persistidos;
+- remoção confirmada do estado completo remoto;
+- indicador da quantidade de registros ativos no SQLite.
+
+## Persistência do ciclo de vida
+
+O backend mantém compatibilidade com o esquema existente de `journal_entries`. Versões e lixeira são serializadas em JSON, codificadas em Base64 UTF-8, divididas em registros internos reservados e gravadas na mesma transação dos registros ativos.
+
+Esses registros internos:
+
+- não aparecem no Diário Profissional;
+- não entram nas estatísticas;
+- não são contados como operações pela tela de conta;
+- são validados pelo servidor como qualquer outro registro;
+- possuem sequência verificada antes da restauração;
+- bloqueiam a restauração quando o envelope está incompleto ou corrompido.
+
+Quando o SQLite antigo contém somente registros ativos e eles coincidem com o navegador, a interface acrescenta o envelope de ciclo de vida sem apagar operações. Quando existe divergência, nenhuma cópia é substituída sem confirmação.
 
 ## Segurança do backend local
 
@@ -168,7 +184,8 @@ No modo local seguro, essa página oferece:
 - validação de payload e limites de tamanho;
 - cabeçalhos CSP, antiframe e `nosniff`;
 - proteção contra leitura de arquivos fora da raiz do projeto;
-- conflitos entre navegador e SQLite não são sobrescritos silenciosamente.
+- conflitos entre navegador e SQLite não são sobrescritos silenciosamente;
+- metadados incompletos de versões ou lixeira bloqueiam restauração automática.
 
 ## Recursos atuais
 
@@ -179,7 +196,8 @@ No modo local seguro, essa página oferece:
 - diário profissional com estatísticas avançadas, versões e lixeira;
 - autenticação individual no modo local;
 - alteração e recuperação segura da senha local;
-- sincronização direta dos registros ativos do diário com SQLite;
+- sincronização completa do diário com SQLite;
+- migração compatível de bancos antigos com registros ativos;
 - restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local;
 - scanner demonstrativo e gráfico de velas artificiais;
@@ -242,6 +260,7 @@ suzy-command-center/
 │   │   └── critical-flows.spec.js
 │   ├── calendar.test.js
 │   ├── journal-lifecycle.test.js
+│   ├── journal-sqlite-lifecycle.test.js
 │   ├── journal-sync.test.js
 │   ├── server-api.test.js
 │   ├── server-security.test.js
@@ -296,7 +315,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o GitHub Pages não executa o backend local;
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
-- versões e lixeira do diário permanecem somente no navegador e no backup JSON;
+- o envelope de versões e lixeira possui limite conservador de 350.000 caracteres codificados, além do limite geral de 2 MB da API;
 - sem a senha e sem uma chave de recuperação válida, não existe recuperação automática;
 - o banco local não é criptografado em repouso;
 - não há feed real de preços ou calendário econômico oficial;
@@ -308,10 +327,10 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Sincronizar histórico de versões e lixeira com o SQLite.
-2. Criar trilha de psicologia, disciplina e avaliação comportamental.
-3. Avaliar criptografia em repouso para o banco local.
-4. Ampliar testes manuais com leitores de tela.
+1. Criar trilha de psicologia, disciplina e avaliação comportamental.
+2. Avaliar criptografia em repouso para o banco local.
+3. Ampliar testes manuais com leitores de tela.
+4. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
 
 ## Aviso
 

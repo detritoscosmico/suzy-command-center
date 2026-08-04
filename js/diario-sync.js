@@ -5,7 +5,7 @@
     authenticated: false,
     csrfToken: null,
     username: null,
-    remoteEntries: [],
+    remote: { entries: [], trash: [], history: {}, lifecycleFound: false, lifecycleError: null },
     automatic: false,
     busy: false
   };
@@ -16,16 +16,65 @@
     return source.map(SuzyJournalCore.normalizeJournalEntry).filter(Boolean);
   }
 
+  function normalizedTrash(source) {
+    if (!Array.isArray(source)) return [];
+    return source.map(candidate => {
+      const normalized = SuzyJournalCore.normalizeJournalEntry(candidate);
+      const deletedAt = SuzyJournalLifecycleCore.validIso(candidate?.deletedAt);
+      return normalized && deletedAt ? { ...normalized, deletedAt } : null;
+    }).filter(Boolean);
+  }
+
+  function normalizedHistory(source) {
+    return SuzyJournalLifecycleCore.normalizeHistoryMap(source);
+  }
+
+  function localState() {
+    return {
+      entries: normalizedEntries(entries),
+      trash: normalizedTrash(trashEntries),
+      history: normalizedHistory(versionHistory)
+    };
+  }
+
+  function normalizeRemote(source) {
+    const decoded = SuzyJournalSyncCore.decodeRemoteJournal(source);
+    return {
+      entries: normalizedEntries(decoded.entries),
+      trash: normalizedTrash(decoded.trash),
+      history: normalizedHistory(decoded.history),
+      lifecycleFound: decoded.lifecycleFound,
+      lifecycleError: decoded.lifecycleError
+    };
+  }
+
+  function stateForFingerprint(state) {
+    return { entries: state.entries, trash: state.trash, history: state.history };
+  }
+
   function localFingerprint() {
-    return SuzyJournalSyncCore.fingerprintJournal(entries);
+    return SuzyJournalSyncCore.fingerprintJournalState(localState());
   }
 
   function remoteFingerprint() {
-    return SuzyJournalSyncCore.fingerprintJournal(syncState.remoteEntries);
+    return SuzyJournalSyncCore.fingerprintJournalState(stateForFingerprint(syncState.remote));
   }
 
   function snapshotsState() {
-    return SuzyJournalSyncCore.compareJournalSnapshots(entries, syncState.remoteEntries);
+    return SuzyJournalSyncCore.compareJournalStates(localState(), stateForFingerprint(syncState.remote));
+  }
+
+  function lifecycleTotals(state) {
+    return {
+      entries: state.entries.length,
+      trash: state.trash.length,
+      revisions: SuzyJournalSyncCore.countRevisions(state.history)
+    };
+  }
+
+  function totalsText(state) {
+    const totals = lifecycleTotals(state);
+    return `${totals.entries} ativo${totals.entries === 1 ? "" : "s"}, ${totals.trash} na lixeira e ${totals.revisions} vers${totals.revisions === 1 ? "ão" : "ões"}`;
   }
 
   function setFeedback(message = "", type = "") {
@@ -48,7 +97,7 @@
   }
 
   function renderSyncUi() {
-    const canUseServer = syncState.available && syncState.authenticated;
+    const canUseServer = syncState.available && syncState.authenticated && !syncState.remote.lifecycleError;
     byId("syncToServer").disabled = syncState.busy || !canUseServer;
     byId("restoreFromServer").disabled = syncState.busy || !canUseServer;
 
@@ -61,29 +110,37 @@
 
     if (!syncState.authenticated) {
       byId("storageModeBadge").textContent = "PROCESSO • LOGIN NECESSÁRIO";
-      setStatus("Conta local desconectada", "Entre na conta para sincronizar diretamente com o SQLite.", "warning");
-      setStorageNotice("SERVIDOR LOCAL ATIVO", "O SQLite está disponível para os registros ativos; versões e lixeira continuam locais.", "conflict");
+      setStatus("Conta local desconectada", "Entre na conta para sincronizar todo o ciclo de vida do diário.", "warning");
+      setStorageNotice("SERVIDOR LOCAL ATIVO", "O SQLite está disponível, mas a conta ainda não foi autenticada.", "conflict");
       return;
     }
 
-    byId("storageModeBadge").textContent = `PROCESSO • SQLITE • ${syncState.username}`;
+    byId("storageModeBadge").textContent = `PROCESSO • SQLITE COMPLETO • ${syncState.username}`;
+
+    if (syncState.remote.lifecycleError) {
+      syncState.automatic = false;
+      setStatus("Metadados do SQLite inconsistentes", syncState.remote.lifecycleError, "warning");
+      setStorageNotice("SINCRONIZAÇÃO BLOQUEADA", "Os registros ativos foram preservados. Restaure um backup válido antes de substituir versões ou lixeira.", "conflict");
+      return;
+    }
+
     const comparison = snapshotsState();
     if (syncState.automatic && ["equal", "empty"].includes(comparison)) {
-      setStatus("Sincronização automática ativa", `${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} protegido${entries.length === 1 ? "" : "s"} no navegador e no SQLite.`, "success");
-      setStorageNotice("SQLITE SINCRONIZADO", "Registros ativos são sincronizados. Versões e lixeira entram no backup JSON local.", "sqlite");
+      setStatus("Sincronização completa ativa", `${totalsText(localState())} protegidos no navegador e no SQLite.`, "success");
+      setStorageNotice("SQLITE SINCRONIZADO", "Novos registros, edições, versões, exclusões e restaurações serão persistidos automaticamente.", "sqlite");
       return;
     }
 
     if (comparison === "local-only") {
-      setStatus("Dados aguardando envio", "Este navegador possui registros ativos e o SQLite está vazio.", "warning");
+      setStatus("Dados aguardando envio", `Este navegador possui ${totalsText(localState())}; o SQLite está vazio.`, "warning");
     } else if (comparison === "remote-only") {
-      setStatus("Backup disponível no SQLite", "Use “Restaurar do SQLite” para recuperar os registros ativos neste navegador.", "warning");
+      setStatus("Backup completo disponível", `O SQLite possui ${totalsText(syncState.remote)}.`, "warning");
     } else if (comparison === "diverged") {
-      setStatus("Versões diferentes detectadas", "Escolha explicitamente qual conjunto de registros ativos deve prevalecer.", "warning");
+      setStatus("Versões diferentes detectadas", "Escolha explicitamente qual estado completo do diário deve prevalecer.", "warning");
     } else {
       setStatus("Pronto para sincronizar", "Escolha salvar no SQLite ou restaurar a cópia persistida.", "warning");
     }
-    setStorageNotice("REVISÃO NECESSÁRIA", "Nenhum registro ativo foi substituído automaticamente. Versões e lixeira permanecem locais.", "conflict");
+    setStorageNotice("REVISÃO NECESSÁRIA", "Nenhum registro, versão ou item da lixeira será substituído silenciosamente.", "conflict");
   }
 
   async function requestJson(path, options = {}) {
@@ -125,8 +182,39 @@
 
   async function fetchRemoteJournal() {
     const payload = await requestJson("/api/journal");
-    syncState.remoteEntries = normalizedEntries(payload.entries);
-    return syncState.remoteEntries;
+    syncState.remote = normalizeRemote(payload.entries);
+    return syncState.remote;
+  }
+
+  async function putCurrentJournal(options = {}) {
+    const current = localState();
+    const remoteRows = SuzyJournalSyncCore.encodeRemoteJournal(current.entries, current.trash, current.history);
+    await requestJson("/api/journal", {
+      method: "PUT",
+      headers: { "X-CSRF-Token": syncState.csrfToken },
+      body: JSON.stringify({ entries: remoteRows })
+    });
+    syncState.remote = {
+      ...SuzyJournalSyncCore.cloneJournalState(current),
+      lifecycleFound: true,
+      lifecycleError: null
+    };
+    syncState.automatic = true;
+    setFeedback(
+      options.migration
+        ? `Migração concluída: ${totalsText(current)} agora persistidos no SQLite.`
+        : `Estado completo salvo no SQLite: ${totalsText(current)}.`,
+      "success"
+    );
+    renderSyncUi();
+  }
+
+  async function migrateLegacyStateWhenSafe() {
+    const activeEqual = SuzyJournalSyncCore.fingerprintJournal(entries)
+      === SuzyJournalSyncCore.fingerprintJournal(syncState.remote.entries);
+    if (syncState.remote.lifecycleFound || syncState.remote.lifecycleError || !activeEqual) return false;
+    await putCurrentJournal({ migration: true });
+    return true;
   }
 
   async function detectBackend() {
@@ -142,27 +230,20 @@
 
       if (syncState.authenticated) {
         await fetchRemoteJournal();
-        const comparison = snapshotsState();
-        syncState.automatic = comparison === "equal" || comparison === "empty";
+        if (!await migrateLegacyStateWhenSafe()) {
+          const comparison = snapshotsState();
+          syncState.automatic = !syncState.remote.lifecycleError && (comparison === "equal" || comparison === "empty");
+        }
       }
-    } catch {
+    } catch (error) {
       syncState.available = false;
       syncState.authenticated = false;
       syncState.csrfToken = null;
       syncState.automatic = false;
+      if (error?.message && !String(error.message).includes("Failed to fetch")) {
+        console.warn("Falha ao detectar backend local.", error);
+      }
     }
-    renderSyncUi();
-  }
-
-  async function putCurrentJournal() {
-    const payload = await requestJson("/api/journal", {
-      method: "PUT",
-      headers: { "X-CSRF-Token": syncState.csrfToken },
-      body: JSON.stringify({ entries })
-    });
-    syncState.remoteEntries = SuzyJournalSyncCore.cloneJournal(entries);
-    syncState.automatic = true;
-    setFeedback(`${payload.total} registro${payload.total === 1 ? "" : "s"} ativo${payload.total === 1 ? "" : "s"} salvo${payload.total === 1 ? "" : "s"} no SQLite.`, "success");
     renderSyncUi();
   }
 
@@ -170,6 +251,7 @@
     const knownRemoteFingerprint = remoteFingerprint();
     const currentLocalFingerprint = localFingerprint();
     await fetchRemoteJournal();
+    if (syncState.remote.lifecycleError) throw new Error(syncState.remote.lifecycleError);
     const freshRemoteFingerprint = remoteFingerprint();
 
     if (freshRemoteFingerprint !== knownRemoteFingerprint && freshRemoteFingerprint !== currentLocalFingerprint) {
@@ -196,24 +278,35 @@
   async function saveToSqlite() {
     if (!syncState.authenticated) return;
     const freshRemote = await fetchRemoteJournal();
-    const different = SuzyJournalSyncCore.fingerprintJournal(freshRemote) !== localFingerprint();
-    if (freshRemote.length && different) {
-      const confirmed = confirm(`O SQLite possui ${freshRemote.length} registro${freshRemote.length === 1 ? "" : "s"} ativo${freshRemote.length === 1 ? "" : "s"} diferente${freshRemote.length === 1 ? "" : "s"}. Substituir pela versão deste navegador?`);
+    if (freshRemote.lifecycleError) throw new Error(freshRemote.lifecycleError);
+
+    const different = remoteFingerprint() !== localFingerprint();
+    const activeDifferent = SuzyJournalSyncCore.fingerprintJournal(freshRemote.entries)
+      !== SuzyJournalSyncCore.fingerprintJournal(entries);
+    const remoteLifecycleData = freshRemote.trash.length > 0 || SuzyJournalSyncCore.countRevisions(freshRemote.history) > 0;
+
+    if (different && (activeDifferent || remoteLifecycleData)) {
+      const confirmed = confirm(`O SQLite possui ${totalsText(freshRemote)} em estado diferente. Substituir pelo estado completo deste navegador?`);
       if (!confirmed) {
         setFeedback("Envio cancelado. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
         return;
       }
     }
-    await putCurrentJournal();
+    await putCurrentJournal({ migration: !freshRemote.lifecycleFound && !activeDifferent });
   }
 
   async function restoreFromSqlite() {
     if (!syncState.authenticated) return;
     const remote = await fetchRemoteJournal();
+    if (remote.lifecycleError) throw new Error(remote.lifecycleError);
     const different = remoteFingerprint() !== localFingerprint();
-    if (entries.length && different) {
-      const confirmed = confirm(`A restauração substituirá ${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} deste navegador pela cópia do SQLite. A lixeira e o histórico local não serão apagados. Continuar?`);
+
+    if (different && SuzyJournalSyncCore.compareJournalStates(localState(), {}) !== "empty") {
+      const legacyWarning = remote.lifecycleFound
+        ? ""
+        : " Esta é uma cópia antiga sem versões e lixeira; esses dados locais serão removidos.";
+      const confirmed = confirm(`A restauração substituirá o estado completo deste navegador por ${totalsText(remote)} do SQLite.${legacyWarning} Continuar?`);
       if (!confirmed) {
         setFeedback("Restauração cancelada. Nenhum dado foi substituído.", "warning");
         renderSyncUi();
@@ -221,11 +314,19 @@
       }
     }
 
-    entries = normalizedEntries(remote);
+    entries = normalizedEntries(remote.entries);
+    trashEntries = normalizedTrash(remote.trash);
+    versionHistory = normalizedHistory(remote.history);
+    editingEntryId = null;
+    selectedHistoryEntryId = null;
     render();
-    syncState.remoteEntries = SuzyJournalSyncCore.cloneJournal(entries);
+    syncState.remote = {
+      ...SuzyJournalSyncCore.cloneJournalState({ entries, trash: trashEntries, history: versionHistory }),
+      lifecycleFound: remote.lifecycleFound,
+      lifecycleError: null
+    };
     syncState.automatic = true;
-    setFeedback(`${entries.length} registro${entries.length === 1 ? "" : "s"} ativo${entries.length === 1 ? "" : "s"} restaurado${entries.length === 1 ? "" : "s"} do SQLite.`, "success");
+    setFeedback(`Estado restaurado do SQLite: ${totalsText(localState())}.`, "success");
     renderSyncUi();
   }
 
@@ -248,7 +349,7 @@
     setTimeout(() => {
       if (!syncState.authenticated) return;
       if (!syncState.automatic) {
-        setFeedback("Alteração nos registros ativos salva somente no navegador até você escolher a direção da sincronização.", "warning");
+        setFeedback("Alteração salva somente no navegador até você escolher a direção da sincronização completa.", "warning");
         renderSyncUi();
         return;
       }

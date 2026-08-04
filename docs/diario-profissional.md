@@ -64,21 +64,45 @@ As métricas devem ser avaliadas em amostras relevantes. Uma sequência pequena 
 
 ## Armazenamento, sincronização e backup
 
-Os registros ativos são salvos no `localStorage` do navegador. No modo local seguro, eles também podem ser sincronizados diretamente com o SQLite após autenticação.
+No modo estático, registros ativos, versões e lixeira são salvos no `localStorage` do navegador.
 
-O histórico de versões e a lixeira permanecem no navegador. Eles não são enviados ao SQLite nesta versão.
+No modo local seguro, após autenticação, o estado completo também pode ser sincronizado diretamente com o SQLite:
+
+- registros ativos;
+- histórico de versões;
+- lixeira;
+- datas de exclusão e revisão.
+
+O backend utiliza um envelope interno codificado em Base64 UTF-8 para preservar o ciclo de vida sem alterar o esquema existente da tabela `journal_entries`. Fragmentos internos são removidos antes da apresentação dos dados e não entram nas estatísticas.
+
+A sincronização automática só é ativada quando navegador e SQLite estão alinhados. Em caso de divergência, o usuário escolhe qual estado deve prevalecer. Bancos antigos contendo somente registros ativos são migrados automaticamente apenas quando esses registros coincidem com a cópia do navegador.
 
 Use periodicamente:
 
 - **Exportar CSV** para análise dos registros ativos filtrados;
-- **Backup JSON completo** para preservar registros ativos, lixeira e histórico de versões.
+- **Backup JSON completo** para preservar registros ativos, lixeira e histórico de versões;
+- **Baixar do banco** na página da conta para obter a cópia completa persistida no SQLite.
 
 A exportação CSV utiliza a proteção central do projeto contra fórmulas de planilha.
 
+## Proteção contra corrupção parcial
+
+Antes de restaurar versões e lixeira, o cliente verifica:
+
+- presença da sequência completa de fragmentos;
+- ordem dos identificadores internos;
+- decodificação Base64 UTF-8;
+- versão do formato;
+- validade das datas e registros recuperados.
+
+Quando a verificação falha, a restauração e a sincronização automática ficam bloqueadas. Os registros ativos continuam disponíveis para análise e recuperação manual.
+
 ## Limitações
 
-- versões e lixeira não são sincronizadas entre dispositivos;
-- o backup JSON completo ainda não é reimportado automaticamente;
+- não existe sincronização entre computadores pela internet;
+- o servidor local precisa estar ativo para acessar o SQLite;
+- o envelope de ciclo de vida possui limite conservador de 350.000 caracteres codificados;
+- o banco local não é criptografado em repouso;
 - não há upload de capturas de tela;
 - o diário não fornece sinais, recomendações ou garantia de desempenho;
 - a responsabilidade pela qualidade e veracidade dos registros é do usuário.
