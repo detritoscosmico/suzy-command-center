@@ -7,6 +7,7 @@ const publicPages = [
   { path: "/replay.html", heading: "Laboratório de Replay — Nível 1" },
   { path: "/simulador.html", heading: "Simulador de Ordens e Custos" },
   { path: "/diario.html", heading: "Diário Profissional do Trader" },
+  { path: "/psicologia.html", heading: "Psicologia, Disciplina e Avaliação Comportamental" },
   { path: "/calendario.html", heading: "Calendário Econômico Educacional" },
   { path: "/login.html", heading: "Conta local protegida" }
 ];
@@ -43,6 +44,23 @@ test("carrega cenário artificial no calendário", async ({ page }) => {
   await expect(page.locator("#summaryTotal")).toHaveText("3");
   await expect(page.locator("#calendarBody tr")).toHaveCount(3);
   await expect(page.locator("#importFeedback")).toContainText("não representam divulgações reais");
+});
+
+test("salva check-in comportamental e atualiza prontidão", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/psicologia.html");
+
+  await page.locator("#sleepQuality").selectOption("5");
+  await page.locator("#emotionalActivation").selectOption("1");
+  await page.locator("#recoveryUrge").selectOption("1");
+  await page.locator("#planClarity").selectOption("5");
+  await page.locator("#acceptsStop").check();
+  await page.locator("#readinessForm button[type=submit]").click();
+
+  await expect(page.locator("#kpiCheckIns")).toHaveText("1");
+  await expect(page.locator("#kpiReadiness")).toHaveText("Estudo e simulação liberados");
+  await expect(page.locator("#historyBody tr")).toHaveCount(1);
+  await expect(page.locator("#readinessFeedback")).toContainText("salvo neste navegador");
 });
 
 test("registra uma operação demo no Command Center", async ({ page }, testInfo) => {
