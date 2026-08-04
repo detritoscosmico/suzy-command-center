@@ -3,7 +3,7 @@
 Central educacional para treinamento, registro de operações, gestão de risco e formação estruturada de traders. O projeto possui dois modos:
 
 - **GitHub Pages:** demonstração estática, com dados salvos no navegador;
-- **modo local seguro:** servidor restrito ao computador, autenticação e histórico persistente em SQLite.
+- **modo local seguro:** servidor restrito ao computador, autenticação e histórico persistente criptografado em SQLite.
 
 ## Demonstração pública
 
@@ -38,13 +38,16 @@ http://127.0.0.1:8787
 
 Abra `http://127.0.0.1:8787/login.html`, crie a primeira conta e guarde a chave de recuperação exibida. Depois use `http://127.0.0.1:8787/diario.html` para sincronizar registros ativos, versões anteriores e lixeira diretamente com o SQLite.
 
-O banco padrão fica em:
+O banco e a chave AES padrão ficam em:
 
 ```text
 data/suzy-local.sqlite3
+data/suzy-local.sqlite3.key
 ```
 
-A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md`, `docs/recuperacao-senha-local.md` e `docs/sincronizacao-direta-diario.md`.
+O conteúdo operacional do diário é protegido com AES-256-GCM antes da gravação. Preserve a chave junto do plano de backup, preferencialmente em local separado do banco.
+
+A implementação e as limitações estão documentadas em `docs/backend-local-seguro.md`, `docs/criptografia-repouso-sqlite.md`, `docs/recuperacao-senha-local.md` e `docs/sincronizacao-direta-diario.md`.
 
 ## Módulos de formação
 
@@ -149,6 +152,7 @@ Arquivo: `diario.html`
 - exportação CSV e backup JSON completo com registros, versões e lixeira;
 - detecção automática do backend local;
 - envio e restauração direta do estado completo no SQLite;
+- criptografia autenticada do conteúdo antes da persistência;
 - migração automática e segura de bancos antigos que continham somente registros ativos;
 - confirmação explícita quando as cópias divergem;
 - sincronização automática após o alinhamento inicial.
@@ -186,11 +190,18 @@ Esses registros internos:
 - possuem sequência verificada antes da restauração;
 - bloqueiam a restauração quando o envelope está incompleto ou corrompido.
 
+Antes da persistência, tanto os registros ativos quanto os registros internos são incluídos em envelopes AES-256-GCM individuais. Os campos legados no SQLite recebem apenas marcadores sem conteúdo operacional.
+
 Quando o SQLite antigo contém somente registros ativos e eles coincidem com o navegador, a interface acrescenta o envelope de ciclo de vida sem apagar operações. Quando existe divergência, nenhuma cópia é substituída sem confirmação.
 
 ## Segurança do backend local
 
 - servidor vinculado somente a `127.0.0.1`;
+- conteúdo do diário criptografado com AES-256-GCM antes da gravação;
+- vetor de inicialização aleatório e tag de autenticação por registro;
+- dados associados ao usuário, identificador e versão do envelope;
+- marcador criptografado que detecta chave incorreta;
+- migração transacional e remoção do texto sensível dos campos legados;
 - senha derivada com PBKDF2-HMAC-SHA256 e salt aleatório;
 - chave de recuperação armazenada somente como hash SHA-256;
 - token de sessão armazenado apenas como hash;
@@ -215,6 +226,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - autenticação individual no modo local;
 - alteração e recuperação segura da senha local;
 - sincronização completa do diário com SQLite;
+- criptografia autenticada em repouso para o conteúdo operacional do diário;
 - migração compatível de bancos antigos com registros ativos;
 - restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local;
@@ -254,6 +266,7 @@ suzy-command-center/
 ├── docs/
 │   ├── backend-local-seguro.md
 │   ├── calendario-economico-autorizado.md
+│   ├── criptografia-repouso-sqlite.md
 │   ├── diario-profissional.md
 │   ├── importacao-historico-replay.md
 │   ├── recuperacao-senha-local.md
@@ -274,6 +287,7 @@ suzy-command-center/
 │   └── psychology-core.js
 ├── server/
 │   ├── database.js
+│   ├── encryption.js
 │   ├── security.js
 │   ├── server.js
 │   └── validation.js
@@ -282,6 +296,7 @@ suzy-command-center/
 │   │   ├── accessibility.spec.js
 │   │   └── critical-flows.spec.js
 │   ├── calendar.test.js
+│   ├── database-encryption.test.js
 │   ├── journal-lifecycle.test.js
 │   ├── journal-sqlite-lifecycle.test.js
 │   ├── journal-sync.test.js
@@ -341,8 +356,11 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - não existe sincronização pela internet ou entre computadores;
 - o envelope de versões e lixeira possui limite conservador de 350.000 caracteres codificados, além do limite geral de 2 MB da API;
 - os dados da trilha comportamental permanecem somente no navegador e na exportação JSON;
-- sem a senha e sem uma chave de recuperação válida, não existe recuperação automática;
-- o banco local não é criptografado em repouso;
+- sem a senha e sem uma chave de recuperação válida, não existe recuperação automática da conta;
+- sem a chave AES correspondente, o conteúdo criptografado do diário não pode ser recuperado;
+- identificadores, vínculo com usuário, datas técnicas e quantidade de registros permanecem visíveis no SQLite;
+- a chave padrão fica próxima ao banco por conveniência; `SUZY_KEY_PATH` ou `SUZY_DATA_KEY` permitem separação maior;
+- backups JSON e CSV exportados não recebem automaticamente a criptografia do SQLite;
 - não há feed real de preços ou calendário econômico oficial;
 - não há conexão com corretora;
 - não executa ordens reais ou automáticas;
@@ -352,8 +370,8 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Avaliar criptografia em repouso para o banco local.
-2. Ampliar testes manuais com leitores de tela.
+1. Ampliar testes manuais com leitores de tela.
+2. Avaliar rotação assistida da chave AES com recriptografia transacional.
 3. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
 4. Integrar, de forma opcional e consentida, o check-in comportamental ao diário local.
 

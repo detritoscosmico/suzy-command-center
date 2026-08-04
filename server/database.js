@@ -2,13 +2,29 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { DatabaseSync } = require("node:sqlite");
 const { hashToken, randomToken } = require("./security.js");
+const { createAtRestCipher } = require("./encryption.js");
+
+const ENCRYPTION_VERSION = 1;
+const ENCRYPTION_CHECK_KEY = "journal_encryption_check_v1";
+const ENCRYPTION_COMPACTION_PENDING_KEY = "journal_encryption_compaction_pending_v1";
+const ENCRYPTED_PLACEHOLDER = "__encrypted__";
 
 class SuzyDatabase {
-  constructor(filePath) {
+  constructor(filePath, options = {}) {
     this.filePath = path.resolve(filePath);
     fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+    this.encryption = createAtRestCipher({
+      encryptionKey: options.encryptionKey,
+      keyPath: options.keyPath || `${this.filePath}.key`
+    });
     this.db = new DatabaseSync(this.filePath);
-    this.initialize();
+
+    try {
+      this.initialize();
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
   }
 
   initialize() {
@@ -16,6 +32,7 @@ class SuzyDatabase {
       PRAGMA foreign_keys = ON;
       PRAGMA journal_mode = WAL;
       PRAGMA synchronous = NORMAL;
+      PRAGMA secure_delete = ON;
       PRAGMA busy_timeout = 5000;
 
       CREATE TABLE IF NOT EXISTS users (
@@ -59,6 +76,8 @@ class SuzyDatabase {
         error_type TEXT NOT NULL,
         context TEXT NOT NULL,
         lesson TEXT NOT NULL,
+        encrypted_payload TEXT,
+        encryption_version INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         PRIMARY KEY (user_id, id),
@@ -67,16 +86,214 @@ class SuzyDatabase {
 
       CREATE INDEX IF NOT EXISTS idx_journal_user_timestamp
       ON journal_entries(user_id, timestamp);
+
+      CREATE TABLE IF NOT EXISTS app_metadata (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
     `);
 
     this.ensureColumn("users", "recovery_key_hash", "TEXT");
     this.ensureColumn("users", "password_updated_at", "TEXT");
+    this.ensureColumn("journal_entries", "encrypted_payload", "TEXT");
+    this.ensureColumn("journal_entries", "encryption_version", "INTEGER NOT NULL DEFAULT 0");
+    this.initializeEncryption();
   }
 
   ensureColumn(tableName, columnName, definition) {
     const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all();
     if (columns.some(column => column.name === columnName)) return;
     this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  }
+
+  setMetadata(key, value) {
+    this.db.prepare(`
+      INSERT INTO app_metadata (key, value, updated_at)
+      VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `).run(key, value, new Date().toISOString());
+  }
+
+  deleteMetadata(key) {
+    this.db.prepare("DELETE FROM app_metadata WHERE key = ?").run(key);
+  }
+
+  journalAad(userId, entryId) {
+    return `journal:${Number(userId)}:${String(entryId)}:v${ENCRYPTION_VERSION}`;
+  }
+
+  initializeEncryption() {
+    const check = this.db.prepare("SELECT value FROM app_metadata WHERE key = ?").get(ENCRYPTION_CHECK_KEY);
+    if (check) {
+      const decoded = this.encryption.decrypt(check.value, "metadata:journal:v1");
+      if (decoded?.purpose !== "journal" || decoded?.version !== ENCRYPTION_VERSION) {
+        throw new Error("A chave local não corresponde ao banco de dados informado.");
+      }
+    } else {
+      const encryptedRow = this.db.prepare(`
+        SELECT user_id, id, encrypted_payload
+        FROM journal_entries
+        WHERE encryption_version = ? AND encrypted_payload IS NOT NULL
+        LIMIT 1
+      `).get(ENCRYPTION_VERSION);
+
+      if (encryptedRow) {
+        this.encryption.decrypt(
+          encryptedRow.encrypted_payload,
+          this.journalAad(encryptedRow.user_id, encryptedRow.id)
+        );
+      }
+
+      const value = this.encryption.encrypt(
+        { purpose: "journal", version: ENCRYPTION_VERSION },
+        "metadata:journal:v1"
+      );
+      this.setMetadata(ENCRYPTION_CHECK_KEY, value);
+    }
+
+    this.migratePlaintextJournal();
+    this.finishPendingEncryptionCompaction();
+  }
+
+  legacyRowToEntry(row) {
+    const rMultiple = Number(row.r_multiple);
+    return {
+      id: row.id,
+      timestamp: row.timestamp,
+      asset: row.asset,
+      market: row.market,
+      session: row.session_name,
+      timeframe: row.timeframe,
+      direction: row.direction,
+      setup: row.setup,
+      rMultiple,
+      result: rMultiple > 0 ? "WIN" : rMultiple < 0 ? "LOSS" : "BREAKEVEN",
+      followedPlan: Boolean(row.followed_plan),
+      quality: Number(row.quality),
+      emotionBefore: row.emotion_before,
+      emotionAfter: row.emotion_after,
+      errorType: row.error_type,
+      context: row.context,
+      lesson: row.lesson,
+      createdAt: row.created_at
+    };
+  }
+
+  encryptEntry(userId, entry) {
+    return this.encryption.encrypt(entry, this.journalAad(userId, entry.id));
+  }
+
+  decryptEntry(row) {
+    const entry = this.encryption.decrypt(
+      row.encrypted_payload,
+      this.journalAad(row.user_id, row.id)
+    );
+    if (!entry || String(entry.id) !== String(row.id)) {
+      throw new Error("O registro criptografado não corresponde ao identificador armazenado.");
+    }
+
+    const rMultiple = Number(entry.rMultiple);
+    return {
+      id: row.id,
+      timestamp: String(entry.timestamp),
+      asset: String(entry.asset),
+      market: String(entry.market),
+      session: String(entry.session),
+      timeframe: String(entry.timeframe),
+      direction: String(entry.direction),
+      setup: String(entry.setup),
+      rMultiple,
+      result: rMultiple > 0 ? "WIN" : rMultiple < 0 ? "LOSS" : "BREAKEVEN",
+      followedPlan: Boolean(entry.followedPlan),
+      quality: Number(entry.quality),
+      emotionBefore: String(entry.emotionBefore),
+      emotionAfter: String(entry.emotionAfter),
+      errorType: String(entry.errorType),
+      context: String(entry.context),
+      lesson: String(entry.lesson),
+      createdAt: String(entry.createdAt || row.created_at)
+    };
+  }
+
+  migratePlaintextJournal() {
+    const rows = this.db.prepare(`
+      SELECT user_id, id, timestamp, asset, market, session_name, timeframe, direction,
+             setup, r_multiple, followed_plan, quality, emotion_before, emotion_after,
+             error_type, context, lesson, encrypted_payload, encryption_version,
+             created_at, updated_at
+      FROM journal_entries
+      WHERE encryption_version <> ? OR encrypted_payload IS NULL
+    `).all(ENCRYPTION_VERSION);
+
+    if (!rows.length) return 0;
+
+    this.setMetadata(ENCRYPTION_COMPACTION_PENDING_KEY, "1");
+    const update = this.db.prepare(`
+      UPDATE journal_entries
+      SET timestamp = ?, asset = ?, market = ?, session_name = ?, timeframe = ?,
+          direction = ?, setup = ?, r_multiple = ?, followed_plan = ?, quality = ?,
+          emotion_before = ?, emotion_after = ?, error_type = ?, context = ?, lesson = ?,
+          encrypted_payload = ?, encryption_version = ?, updated_at = ?
+      WHERE user_id = ? AND id = ?
+    `);
+    const updatedAt = new Date().toISOString();
+
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      for (const row of rows) {
+        const encrypted = this.encryptEntry(row.user_id, this.legacyRowToEntry(row));
+        update.run(
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          0,
+          0,
+          1,
+          "",
+          "",
+          "",
+          "",
+          "",
+          encrypted,
+          ENCRYPTION_VERSION,
+          updatedAt,
+          row.user_id,
+          row.id
+        );
+      }
+      this.db.exec("COMMIT");
+    } catch (error) {
+      this.db.exec("ROLLBACK");
+      throw error;
+    }
+
+    return rows.length;
+  }
+
+  finishPendingEncryptionCompaction() {
+    const pending = this.db.prepare("SELECT 1 AS pending FROM app_metadata WHERE key = ?")
+      .get(ENCRYPTION_COMPACTION_PENDING_KEY);
+    if (!pending) return false;
+
+    this.db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    this.db.exec("VACUUM");
+    this.deleteMetadata(ENCRYPTION_COMPACTION_PENDING_KEY);
+    this.db.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    return true;
+  }
+
+  encryptionInfo() {
+    return {
+      enabled: true,
+      algorithm: this.encryption.algorithm,
+      version: this.encryption.version,
+      keySource: this.encryption.source
+    };
   }
 
   countUsers() {
@@ -210,34 +427,18 @@ class SuzyDatabase {
 
   listJournal(userId) {
     const rows = this.db.prepare(`
-      SELECT id, timestamp, asset, market, session_name, timeframe, direction, setup,
-             r_multiple, followed_plan, quality, emotion_before, emotion_after,
-             error_type, context, lesson, created_at
+      SELECT user_id, id, timestamp, asset, market, session_name, timeframe, direction,
+             setup, r_multiple, followed_plan, quality, emotion_before, emotion_after,
+             error_type, context, lesson, encrypted_payload, encryption_version, created_at
       FROM journal_entries
       WHERE user_id = ?
-      ORDER BY timestamp ASC, id ASC
     `).all(userId);
 
-    return rows.map(row => ({
-      id: row.id,
-      timestamp: row.timestamp,
-      asset: row.asset,
-      market: row.market,
-      session: row.session_name,
-      timeframe: row.timeframe,
-      direction: row.direction,
-      setup: row.setup,
-      rMultiple: Number(row.r_multiple),
-      result: Number(row.r_multiple) > 0 ? "WIN" : Number(row.r_multiple) < 0 ? "LOSS" : "BREAKEVEN",
-      followedPlan: Boolean(row.followed_plan),
-      quality: Number(row.quality),
-      emotionBefore: row.emotion_before,
-      emotionAfter: row.emotion_after,
-      errorType: row.error_type,
-      context: row.context,
-      lesson: row.lesson,
-      createdAt: row.created_at
-    }));
+    return rows
+      .map(row => Number(row.encryption_version) === ENCRYPTION_VERSION && row.encrypted_payload
+        ? this.decryptEntry(row)
+        : this.legacyRowToEntry(row))
+      .sort((left, right) => left.timestamp.localeCompare(right.timestamp) || left.id.localeCompare(right.id));
   }
 
   replaceJournal(userId, entries) {
@@ -245,8 +446,8 @@ class SuzyDatabase {
       INSERT INTO journal_entries (
         user_id, id, timestamp, asset, market, session_name, timeframe, direction,
         setup, r_multiple, followed_plan, quality, emotion_before, emotion_after,
-        error_type, context, lesson, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        error_type, context, lesson, encrypted_payload, encryption_version, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const updatedAt = new Date().toISOString();
 
@@ -254,25 +455,28 @@ class SuzyDatabase {
     try {
       this.db.prepare("DELETE FROM journal_entries WHERE user_id = ?").run(userId);
       for (const entry of entries) {
+        const createdAt = entry.createdAt || updatedAt;
         insert.run(
           userId,
           entry.id,
-          entry.timestamp,
-          entry.asset,
-          entry.market,
-          entry.session,
-          entry.timeframe,
-          entry.direction,
-          entry.setup,
-          entry.rMultiple,
-          entry.followedPlan ? 1 : 0,
-          entry.quality,
-          entry.emotionBefore,
-          entry.emotionAfter,
-          entry.errorType,
-          entry.context,
-          entry.lesson,
-          entry.createdAt,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          ENCRYPTED_PLACEHOLDER,
+          0,
+          0,
+          1,
+          "",
+          "",
+          "",
+          "",
+          "",
+          this.encryptEntry(userId, { ...entry, createdAt }),
+          ENCRYPTION_VERSION,
+          createdAt,
           updatedAt
         );
       }
@@ -289,4 +493,10 @@ class SuzyDatabase {
   }
 }
 
-module.exports = { SuzyDatabase };
+module.exports = {
+  ENCRYPTION_VERSION,
+  ENCRYPTION_CHECK_KEY,
+  ENCRYPTION_COMPACTION_PENDING_KEY,
+  ENCRYPTED_PLACEHOLDER,
+  SuzyDatabase
+};

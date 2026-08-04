@@ -30,9 +30,15 @@ O banco padrão é criado em:
 data/suzy-local.sqlite3
 ```
 
+A chave AES padrão é criada separadamente em:
+
+```text
+data/suzy-local.sqlite3.key
+```
+
 A pasta `data/` é ignorada pelo Git. Arquivos auxiliares do SQLite, como WAL e SHM, também permanecem somente no computador.
 
-Para usar outro caminho:
+Para usar outro caminho para o banco:
 
 ```bash
 SUZY_DB_PATH="C:/Suzy/dados.sqlite3" npm run serve:secure
@@ -45,9 +51,16 @@ $env:SUZY_DB_PATH="C:\Suzy\dados.sqlite3"
 npm run serve:secure
 ```
 
+O arquivo de chave padrão acompanha o caminho do banco com o sufixo `.key`. Também é possível informar `SUZY_DATA_KEY` ou `SUZY_KEY_PATH`, conforme `docs/criptografia-repouso-sqlite.md`.
+
 ## Segurança implementada
 
 - servidor restrito a `127.0.0.1`;
+- conteúdo operacional do diário criptografado com AES-256-GCM antes da gravação no SQLite;
+- vetor de inicialização aleatório e tag de autenticação por registro;
+- dados associados ao usuário, identificador e versão do envelope;
+- marcador criptografado que bloqueia a abertura com chave incorreta;
+- migração transacional dos registros legados em texto aberto;
 - senha derivada com PBKDF2-HMAC-SHA256, salt aleatório e 310.000 iterações;
 - chave de recuperação aleatória armazenada somente como hash SHA-256;
 - tokens de sessão aleatórios armazenados apenas como hash no banco;
@@ -76,11 +89,13 @@ A página `login.html` permite:
 
 A chave em texto é entregue somente no momento de criação ou rotação. O banco armazena apenas seu hash. O fluxo completo está em `docs/recuperacao-senha-local.md`.
 
+A chave de recuperação da conta não substitui a chave AES do banco. Para restaurar um SQLite criptografado, preserve também o arquivo `.key` ou a chave definida em `SUZY_DATA_KEY`.
+
 ## Diário persistente
 
 O `diario.html` detecta o backend e a sessão autenticada. Depois do alinhamento inicial entre navegador e SQLite, novos registros, exclusões e limpezas são sincronizados automaticamente. Divergências exigem escolha explícita do usuário.
 
-A transferência manual por backup JSON permanece disponível como recurso adicional.
+A transferência manual por backup JSON permanece disponível como recurso adicional. Esses arquivos exportados não recebem automaticamente a criptografia AES do SQLite.
 
 ## API local
 
@@ -101,13 +116,22 @@ As rotas do diário exigem sessão válida. Alterações autenticadas exigem tam
 
 ## Migração
 
-Bancos criados por versões anteriores recebem automaticamente as colunas de chave de recuperação e data de atualização da senha. A senha e o histórico existentes são preservados. O usuário deve entrar com a senha atual e gerar a primeira chave.
+Bancos criados por versões anteriores recebem automaticamente:
+
+- as colunas de chave de recuperação e data de atualização da senha;
+- as colunas do envelope criptografado;
+- um marcador de verificação da chave AES;
+- a migração transacional do conteúdo legado do diário.
+
+Depois da migração, os campos operacionais antigos são substituídos por marcadores sem informação sensível. O conteúdo completo permanece acessível somente após autenticação criptográfica do envelope.
 
 ## Limitações
 
 - o backend não funciona no GitHub Pages;
-- sem a senha e sem uma chave válida, não existe recuperação automática;
-- o banco não é criptografado em repouso;
+- sem a senha e sem uma chave de recuperação válida, não existe recuperação automática da conta;
+- sem a chave AES correspondente, não é possível recuperar o conteúdo criptografado do diário;
+- identificadores, vínculo com usuário, datas técnicas e quantidade de registros permanecem visíveis no SQLite;
+- o arquivo de chave padrão fica próximo ao banco por conveniência; separá-lo com `SUZY_KEY_PATH` ou usar `SUZY_DATA_KEY` melhora o isolamento;
 - a autenticação foi projetada para uso individual e local, não para exposição pública na internet;
 - o módulo `node:sqlite` usado pelo Node.js 22 pode emitir aviso de recurso experimental;
 - não existe sincronização pela internet ou entre computadores.
