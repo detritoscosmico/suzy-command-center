@@ -59,6 +59,24 @@ test("registra uma operação demo no Command Center", async ({ page }, testInfo
   await expect(page.locator("#tradeFeedback")).not.toBeEmpty();
 });
 
+test("permite desenhar no gráfico usando somente o teclado", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/index.html");
+  await page.locator('button[data-view="chart"]').click();
+  await page.locator('[data-drawing-tool="horizontal"]').click();
+  await page.locator("#candleChart").focus();
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#drawingHelp")).toHaveText("Linha horizontal criada.");
+
+  await page.locator('[data-drawing-tool="trend"]').click();
+  await page.locator("#candleChart").focus();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#drawingHelp")).toHaveText("Linha de tendência criada.");
+});
+
 test("conclui a primeira aula e libera a segunda", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/academia.html");

@@ -192,6 +192,115 @@
     });
   }
 
+  function calculateSma(values = [], period = 20) {
+    const safePeriod = clampInteger(period, 1, 500, 20);
+    const queue = [];
+    let sum = 0;
+
+    return values.map(value => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return null;
+      queue.push(number);
+      sum += number;
+      if (queue.length > safePeriod) sum -= queue.shift();
+      return queue.length === safePeriod ? sum / safePeriod : null;
+    });
+  }
+
+  function calculateBollinger(values = [], period = 20, deviations = 2) {
+    const safePeriod = clampInteger(period, 2, 500, 20);
+    const safeDeviations = Number.isFinite(Number(deviations)) ? Math.max(0, Number(deviations)) : 2;
+    const middle = calculateSma(values, safePeriod);
+    const upper = [];
+    const lower = [];
+
+    values.forEach((value, index) => {
+      if (middle[index] === null) {
+        upper.push(null);
+        lower.push(null);
+        return;
+      }
+      const window = values.slice(index - safePeriod + 1, index + 1).map(Number);
+      const variance = window.reduce((sum, item) => sum + (item - middle[index]) ** 2, 0) / safePeriod;
+      const standardDeviation = Math.sqrt(variance);
+      upper.push(middle[index] + standardDeviation * safeDeviations);
+      lower.push(middle[index] - standardDeviation * safeDeviations);
+    });
+
+    return { middle, upper, lower };
+  }
+
+  function calculateRsi(values = [], period = 14) {
+    const safePeriod = clampInteger(period, 2, 200, 14);
+    const result = values.map(() => null);
+    if (values.length <= safePeriod) return result;
+    let gains = 0;
+    let losses = 0;
+
+    for (let index = 1; index <= safePeriod; index += 1) {
+      const change = Number(values[index]) - Number(values[index - 1]);
+      if (change >= 0) gains += change;
+      else losses -= change;
+    }
+
+    let averageGain = gains / safePeriod;
+    let averageLoss = losses / safePeriod;
+    const valueFromAverages = () => averageGain === 0 && averageLoss === 0 ? 50 : averageLoss === 0 ? 100 : 100 - (100 / (1 + averageGain / averageLoss));
+    result[safePeriod] = valueFromAverages();
+
+    for (let index = safePeriod + 1; index < values.length; index += 1) {
+      const change = Number(values[index]) - Number(values[index - 1]);
+      const gain = Math.max(0, change);
+      const loss = Math.max(0, -change);
+      averageGain = (averageGain * (safePeriod - 1) + gain) / safePeriod;
+      averageLoss = (averageLoss * (safePeriod - 1) + loss) / safePeriod;
+      result[index] = valueFromAverages();
+    }
+    return result;
+  }
+
+  function detectCandlePatterns(candles = []) {
+    const patterns = [];
+    candles.forEach((candle, index) => {
+      const range = Number(candle.high) - Number(candle.low);
+      if (!(range > 0)) return;
+      const body = Math.abs(Number(candle.close) - Number(candle.open));
+      const upperWick = Number(candle.high) - Math.max(Number(candle.open), Number(candle.close));
+      const lowerWick = Math.min(Number(candle.open), Number(candle.close)) - Number(candle.low);
+
+      if (body <= range * 0.1) patterns.push({ index, type: "DOJI", label: "Doji", bias: "NEUTRAL" });
+      if (lowerWick >= body * 2 && upperWick <= Math.max(body * 0.75, range * 0.04)) patterns.push({ index, type: "HAMMER", label: "Martelo", bias: "BULLISH" });
+      if (upperWick >= body * 2 && lowerWick <= Math.max(body * 0.75, range * 0.04)) patterns.push({ index, type: "SHOOTING_STAR", label: "Estrela cadente", bias: "BEARISH" });
+
+      if (!index) return;
+      const previous = candles[index - 1];
+      const bullishEngulfing = previous.close < previous.open && candle.close > candle.open && candle.open <= previous.close && candle.close >= previous.open;
+      const bearishEngulfing = previous.close > previous.open && candle.close < candle.open && candle.open >= previous.close && candle.close <= previous.open;
+      if (bullishEngulfing) patterns.push({ index, type: "BULLISH_ENGULFING", label: "Engolfo de alta", bias: "BULLISH" });
+      if (bearishEngulfing) patterns.push({ index, type: "BEARISH_ENGULFING", label: "Engolfo de baixa", bias: "BEARISH" });
+    });
+    return patterns;
+  }
+
+  function detectFlagPattern(candles = [], lookback = 18) {
+    const safeLookback = clampInteger(lookback, 10, 80, 18);
+    if (candles.length < safeLookback) return null;
+    const sample = candles.slice(-safeLookback);
+    const poleLength = Math.max(5, Math.floor(safeLookback * 0.45));
+    const pole = sample.slice(0, poleLength);
+    const flag = sample.slice(poleLength);
+    const poleMove = Number(pole.at(-1).close) - Number(pole[0].open);
+    const averageRange = pole.reduce((sum, candle) => sum + (Number(candle.high) - Number(candle.low)), 0) / pole.length;
+    if (!averageRange || Math.abs(poleMove) < averageRange * 3) return null;
+    const flagMove = Number(flag.at(-1).close) - Number(flag[0].close);
+    const flagHigh = Math.max(...flag.map(candle => Number(candle.high)));
+    const flagLow = Math.min(...flag.map(candle => Number(candle.low)));
+    if (flagHigh - flagLow > Math.abs(poleMove) * 0.7) return null;
+    if (poleMove > 0 && flagMove < 0) return { type: "BULL_FLAG", label: "Possível bandeira de alta", bias: "BULLISH", startIndex: candles.length - safeLookback };
+    if (poleMove < 0 && flagMove > 0) return { type: "BEAR_FLAG", label: "Possível bandeira de baixa", bias: "BEARISH", startIndex: candles.length - safeLookback };
+    return null;
+  }
+
   return {
     localDateKey,
     consecutiveLosses,
@@ -204,6 +313,11 @@
     normalizeCatalog,
     analyzeDemoAssets,
     generateDemoCandles,
-    calculateEma
+    calculateEma,
+    calculateSma,
+    calculateBollinger,
+    calculateRsi,
+    detectCandlePatterns,
+    detectFlagPattern
   };
 });

@@ -12,7 +12,12 @@ const {
   normalizeCatalog,
   analyzeDemoAssets,
   generateDemoCandles,
-  calculateEma
+  calculateEma,
+  calculateSma,
+  calculateBollinger,
+  calculateRsi,
+  detectCandlePatterns,
+  detectFlagPattern
 } = require("../js/core.js");
 
 test("gera a chave diária usando a data local", () => {
@@ -211,4 +216,49 @@ test("calcula média móvel exponencial", () => {
   assert.equal(ema[0], 10);
   assert.ok(Math.abs(ema[1] - 10.6666666667) < 0.000001);
   assert.ok(Math.abs(ema[2] - 11.5555555556) < 0.000001);
+});
+
+test("calcula SMA somente após completar o período", () => {
+  assert.deepEqual(calculateSma([1, 2, 3, 4], 3), [null, null, 2, 3]);
+});
+
+test("calcula bandas de Bollinger ao redor da média", () => {
+  const bands = calculateBollinger([1, 2, 3, 4], 3, 2);
+  assert.equal(bands.middle[2], 2);
+  assert.ok(bands.upper[2] > bands.middle[2]);
+  assert.ok(bands.lower[2] < bands.middle[2]);
+  assert.equal(bands.upper[0], null);
+});
+
+test("calcula RSI para alta, baixa e lateralidade", () => {
+  assert.equal(calculateRsi([1, 2, 3, 4], 2).at(-1), 100);
+  assert.equal(calculateRsi([4, 3, 2, 1], 2).at(-1), 0);
+  assert.equal(calculateRsi([2, 2, 2, 2], 2).at(-1), 50);
+});
+
+test("reconhece padrões clássicos de velas por geometria", () => {
+  const candles = [
+    { open: 10, high: 10.55, low: 9.45, close: 10.05 },
+    { open: 10, high: 10.25, low: 8, close: 10.2 },
+    { open: 10.2, high: 12.4, low: 9.95, close: 10 }
+  ];
+  const types = detectCandlePatterns(candles).map(pattern => pattern.type);
+  assert.ok(types.includes("DOJI"));
+  assert.ok(types.includes("HAMMER"));
+  assert.ok(types.includes("SHOOTING_STAR"));
+});
+
+test("reconhece engolfo de alta", () => {
+  const patterns = detectCandlePatterns([
+    { open: 10, high: 10.2, low: 8.8, close: 9 },
+    { open: 8.9, high: 10.4, low: 8.7, close: 10.2 }
+  ]);
+  assert.ok(patterns.some(pattern => pattern.type === "BULLISH_ENGULFING"));
+});
+
+test("reconhece bandeira de alta após impulso e correção estreita", () => {
+  const closes = [100, 102, 104, 106, 108, 110, 109.8, 109.6, 109.4, 109.2, 109, 108.8];
+  const candles = closes.map((close, index) => ({ open: index ? closes[index - 1] : 99.8, close, high: Math.max(close, index ? closes[index - 1] : 99.8) + 0.2, low: Math.min(close, index ? closes[index - 1] : 99.8) - 0.2 }));
+  const pattern = detectFlagPattern(candles, 12);
+  assert.equal(pattern?.type, "BULL_FLAG");
 });
