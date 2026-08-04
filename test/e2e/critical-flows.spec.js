@@ -77,6 +77,16 @@ test("registra uma operação demo no Command Center", async ({ page }, testInfo
   await expect(page.locator("#tradeFeedback")).not.toBeEmpty();
 });
 
+test("filtra as 24 ações globais do catálogo", async ({ page }) => {
+  await page.goto("/index.html");
+  await page.locator("#categoryFilter").selectOption("Ações");
+
+  await expect(page.locator("#assetsBody tr")).toHaveCount(24);
+  await expect(page.locator("#assetsBody")).toContainText("TSLA");
+  await expect(page.locator("#assetsBody")).toContainText("PETR4");
+  await expect(page.locator("#assetsBody")).toContainText("ASML");
+});
+
 test("permite desenhar no gráfico usando somente o teclado", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/index.html");

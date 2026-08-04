@@ -229,7 +229,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - criptografia autenticada em repouso para o conteúdo operacional do diário;
 - migração compatível de bancos antigos com registros ativos;
 - restauração direta e resolução explícita de divergências;
-- catálogo estruturado em JSON com fallback local;
+- catálogo estruturado em JSON com fallback local e 24 ações globais para estudo;
 - scanner demonstrativo e gráfico de velas artificiais;
 - registro manual de WIN e LOSS;
 - gestão de risco com entrada máxima, stop diário e limites operacionais;
