@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Programa Profissional Suzy: progressão educacional por competências, prática simulada, processo, disciplina e playbook auditável." />
+  <title>Programa Profissional — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/programa.css" />
+</head>
+<body>
+  <div class="program-shell">
+    <aside class="program-sidebar">
+      <a class="program-brand" href="index.html" aria-label="Voltar ao Suzy Command Center">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>PROFESSIONAL PROGRAM</span></div>
+      </a>
+
+      <div class="program-label">PASSAPORTE DE COMPETÊNCIAS</div>
+
+      <nav aria-label="Módulos do programa">
+        <a href="academia.html"><span>01</span> Fundamentos</a>
+        <a href="academia-nivel2.html"><span>02</span> Análise técnica</a>
+        <a href="replay.html"><span>03</span> Replay</a>
+        <a href="simulador.html"><span>04</span> Custos e execução</a>
+        <a href="diario.html"><span>05</span> Diário profissional</a>
+        <a href="psicologia.html"><span>06</span> Disciplina</a>
+        <a href="calendario.html"><span>07</span> Risco de eventos</a>
+      </nav>
+
+      <div class="privacy-card">
+        <strong>PRIVACIDADE LOCAL</strong>
+        <p>O passaporte lê apenas contagens, aprovações e métricas de processo já salvas neste navegador.</p>
+      </div>
+    </aside>
+
+    <main class="program-main">
+      <header class="program-topbar">
+        <div>
+          <span>SUZY COMMAND CENTER</span>
+          <strong>Formação baseada em evidências</strong>
+        </div>
+        <a href="index.html">Voltar ao painel</a>
+      </header>
+
+      <section class="program-hero">
+        <div class="hero-copy">
+          <span class="eyebrow">PADRÃO PROFISSIONAL DE TREINAMENTO</span>
+          <h1>Processo comprovado antes de exposição real.</h1>
+          <p>A Suzy organiza teoria, replay, custos, diário e disciplina em cinco gates objetivos. A progressão depende de evidência de treino — nunca de promessa, intuição ou lucro isolado.</p>
+          <div class="hero-actions">
+            <a id="nextActionButton" class="primary-action" href="academia.html">COMEÇAR PRÓXIMA ETAPA</a>
+            <button id="refreshEvidence" class="secondary-action" type="button">ATUALIZAR EVIDÊNCIAS</button>
+          </div>
+        </div>
+        <aside class="hero-doctrine">
+          <strong>DOUTRINA CENTRAL</strong>
+          <blockquote>Sobreviver, executar o plano e produzir uma amostra confiável vêm antes de buscar resultado.</blockquote>
+          <small>Programa educacional interno. Não é credenciamento profissional, recomendação financeira ou autorização para operar capital real.</small>
+        </aside>
+      </section>
+
+      <section class="program-kpis" aria-label="Resumo da formação">
+        <article><span>Progresso geral</span><strong id="programPercent">0%</strong><div class="kpi-track"><i id="programProgressBar"></i></div></article>
+        <article><span>Gates concluídos</span><strong id="completedStages">0/5</strong><small>critérios verificáveis</small></article>
+        <article><span>Estado da formação</span><strong id="programStatus">Fundação em construção</strong><small>não representa aptidão financeira</small></article>
+        <article><span>Próxima evidência</span><strong id="nextEvidence">Academia Nível 1</strong><small>prioridade atual</small></article>
+      </section>
+
+      <section class="section-block" aria-labelledby="gatesTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">JORNADA DE QUALIFICAÇÃO INTERNA</span><h2 id="gatesTitle">Cinco gates profissionais</h2></div>
+          <p>Resultados financeiros não aprovam etapas. O sistema mede conhecimento, repetição, aderência, registro e limites.</p>
+        </div>
+        <div id="stagesGrid" class="stages-grid"></div>
+      </section>
+
+      <section class="evidence-section" aria-labelledby="evidenceTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">TELEMETRIA LOCAL</span><h2 id="evidenceTitle">Matriz de evidências</h2></div>
+          <button id="exportEvidence" type="button">EXPORTAR RELATÓRIO JSON</button>
+        </div>
+        <div class="evidence-grid">
+          <article><span>Academia Nível 1</span><strong id="evidenceAcademy1">0/6</strong><small id="evidenceAcademy1Status">Pendente</small></article>
+          <article><span>Academia Nível 2</span><strong id="evidenceAcademy2">0/8</strong><small id="evidenceAcademy2Status">Pendente</small></article>
+          <article><span>Replay encerrado</span><strong id="evidenceReplay">0</strong><small>meta: 20 operações</small></article>
+          <article><span>Simulador de custos</span><strong id="evidenceSimulator">0</strong><small>meta: 10 operações</small></article>
+          <article><span>Diário profissional</span><strong id="evidenceJournal">0</strong><small id="evidenceJournalDetail">0% de aderência</small></article>
+          <article><span>Rotina comportamental</span><strong id="evidencePsychology">0</strong><small id="evidencePsychologyDetail">0 avaliações • 0 check-ins</small></article>
+        </div>
+      </section>
+
+      <section class="playbook-section" aria-labelledby="playbookTitle">
+        <div class="playbook-intro">
+          <span class="eyebrow">GATE 05</span>
+          <h2 id="playbookTitle">Plano operacional auditável</h2>
+          <p>Escreva regras que outra pessoa consiga revisar. O plano não prevê o mercado: ele limita decisões, risco e comportamento.</p>
+          <div class="playbook-score" aria-live="polite"><span>Completude do plano</span><strong id="playbookProgress">0%</strong><div><i id="playbookProgressBar"></i></div></div>
+          <ul id="playbookMissing" class="missing-list"><li>Preencha os campos para validar o plano.</li></ul>
+        </div>
+
+        <form id="playbookForm" class="playbook-form">
+          <label>Mercado e ativos permitidos<input id="planMarket" maxlength="50" required placeholder="Ex.: Forex — somente EUR/USD e USD/JPY" /></label>
+          <label>Setup principal<input id="planSetup" maxlength="120" required placeholder="Ex.: pullback a favor da estrutura no M5" /></label>
+          <label class="wide">Contexto obrigatório<textarea id="planContext" maxlength="240" required placeholder="Tendência, zona, horário, liquidez e condições que precisam existir."></textarea></label>
+          <label class="wide">Gatilho objetivo<textarea id="planTrigger" maxlength="240" required placeholder="Evento observável que permite a entrada. Evite palavras vagas como 'parece'."></textarea></label>
+          <label class="wide">Invalidação técnica<textarea id="planInvalidation" maxlength="240" required placeholder="Condição que prova que a hipótese deixou de valer."></textarea></label>
+          <label>Risco máximo por operação (%)<input id="planRisk" type="number" min="0.1" max="2" step="0.1" required /></label>
+          <label>Stop diário máximo (R)<input id="planDailyStop" type="number" min="0.5" max="5" step="0.5" required /></label>
+          <label>Máximo de operações por sessão<input id="planMaxTrades" type="number" min="1" max="10" step="1" required /></label>
+          <label class="wide">Rotina obrigatória de revisão<textarea id="planReview" maxlength="300" required placeholder="O que será conferido no diário ao encerrar a sessão?"></textarea></label>
+          <label class="wide consent-line"><input id="planUncertainty" type="checkbox" /> Eu reconheço que nenhuma análise elimina incerteza e que este plano não garante resultado.</label>
+          <div class="form-actions wide">
+            <button class="save-plan" type="submit">SALVAR E VALIDAR PLANO</button>
+            <button id="resetPlaybook" type="button">LIMPAR PLANO</button>
+          </div>
+          <p id="playbookFeedback" class="form-feedback wide" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="doctrine-section" aria-labelledby="doctrineTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">CULTURA DE MESA</span><h2 id="doctrineTitle">O padrão que vamos construir</h2></div>
+        </div>
+        <div class="doctrine-grid">
+          <article><strong>01</strong><h3>Risco primeiro</h3><p>O tamanho da perda aceitável é definido antes da possibilidade de ganho.</p></article>
+          <article><strong>02</strong><h3>Hipótese falsificável</h3><p>Toda entrada precisa de contexto, gatilho e invalidação observáveis.</p></article>
+          <article><strong>03</strong><h3>Amostra antes de opinião</h3><p>Uma sequência isolada não valida nem destrói uma estratégia.</p></article>
+          <article><strong>04</strong><h3>Custos reais no treino</h3><p>Spread, slippage e comissão fazem parte da decisão.</p></article>
+          <article><strong>05</strong><h3>Registro sem maquiagem</h3><p>Erro, emoção e quebra de regra entram no diário junto com o resultado.</p></article>
+          <article><strong>06</strong><h3>Sem licença psicológica</h3><p>Autoavaliação apoia reflexão; não autoriza nem bloqueia capital real.</p></article>
+        </div>
+      </section>
+
+      <section class="roadmap-section" aria-labelledby="roadmapTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">EVOLUÇÃO CONTROLADA</span><h2 id="roadmapTitle">Próximos ciclos profissionais</h2></div>
+          <p>Cada ciclo entra em uma PR própria, com critérios, documentação e testes. “Mais recursos” só contam quando melhoram a qualidade da decisão.</p>
+        </div>
+        <ol class="roadmap-list">
+          <li><span>PRÓXIMO</span><div><strong>Laboratório de risco e dimensionamento</strong><p>Risco fixo e percentual, correlação, exposição agregada, sequência de perdas e testes de estresse.</p></div></li>
+          <li><span>PLANEJADO</span><div><strong>Microestrutura e qualidade de execução</strong><p>Liquidez, spread variável, slippage, gaps, tipos de ordem e comparação entre decisão e preenchimento.</p></div></li>
+          <li><span>PLANEJADO</span><div><strong>Capstone baseado em casos</strong><p>Cenários com informação incompleta, bloqueadores, justificativa escrita e rubrica de avaliação reproduzível.</p></div></li>
+          <li><span>PLANEJADO</span><div><strong>Revisão e governança do processo</strong><p>Versões do playbook, trilha de mudanças, revisão por período e relatórios sem transformar correlação em sinal.</p></div></li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/replay-core.js"></script>
+  <script src="js/simulator-core.js"></script>
+  <script src="js/journal-core.js"></script>
+  <script src="js/psychology-core.js"></script>
+  <script src="js/professional-core.js"></script>
+  <script src="js/programa.js"></script>
+</body>
+</html>
