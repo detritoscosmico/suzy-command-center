@@ -85,7 +85,7 @@ function renderStages(result) {
       </div>
       <h3>${stage.title}</h3>
       <p>${stage.description}</p>
-      <div class="stage-progress" aria-label="${stage.progress}% concluído"><i style="width:${stage.progress}%"></i></div>
+      <div class="stage-progress" role="progressbar" aria-label="Progresso de ${stage.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${stage.progress}"><i style="width:${stage.progress}%"></i></div>
       <ul class="requirement-list">
         ${stage.requirements.map(requirement => `<li class="${requirement.met ? "met" : ""}"><span>${requirement.label}<small>${requirementDetail(requirement)}</small></span></li>`).join("")}
       </ul>
