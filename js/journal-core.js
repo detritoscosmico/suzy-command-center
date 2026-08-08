@@ -22,6 +22,45 @@
     return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : null;
   }
 
+  function normalizeBehavioralCheckIn(candidate) {
+    if (!candidate || typeof candidate !== "object") return null;
+    const date = cleanText(candidate.date, 10);
+    const score = Number(candidate.score);
+    const statusKey = cleanText(candidate.statusKey, 20).toLowerCase();
+    const statusLabel = cleanText(candidate.statusLabel, 120);
+    const guidance = cleanText(candidate.guidance, 300);
+    const capturedAt = normalizeDateTime(candidate.capturedAt);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)
+      || !Number.isFinite(score)
+      || score < 0
+      || score > 100
+      || !["ready", "reduced", "pause", "stop"].includes(statusKey)
+      || !statusLabel
+      || !capturedAt) return null;
+
+    return {
+      date,
+      score: Number(score.toFixed(1)),
+      statusKey,
+      statusLabel,
+      guidance,
+      capturedAt
+    };
+  }
+
+  function behavioralSnapshotFromCheckIn(checkIn, capturedAt = new Date().toISOString()) {
+    if (!checkIn || typeof checkIn !== "object") return null;
+    return normalizeBehavioralCheckIn({
+      date: checkIn.date,
+      score: checkIn.score,
+      statusKey: checkIn.status?.key,
+      statusLabel: checkIn.status?.label,
+      guidance: checkIn.status?.guidance,
+      capturedAt
+    });
+  }
+
   function normalizeJournalEntry(entry = {}) {
     const timestamp = normalizeDateTime(entry.timestamp);
     const asset = cleanText(entry.asset, 30).toUpperCase();
@@ -51,6 +90,7 @@
       errorType: cleanText(entry.errorType, 50) || "Nenhum",
       context: cleanText(entry.context, 600),
       lesson: cleanText(entry.lesson, 600),
+      behavioralCheckIn: normalizeBehavioralCheckIn(entry.behavioralCheckIn),
       createdAt: normalizeDateTime(entry.createdAt) || new Date().toISOString()
     };
   }
@@ -166,6 +206,8 @@
 
   return {
     normalizeJournalEntry,
+    normalizeBehavioralCheckIn,
+    behavioralSnapshotFromCheckIn,
     sortEntries,
     calculateMaxDrawdown,
     summarizeJournal,
