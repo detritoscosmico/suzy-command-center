@@ -58,6 +58,8 @@ Status: implementado em `microestrutura.html` com cenário artificial reproduzí
 
 Objetivo: avaliar decisão sob incerteza, não memorização.
 
+Status: implementado em `capstone.html` com quatro casos reproduzíveis por sessão, desfecho artificial oculto até a decisão e avaliação independente do resultado.
+
 - cenários com informação incompleta;
 - eventos macroeconômicos e bloqueadores;
 - justificativa escrita antes do desfecho;
