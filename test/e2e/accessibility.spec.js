@@ -6,6 +6,7 @@ const publicPages = [
   "/programa.html",
   "/risco.html",
   "/microestrutura.html",
+  "/capstone.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",
