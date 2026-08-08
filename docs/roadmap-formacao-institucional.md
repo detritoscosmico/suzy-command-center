@@ -72,6 +72,8 @@ Status: implementado em `capstone.html` com quatro casos reproduzíveis por sess
 
 Objetivo: transformar o playbook em documento vivo e auditável.
 
+Status: implementado em `governanca.html` com snapshots imutáveis do playbook, fingerprint reproduzível, motivo obrigatório para mudanças e revisão periódica de processo.
+
 - versionamento do plano;
 - motivo obrigatório para mudanças;
 - comparação entre períodos;
