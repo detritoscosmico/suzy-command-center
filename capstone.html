@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Capstone educacional Suzy com casos de decisão sob incerteza e rubrica reproduzível de processo." />
+  <title>Capstone Profissional — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/capstone.css" />
+</head>
+<body>
+  <div class="cap-shell">
+    <aside class="cap-sidebar">
+      <a class="cap-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>CAPSTONE LAB</span></div>
+      </a>
+      <div class="side-label">CICLO 04 • DECISÃO SOB INCERTEZA</div>
+      <nav aria-label="Seções do capstone">
+        <a href="#sessionLab"><span>01</span> Sessão</a>
+        <a href="#caseLab"><span>02</span> Caso atual</a>
+        <a href="#rubricLab"><span>03</span> Rubrica pública</a>
+        <a href="#historyLab"><span>04</span> Histórico</a>
+      </nav>
+      <div class="warning-card">
+        <strong>SEM PREVISÃO</strong>
+        <p>Todos os casos e desfechos são artificiais. Conclusão registra treino interno; não é diploma, licença ou aptidão para capital real.</p>
+      </div>
+    </aside>
+
+    <main class="cap-main">
+      <header class="cap-topbar">
+        <div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Decida antes de conhecer o final.</strong></div>
+        <a href="programa.html">Voltar ao programa</a>
+      </header>
+
+      <section class="cap-hero">
+        <div>
+          <span class="eyebrow">CAPSTONE BASEADO EM CASOS</span>
+          <h1>Processo sob pressão, sem prêmio por adivinhar.</h1>
+          <p>Quatro casos por sessão, informações incompletas e políticas explícitas. Você registra decisão, bloqueadores e justificativa antes de revelar o desfecho artificial.</p>
+        </div>
+        <aside>
+          <strong>REGRA DE OURO</strong>
+          <blockquote>“Não operar” é uma decisão profissional válida.</blockquote>
+          <small>Um resultado favorável nunca apaga uma quebra de política. O Capstone mede decisão e documentação, não sorte.</small>
+        </aside>
+      </section>
+
+      <section class="cap-kpis" aria-label="Resumo da sessão">
+        <article><span>Casos concluídos</span><strong id="kpiCases">0/4</strong><small>sessão atual</small></article>
+        <article><span>Nota média</span><strong id="kpiAverage">0</strong><small>mínimo 80 por processo</small></article>
+        <article><span>Violações duras</span><strong id="kpiViolations">0</strong><small>bloqueio ou risco</small></article>
+        <article><span>Estado</span><strong id="kpiStatus">EM DESENVOLVIMENTO</strong><small>registro interno</small></article>
+      </section>
+
+      <section id="sessionLab" class="lab-section compact" aria-labelledby="sessionTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">01 • SESSÃO REPRODUZÍVEL</span><h2 id="sessionTitle">Escolha uma semente</h2></div>
+          <p>A mesma semente gera a mesma sequência de casos. Troque a semente para reduzir memorização e comparar decisões em variantes diferentes.</p>
+        </div>
+        <div class="session-controls">
+          <label>Semente da sessão<input id="sessionSeed" type="number" step="1" value="42" /></label>
+          <button id="startSession" class="primary" type="button">INICIAR / REINICIAR SESSÃO</button>
+          <span id="sessionLabel" aria-live="polite">Sessão 42 pronta.</span>
+        </div>
+      </section>
+
+      <section id="caseLab" class="lab-section" aria-labelledby="caseTitle">
+        <div class="case-header">
+          <div><span id="caseProgress" class="eyebrow">CASO 1 DE 4</span><h2 id="caseTitle">Carregando caso...</h2><p id="caseMarket"></p></div>
+          <span class="locked-outcome">DESFECHO BLOQUEADO</span>
+        </div>
+        <div class="case-grid">
+          <article class="facts-card">
+            <h3>Informações disponíveis agora</h3>
+            <ul id="caseFacts"></ul>
+            <h3>Política obrigatória do caso</h3>
+            <dl id="casePolicy"></dl>
+            <p class="incomplete-note">Você não receberá informação adicional antes de decidir. Trabalhe com o que existe e aceite a incerteza residual.</p>
+          </article>
+
+          <form id="caseForm" class="decision-card">
+            <div class="decision-grid">
+              <label>Decisão
+                <select id="caseAction"><option value="NO_TRADE" selected>NÃO OPERAR</option><option value="TRADE">OPERAR O CENÁRIO</option></select>
+              </label>
+              <label>Leitura dos bloqueadores
+                <select id="blockerAssessment"><option value="CLEAR">Nenhum bloqueio obrigatório</option><option value="BLOCKED">Existe bloqueio obrigatório</option></select>
+              </label>
+              <label class="trade-field">Risco planejado (%)<input id="caseRisk" type="number" min="0.01" step="0.01" value="0.5" /></label>
+              <label class="trade-field wide">Gatilho observável<input id="caseTrigger" maxlength="240" placeholder="O que precisa acontecer para a entrada existir?" /></label>
+              <label class="trade-field wide">Invalidação objetiva<input id="caseInvalidation" maxlength="240" placeholder="O que prova que a hipótese deixou de valer?" /></label>
+              <label class="wide">Justificativa antes do desfecho<textarea id="caseRationale" maxlength="800" required placeholder="Explique sua decisão com base nos fatos e na política. Mínimo útil: 40 caracteres."></textarea></label>
+              <label class="wide consent"><input id="caseUncertainty" type="checkbox" /> Reconheço que as informações são incompletas e que minha decisão não garante resultado.</label>
+            </div>
+            <button id="submitCase" class="primary" type="submit">TRAVAR DECISÃO E REVELAR DESFECHO</button>
+            <p id="caseFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <section id="caseResult" class="case-result" hidden aria-labelledby="resultTitle">
+          <div class="result-summary"><div><span>NOTA DO PROCESSO</span><strong id="caseScore">—</strong></div><div><span>AVALIAÇÃO</span><strong id="caseResultState">—</strong></div></div>
+          <h3 id="resultTitle">Rubrica deste caso</h3>
+          <div id="caseChecks" class="checks-grid"></div>
+          <div id="hardViolation" class="hard-violation" hidden></div>
+          <div class="reveal-grid">
+            <article><span>LEITURA DO BLOQUEADOR</span><p id="blockerExplanation"></p></article>
+            <article><span>DESFECHO ARTIFICIAL — REVELADO APÓS A DECISÃO</span><p id="caseOutcome"></p><strong>O desfecho não altera a nota acima.</strong></article>
+          </div>
+          <button id="nextCase" class="primary" type="button">PRÓXIMO CASO</button>
+        </section>
+      </section>
+
+      <section id="rubricLab" class="lab-section" aria-labelledby="rubricTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">03 • RUBRICA PÚBLICA</span><h2 id="rubricTitle">A regra da prova aparece antes da prova</h2></div>
+          <p>A nota soma critérios observáveis. Operar contra bloqueio obrigatório limita a nota a 49; risco acima do teto limita a 69.</p>
+        </div>
+        <div class="rubric-grid">
+          <article><strong>25</strong><span>Decisão respeita bloqueios</span></article>
+          <article><strong>15</strong><span>Bloqueadores identificados</span></article>
+          <article><strong>15</strong><span>Risco dentro do teto</span></article>
+          <article><strong>10</strong><span>Gatilho prévio quando opera</span></article>
+          <article><strong>10</strong><span>Invalidação prévia quando opera</span></article>
+          <article><strong>15</strong><span>Justificativa documentada</span></article>
+          <article><strong>10</strong><span>Incerteza reconhecida</span></article>
+        </div>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">04 • AUDITORIA LOCAL</span><h2 id="historyTitle">Histórico de decisões</h2></div>
+          <div class="history-actions"><button id="exportCapstone" type="button">EXPORTAR JSON</button><button id="clearCapstoneHistory" type="button">LIMPAR HISTÓRICO</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Semente</th><th>Caso</th><th>Decisão</th><th>Nota</th><th>Violações</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="6" class="empty">Nenhum caso concluído.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/capstone-core.js"></script>
+  <script src="js/capstone.js"></script>
+</body>
+</html>
