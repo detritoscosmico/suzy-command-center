@@ -30,9 +30,11 @@ Status: implementado na primeira versão do `programa.html`.
 
 Objetivo: ensinar como a mesma hipótese muda de perfil conforme tamanho, correlação e sequência de perdas.
 
+Status: implementado em `risco.html` com cálculos puros testáveis, cenários reproduzíveis e exportação local das premissas.
+
 - risco fixo e percentual;
 - cálculo de posição por distância de stop;
-- exposição simultânea e correlação por cenário;
+- exposição simultânea e agrupamento conservador de correlação por cenário;
 - limites por operação, sessão e semana;
 - testes de estresse determinísticos;
 - risco de ruína apresentado com premissas explícitas;
