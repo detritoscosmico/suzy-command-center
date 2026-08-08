@@ -1,4 +1,5 @@
 const PROFESSIONAL_STORAGE_KEY = "suzy-professional-program-v1";
+const GOVERNANCE_STORAGE_KEY = "suzy-governance-v1";
 const STORAGE_KEYS = Object.freeze({
   academy1: "suzy-academia-nivel1-v1",
   academy2: "suzy-academia-nivel2-v1",
@@ -163,7 +164,15 @@ function fillPlaybookForm(plan) {
 
 function savePlaybook(event) {
   event.preventDefault();
-  savedPlaybook = SuzyProfessionalCore.normalizePlaybook(playbookFromForm());
+  const proposedPlaybook = SuzyProfessionalCore.normalizePlaybook(playbookFromForm());
+  const governanceHistory = SuzyGovernanceCore.normalizeHistory(readLocalJson(GOVERNANCE_STORAGE_KEY, {})?.history || []);
+  const latestRevision = governanceHistory[governanceHistory.length - 1];
+  if (latestRevision && SuzyGovernanceCore.fingerprintPlan(latestRevision.plan) !== SuzyGovernanceCore.fingerprintPlan(proposedPlaybook)) {
+    $("playbookFeedback").textContent = "Este playbook já possui linha de base auditável. Faça alterações na mesa de Governança para registrar o motivo e criar uma nova versão.";
+    $("playbookFeedback").className = "form-feedback wide error";
+    return;
+  }
+  savedPlaybook = proposedPlaybook;
   const evaluation = SuzyProfessionalCore.evaluatePlaybook(savedPlaybook);
   localStorage.setItem(PROFESSIONAL_STORAGE_KEY, JSON.stringify({
     version: 1,
@@ -178,6 +187,12 @@ function savePlaybook(event) {
 }
 
 function resetPlaybook() {
+  const governanceHistory = SuzyGovernanceCore.normalizeHistory(readLocalJson(GOVERNANCE_STORAGE_KEY, {})?.history || []);
+  if (governanceHistory.length) {
+    $("playbookFeedback").textContent = "O plano está sob governança e não pode ser apagado silenciosamente. Use a mesa de Governança para manter a trilha de auditoria.";
+    $("playbookFeedback").className = "form-feedback wide error";
+    return;
+  }
   if (!confirm("Limpar o plano operacional salvo neste navegador?")) return;
   localStorage.removeItem(PROFESSIONAL_STORAGE_KEY);
   savedPlaybook = SuzyProfessionalCore.normalizePlaybook({});
