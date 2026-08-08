@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Laboratório educacional Suzy para dimensionamento de posição, exposição, limites e testes de estresse." />
+  <title>Laboratório de Risco — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/risco.css" />
+</head>
+<body>
+  <div class="risk-shell">
+    <aside class="risk-sidebar">
+      <a class="risk-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>RISK LAB</span></div>
+      </a>
+      <div class="side-label">CICLO 02 • GESTÃO DE RISCO</div>
+      <nav aria-label="Seções do laboratório">
+        <a href="#positionLab"><span>01</span> Dimensionamento</a>
+        <a href="#exposureLab"><span>02</span> Exposição</a>
+        <a href="#stressLab"><span>03</span> Stress test</a>
+        <a href="#policyLab"><span>04</span> Limites</a>
+        <a href="#ruinLab"><span>05</span> Risco de ruína</a>
+      </nav>
+      <div class="education-warning">
+        <strong>LABORATÓRIO EDUCACIONAL</strong>
+        <p>Os cálculos dependem das premissas informadas. Não são recomendação, sinal, previsão ou autorização para operar capital real.</p>
+      </div>
+    </aside>
+
+    <main class="risk-main">
+      <header class="risk-topbar">
+        <div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Capital primeiro. Hipótese depois.</strong></div>
+        <a href="programa.html">Voltar ao programa</a>
+      </header>
+
+      <section class="risk-hero">
+        <div>
+          <span class="eyebrow">LABORATÓRIO DE RISCO E DIMENSIONAMENTO</span>
+          <h1>Descubra o risco antes de descobrir o resultado.</h1>
+          <p>Treine tamanho por stop, exposição simultânea, concentração, sequência de perdas e risco de ruína sob premissas explícitas. O resultado financeiro nunca transforma uma quebra de limite em boa decisão.</p>
+        </div>
+        <aside>
+          <strong>REGRA DO LABORATÓRIO</strong>
+          <blockquote>Primeiro defina quanto pode perder. Depois calcule quanto pode carregar.</blockquote>
+          <small>Instrumentos reais podem exigir multiplicadores, lotes, margens, moedas e regras específicas. Confirme a especificação antes de reutilizar qualquer cálculo fora deste treino.</small>
+        </aside>
+      </section>
+
+      <section class="risk-kpis" aria-label="Resumo do laboratório">
+        <article><span>Risco da posição</span><strong id="kpiTradeRisk">—</strong><small>percentual efetivo</small></article>
+        <article><span>Risco aberto</span><strong id="kpiOpenRisk">0,00%</strong><small>carteira de cenário</small></article>
+        <article><span>Maior concentração</span><strong id="kpiGroupRisk">0,00%</strong><small id="kpiGroupName">sem grupo</small></article>
+        <article><span>Política</span><strong id="kpiPolicy">PENDENTE</strong><small>processo, não performance</small></article>
+      </section>
+
+      <section id="positionLab" class="lab-section" aria-labelledby="positionTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">01 • POSITION SIZING</span><h2 id="positionTitle">Tamanho nasce do stop, não da vontade</h2></div>
+          <p>O laboratório converte o orçamento máximo de perda em quantidade e arredonda para baixo pelo passo mínimo informado.</p>
+        </div>
+        <div class="lab-grid">
+          <form id="positionForm" class="control-card">
+            <label>Capital de estudo<input id="riskCapital" type="number" min="1" step="0.01" value="10000" required /></label>
+            <label>Modo de risco<select id="riskMode"><option value="PERCENT">Percentual do capital</option><option value="FIXED">Valor fixo</option></select></label>
+            <label id="riskPercentLabel">Risco planejado (%)<input id="riskPercent" type="number" min="0.01" max="100" step="0.01" value="0.5" required /></label>
+            <label id="fixedRiskLabel" hidden>Risco fixo<input id="fixedRisk" type="number" min="0.01" step="0.01" value="50" /></label>
+            <label>Preço de entrada<input id="entryPrice" type="number" min="0.00000001" step="any" value="100" required /></label>
+            <label>Preço de stop<input id="stopPrice" type="number" min="0.00000001" step="any" value="98" required /></label>
+            <label>Multiplicador por unidade<input id="unitMultiplier" type="number" min="0.00000001" step="any" value="1" required /></label>
+            <label>Passo mínimo de quantidade<input id="quantityStep" type="number" min="0.00000001" step="any" value="1" required /></label>
+            <button class="primary" type="submit">CALCULAR POSIÇÃO</button>
+          </form>
+          <article class="result-card" aria-live="polite">
+            <div class="result-head"><span>RESULTADO DO CENÁRIO</span><strong id="positionState">Aguardando</strong></div>
+            <div class="metric-grid">
+              <div><span>Orçamento de risco</span><strong id="positionBudget">—</strong></div>
+              <div><span>Quantidade</span><strong id="positionQuantity">—</strong></div>
+              <div><span>Risco efetivo</span><strong id="positionActualRisk">—</strong></div>
+              <div><span>Exposição nominal</span><strong id="positionNotional">—</strong></div>
+              <div><span>Distância do stop</span><strong id="positionStopDistance">—</strong></div>
+              <div><span>Exposição / capital</span><strong id="positionMultiple">—</strong></div>
+            </div>
+            <ul id="positionMessages" class="messages"><li>Preencha o cenário e calcule.</li></ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="exposureLab" class="lab-section" aria-labelledby="exposureTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">02 • PORTFÓLIO DE CENÁRIO</span><h2 id="exposureTitle">Somar risco antes de somar posições</h2></div>
+          <p>Ativos atribuídos ao mesmo grupo são tratados como exposição concentrada. Isso não mede correlação estatística: é uma hipótese conservadora declarada pelo aluno.</p>
+        </div>
+        <form id="exposureForm" class="inline-form">
+          <label>Ativo<input id="exposureAsset" maxlength="30" placeholder="Ex.: NVDA" required /></label>
+          <label>Grupo de cenário<input id="exposureGroup" maxlength="30" placeholder="Ex.: Tecnologia EUA" required /></label>
+          <label>Direção<select id="exposureSide"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select></label>
+          <label>Risco planejado<input id="exposureRisk" type="number" min="0.01" step="0.01" value="50" required /></label>
+          <button class="primary" type="submit">ADICIONAR</button>
+        </form>
+        <div class="limit-row">
+          <label>Limite de risco aberto (%)<input id="maxOpenRisk" type="number" min="0.1" step="0.1" value="3" /></label>
+          <label>Limite por grupo (%)<input id="maxGroupRisk" type="number" min="0.1" step="0.1" value="2" /></label>
+          <button id="clearPositions" type="button">LIMPAR CENÁRIO</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ativo</th><th>Grupo</th><th>Direção</th><th>Risco</th><th>Ação</th></tr></thead>
+            <tbody id="exposureBody"><tr><td colspan="5" class="empty">Nenhuma posição adicionada.</td></tr></tbody>
+          </table>
+        </div>
+        <div id="exposureSummary" class="status-strip" aria-live="polite">Adicione posições para estudar a exposição agregada.</div>
+      </section>
+
+      <section id="stressLab" class="lab-section" aria-labelledby="stressTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">03 • STRESS DETERMINÍSTICO</span><h2 id="stressTitle">Treine a sequência ruim antes que ela exista</h2></div>
+          <p>Cada número representa um resultado em R. O risco é recalculado sobre o capital corrente e a simulação para quando a perda da sessão atinge o limite.</p>
+        </div>
+        <div class="lab-grid">
+          <form id="stressForm" class="control-card">
+            <label>Risco por operação (%)<input id="stressRisk" type="number" min="0.01" step="0.01" value="1" required /></label>
+            <label>Stop da sessão (%)<input id="stressStop" type="number" min="0.1" step="0.1" value="2" required /></label>
+            <label class="wide">Sequência em R<textarea id="stressSequence" rows="4" required>-1, -1, -1, +1.5, -1</textarea></label>
+            <div class="preset-row wide" aria-label="Cenários predefinidos">
+              <button type="button" data-stress="-1,-1,-1,-1,-1">5 perdas</button>
+              <button type="button" data-stress="-1.3,-1.3,+1.5,-1.3">Slippage adverso</button>
+              <button type="button" data-stress="-2,-1,+2,-1">Gap adverso</button>
+            </div>
+            <button class="primary wide" type="submit">RODAR STRESS TEST</button>
+          </form>
+          <article class="result-card" aria-live="polite">
+            <div class="result-head"><span>RESPOSTA DO CAPITAL</span><strong id="stressState">Aguardando</strong></div>
+            <div class="metric-grid">
+              <div><span>Capital final</span><strong id="stressEquity">—</strong></div>
+              <div><span>P/L do cenário</span><strong id="stressPnl">—</strong></div>
+              <div><span>Drawdown máximo</span><strong id="stressDrawdown">—</strong></div>
+              <div><span>Operações executadas</span><strong id="stressTrades">—</strong></div>
+            </div>
+            <p id="stressMessage" class="explanation">O stress test não prevê a próxima sequência; ele testa se sua regra sobrevive a uma sequência escolhida.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="policyLab" class="lab-section" aria-labelledby="policyTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">04 • RISK POLICY</span><h2 id="policyTitle">Limites que continuam valendo depois de um win</h2></div>
+          <p>A avaliação usa apenas exposição e perdas. Um resultado positivo não apaga uma violação de processo.</p>
+        </div>
+        <div class="policy-grid">
+          <label>Máx. por operação (%)<input id="limitTrade" type="number" min="0.1" step="0.1" value="1" /></label>
+          <label>Máx. aberto (%)<input id="limitOpen" type="number" min="0.1" step="0.1" value="3" /></label>
+          <label>Máx. por grupo (%)<input id="limitGroup" type="number" min="0.1" step="0.1" value="2" /></label>
+          <label>Stop sessão (%)<input id="limitSession" type="number" min="0.1" step="0.1" value="2" /></label>
+          <label>Stop semana (%)<input id="limitWeek" type="number" min="0.1" step="0.1" value="5" /></label>
+          <label>Perda na sessão (%)<input id="currentSessionLoss" type="number" min="0" step="0.1" value="0" /></label>
+          <label>Perda na semana (%)<input id="currentWeekLoss" type="number" min="0" step="0.1" value="0" /></label>
+        </div>
+        <button id="evaluatePolicy" class="primary" type="button">AVALIAR POLÍTICA</button>
+        <div id="policyChecks" class="check-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="ruinLab" class="lab-section" aria-labelledby="ruinTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">05 • MODELO DE RISCO DE RUÍNA</span><h2 id="ruinTitle">Probabilidade simulada exige premissas visíveis</h2></div>
+          <p>Monte Carlo com semente fixa para reproduzir o estudo. O modelo supõe resultados independentes e parâmetros estacionários — limitações fortes que o mercado real não é obrigado a respeitar.</p>
+        </div>
+        <div class="lab-grid">
+          <form id="ruinForm" class="control-card">
+            <label>Risco por operação (%)<input id="ruinRisk" type="number" min="0.01" step="0.01" value="1" required /></label>
+            <label>Taxa de acerto assumida (%)<input id="ruinWinRate" type="number" min="0" max="100" step="0.1" value="45" required /></label>
+            <label>Ganho médio (R)<input id="ruinWinR" type="number" min="0.01" step="0.01" value="1.5" required /></label>
+            <label>Perda média (R)<input id="ruinLossR" type="number" min="0.01" step="0.01" value="1" required /></label>
+            <label>Operações por trajetória<input id="ruinTrades" type="number" min="1" max="1000" step="1" value="100" required /></label>
+            <label>Trajetórias simuladas<input id="ruinPaths" type="number" min="100" max="10000" step="100" value="2000" required /></label>
+            <label>Ruína = drawdown de (%)<input id="ruinThreshold" type="number" min="1" max="99.9" step="0.1" value="50" required /></label>
+            <label>Semente reproduzível<input id="ruinSeed" type="number" step="1" value="42" required /></label>
+            <button class="primary" type="submit">SIMULAR RISCO</button>
+          </form>
+          <article class="result-card" aria-live="polite">
+            <div class="result-head"><span>MODELO EDUCACIONAL</span><strong id="ruinState">Aguardando</strong></div>
+            <div class="metric-grid">
+              <div><span>Trajetórias em ruína</span><strong id="ruinProbability">—</strong></div>
+              <div><span>Capital final mediano</span><strong id="ruinMedian">—</strong></div>
+              <div><span>Percentil 10</span><strong id="ruinP10">—</strong></div>
+              <div><span>Percentil 90</span><strong id="ruinP90">—</strong></div>
+            </div>
+            <p id="ruinDisclaimer" class="explanation">Isto não é previsão de perda real. Rode cenários diferentes e questione as premissas.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="report-section" aria-labelledby="reportTitle">
+        <div><span class="eyebrow">REGISTRO DO ESTUDO</span><h2 id="reportTitle">Leve as premissas junto com o resultado</h2><p>O relatório não contém dados de corretora nem é enviado para servidor.</p></div>
+        <button id="exportRiskReport" type="button">EXPORTAR RELATÓRIO JSON</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/risk-lab-core.js"></script>
+  <script src="js/risco.js"></script>
+</body>
+</html>
