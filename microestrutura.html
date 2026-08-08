@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Laboratório educacional Suzy para estudar microestrutura, liquidez, spread, slippage, gaps e qualidade de execução." />
+  <title>Microestrutura e Execução — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/microestrutura.css" />
+</head>
+<body>
+  <div class="micro-shell">
+    <aside class="micro-sidebar">
+      <a class="micro-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>EXECUTION LAB</span></div>
+      </a>
+      <div class="side-label">CICLO 03 • MICROESTRUTURA</div>
+      <nav aria-label="Seções do laboratório">
+        <a href="#marketLab"><span>01</span> Mercado artificial</a>
+        <a href="#orderLab"><span>02</span> Ordem e candle</a>
+        <a href="#qualityLab"><span>03</span> Qualidade</a>
+        <a href="#historyLab"><span>04</span> Comparação</a>
+      </nav>
+      <div class="warning-card">
+        <strong>MODELO ARTIFICIAL</strong>
+        <p>Não existe livro de ofertas real, feed, corretora ou promessa de fidelidade. O objetivo é isolar mecanismos de execução para estudo.</p>
+      </div>
+    </aside>
+
+    <main class="micro-main">
+      <header class="micro-topbar">
+        <div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Preço pensado não é preço executado.</strong></div>
+        <a href="programa.html">Voltar ao programa</a>
+      </header>
+
+      <section class="micro-hero">
+        <div>
+          <span class="eyebrow">MICROESTRUTURA E QUALIDADE DE EXECUÇÃO</span>
+          <h1>Uma boa ideia ainda pode ter uma execução ruim.</h1>
+          <p>Altere volatilidade, liquidez, quantidade e tipo de ordem. Observe como spread, slippage, gap e preenchimento parcial mudam o custo de implementação sem mudar a hipótese.</p>
+        </div>
+        <aside>
+          <strong>FOCO DO CICLO</strong>
+          <blockquote>Separar qualidade da análise de qualidade da implementação.</blockquote>
+          <small>A rubrica não olha lucro, winrate ou direção futura. Ela verifica limites de execução definidos antes do cenário.</small>
+        </aside>
+      </section>
+
+      <section class="micro-kpis" aria-label="Resumo da última execução">
+        <article><span>Spread efetivo</span><strong id="kpiSpread">—</strong><small>pontos artificiais</small></article>
+        <article><span>Fill</span><strong id="kpiFill">—</strong><small>quantidade atendida</small></article>
+        <article><span>Desvio adverso</span><strong id="kpiDeviation">—</strong><small>vs. benchmark da ordem</small></article>
+        <article><span>Qualidade</span><strong id="kpiQuality">PENDENTE</strong><small>processo, não P/L</small></article>
+      </section>
+
+      <section id="marketLab" class="lab-section" aria-labelledby="marketTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">01 • CONDIÇÕES DE MERCADO</span><h2 id="marketTitle">Mude o ambiente antes de enviar a ordem</h2></div>
+          <p>Volatilidade e liquidez aplicam multiplicadores explícitos ao spread e ao slippage-base. Quantidade disponível limita o preenchimento.</p>
+        </div>
+        <div class="preset-row" aria-label="Cenários predefinidos">
+          <button type="button" data-preset="NORMAL">Mercado normal</button>
+          <button type="button" data-preset="VOLATILE">Volatilidade alta</button>
+          <button type="button" data-preset="THIN">Liquidez rasa</button>
+          <button type="button" data-preset="SHOCK">Choque combinado</button>
+        </div>
+        <div class="control-grid market-controls">
+          <label>Preço médio<input id="marketMid" type="number" min="0.00000001" step="any" value="100" /></label>
+          <label>Tamanho do ponto<input id="pointSize" type="number" min="0.00000001" step="any" value="1" /></label>
+          <label>Spread-base (pts)<input id="baseSpread" type="number" min="0" step="0.1" value="2" /></label>
+          <label>Slippage-base (pts)<input id="baseSlippage" type="number" min="0" step="0.1" value="0.5" /></label>
+          <label>Volatilidade<select id="volatility"><option value="LOW">Baixa</option><option value="NORMAL" selected>Normal</option><option value="HIGH">Alta</option><option value="EXTREME">Extrema</option></select></label>
+          <label>Liquidez<select id="liquidity"><option value="DEEP">Profunda</option><option value="NORMAL" selected>Normal</option><option value="THIN">Rasa</option></select></label>
+          <label>Quantidade disponível<input id="availableQuantity" type="number" min="0" step="1" value="100" /></label>
+          <label>Valor por ponto/unidade<input id="valuePerPoint" type="number" min="0.000001" step="0.01" value="1" /></label>
+          <label>Comissão por ordem<input id="commissionPerOrder" type="number" min="0" step="0.01" value="2" /></label>
+        </div>
+        <div class="quote-strip" aria-live="polite">
+          <div><span>BID</span><strong id="quoteBid">—</strong></div>
+          <div><span>MID</span><strong id="quoteMid">—</strong></div>
+          <div><span>ASK</span><strong id="quoteAsk">—</strong></div>
+          <div><span>SPREAD</span><strong id="effectiveSpread">—</strong></div>
+          <div><span>SLIPPAGE-BASE</span><strong id="effectiveSlippage">—</strong></div>
+        </div>
+      </section>
+
+      <section id="orderLab" class="lab-section" aria-labelledby="orderTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">02 • EXECUTION BENCH</span><h2 id="orderTitle">Envie a mesma ordem para ambientes diferentes</h2></div>
+          <p>MARKET usa o mid como benchmark. LIMIT e STOP usam o preço de disparo. O modelo registra o desvio adverso em pontos.</p>
+        </div>
+        <div class="execution-grid">
+          <form id="executionForm" class="order-card">
+            <div class="control-grid order-controls">
+              <label>Tipo de ordem<select id="orderType"><option value="MARKET" selected>MARKET</option><option value="LIMIT">LIMIT</option><option value="STOP">STOP</option></select></label>
+              <label>Direção<select id="orderDirection"><option value="BUY" selected>BUY</option><option value="SELL">SELL</option></select></label>
+              <label>Quantidade desejada<input id="orderQuantity" type="number" min="0.000001" step="any" value="50" /></label>
+              <label id="triggerLabel">Preço de disparo<input id="orderTrigger" type="number" min="0.00000001" step="any" value="105" disabled /></label>
+            </div>
+            <fieldset id="barFields" disabled>
+              <legend>Candle de execução para LIMIT/STOP</legend>
+              <div class="control-grid bar-controls">
+                <label>Open<input id="barOpen" type="number" min="0.00000001" step="any" value="100" /></label>
+                <label>High<input id="barHigh" type="number" min="0.00000001" step="any" value="110" /></label>
+                <label>Low<input id="barLow" type="number" min="0.00000001" step="any" value="95" /></label>
+                <label>Close<input id="barClose" type="number" min="0.00000001" step="any" value="105" /></label>
+              </div>
+            </fieldset>
+            <label class="note-label">Hipótese de execução<textarea id="executionNote" maxlength="180" placeholder="Ex.: comparar ordem pequena e grande no mesmo ambiente"></textarea></label>
+            <button class="primary" type="submit">SIMULAR EXECUÇÃO</button>
+          </form>
+
+          <article class="result-card" aria-live="polite">
+            <div class="result-head"><span>ÚLTIMA EXECUÇÃO</span><strong id="executionStatus">Aguardando</strong></div>
+            <div class="result-grid">
+              <div><span>Benchmark</span><strong id="resultBenchmark">—</strong></div>
+              <div><span>Preço executado</span><strong id="resultFillPrice">—</strong></div>
+              <div><span>Quantidade</span><strong id="resultQuantity">—</strong></div>
+              <div><span>Fill</span><strong id="resultFillPct">—</strong></div>
+              <div><span>Spread</span><strong id="resultSpread">—</strong></div>
+              <div><span>Slippage</span><strong id="resultSlippage">—</strong></div>
+              <div><span>Gap</span><strong id="resultGap">—</strong></div>
+              <div><span>Desvio total</span><strong id="resultDeviation">—</strong></div>
+              <div><span>Custo implementação</span><strong id="resultCost">—</strong></div>
+            </div>
+            <p id="executionMessage" class="explanation">A execução ainda não foi simulada.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="qualityLab" class="lab-section" aria-labelledby="qualityTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">03 • EXECUTION QUALITY</span><h2 id="qualityTitle">Defina o aceitável antes do fill</h2></div>
+          <p>A rubrica é reproduzível e não usa P/L. Uma execução que viola o limite permanece reprovada mesmo que a operação depois dê lucro.</p>
+        </div>
+        <div class="threshold-row">
+          <label>Slippage máximo (pts)<input id="maxSlippage" type="number" min="0" step="0.1" value="2" /></label>
+          <label>Fill mínimo (%)<input id="minimumFill" type="number" min="0" max="100" step="1" value="80" /></label>
+          <label>Gap máximo (pts)<input id="maxGap" type="number" min="0" step="0.1" value="3" /></label>
+        </div>
+        <div id="qualityChecks" class="quality-grid" aria-live="polite"><p class="empty">Simule uma execução para avaliar a qualidade.</p></div>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">04 • COMPARAÇÃO</span><h2 id="historyTitle">Compare implementação, não resultado</h2></div>
+          <div class="history-actions"><button id="exportMicrostructure" type="button">EXPORTAR JSON</button><button id="clearHistory" type="button">LIMPAR HISTÓRICO</button></div>
+        </div>
+        <div class="history-kpis">
+          <article><span>Cenários executados</span><strong id="historyTotal">0</strong></article>
+          <article><span>Fill médio</span><strong id="historyFill">0%</strong></article>
+          <article><span>Desvio médio</span><strong id="historyDeviation">0 pts</strong></article>
+          <article><span>Dentro dos limites</span><strong id="historyPassed">0</strong></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Ambiente</th><th>Ordem</th><th>Qtd.</th><th>Fill</th><th>Desvio</th><th>Custo</th><th>Qualidade</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="8" class="empty">Nenhuma execução registrada.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/microstructure-core.js"></script>
+  <script src="js/microestrutura.js"></script>
+</body>
+</html>
