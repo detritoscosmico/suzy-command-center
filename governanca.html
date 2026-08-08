@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Governança educacional Suzy para versionar playbook, registrar motivos e revisar métricas de processo por período." />
+  <title>Governança e Revisão — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/governanca.css" />
+</head>
+<body>
+  <div class="gov-shell">
+    <aside class="gov-sidebar">
+      <a class="gov-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>GOVERNANCE DESK</span></div>
+      </a>
+      <div class="side-label">CICLO 05 • CONTROLE DE PROCESSO</div>
+      <nav aria-label="Seções de governança">
+        <a href="#versionLab"><span>01</span> Versionar</a>
+        <a href="#historyLab"><span>02</span> Histórico</a>
+        <a href="#compareLab"><span>03</span> Comparar versões</a>
+        <a href="#reviewLab"><span>04</span> Revisar períodos</a>
+      </nav>
+      <div class="doctrine-card"><strong>REGRA DE GOVERNANÇA</strong><p>Resultado isolado não justifica mudar regra. Toda alteração precisa de motivo explícito e fica vinculada a uma versão imutável.</p></div>
+    </aside>
+
+    <main class="gov-main">
+      <header class="gov-topbar"><div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Regras com memória, revisão sem hindsight.</strong></div><a href="programa.html">Voltar ao programa</a></header>
+
+      <section class="gov-hero">
+        <div><span class="eyebrow">GOVERNANÇA E REVISÃO</span><h1>Se a regra mudou, precisa existir um porquê.</h1><p>Versione o playbook, compare exatamente o que mudou e revise aderência, erros e contexto por períodos. Nenhuma métrica desta mesa vira sinal operacional.</p></div>
+        <aside><strong>ANTI-HINDSIGHT</strong><blockquote>Uma versão preserva o que você sabia e decidiu naquele momento.</blockquote><small>O histórico é local e educacional. Ele não certifica competência nem prova causalidade.</small></aside>
+      </section>
+
+      <section class="gov-kpis" aria-label="Resumo de governança">
+        <article><span>Versão atual</span><strong id="kpiVersion">SEM BASE</strong><small id="kpiFingerprint">fingerprint —</small></article>
+        <article><span>Versões auditadas</span><strong id="kpiRevisions">0</strong><small>máximo local: 50</small></article>
+        <article><span>Estado do plano</span><strong id="kpiPlanState">NÃO VERSIONADO</strong><small id="kpiPlanDetail">crie a linha de base</small></article>
+        <article><span>Registros no diário</span><strong id="kpiJournal">0</strong><small>fonte local para revisão</small></article>
+      </section>
+
+      <section id="versionLab" class="lab-section" aria-labelledby="versionTitle">
+        <div class="section-heading"><div><span class="eyebrow">01 • CONTROLE DE VERSÃO</span><h2 id="versionTitle">Playbook auditável</h2></div><p>O plano atual é carregado do Programa Profissional. A primeira gravação cria a linha de base; depois, apenas mudanças reais geram nova versão.</p></div>
+        <form id="versionForm" class="version-form">
+          <div class="plan-grid">
+            <label>Mercado e ativos<input id="govMarket" maxlength="50" required /></label>
+            <label>Setup principal<input id="govSetup" maxlength="120" required /></label>
+            <label class="wide">Contexto obrigatório<textarea id="govContext" maxlength="240" required></textarea></label>
+            <label class="wide">Gatilho objetivo<textarea id="govTrigger" maxlength="240" required></textarea></label>
+            <label class="wide">Invalidação técnica<textarea id="govInvalidation" maxlength="240" required></textarea></label>
+            <label>Risco máximo por operação (%)<input id="govRisk" type="number" min="0.1" max="2" step="0.1" required /></label>
+            <label>Stop diário máximo (R)<input id="govDailyStop" type="number" min="0.5" max="5" step="0.5" required /></label>
+            <label>Máximo de operações<input id="govMaxTrades" type="number" min="1" max="10" step="1" required /></label>
+            <label class="wide">Rotina de revisão<textarea id="govReviewRoutine" maxlength="300" required></textarea></label>
+            <label class="wide consent"><input id="govUncertainty" type="checkbox" /> Reconheço que nenhuma regra elimina a incerteza.</label>
+          </div>
+          <div class="change-control">
+            <label>Motivo desta versão<textarea id="changeReason" maxlength="600" required placeholder="O que mudou no processo e por que a mudança faz sentido? Mínimo 20 caracteres."></textarea></label>
+            <label>Revisor / referência opcional<input id="changeReviewer" maxlength="80" placeholder="Ex.: auto-revisão semanal" /></label>
+            <button class="primary" type="submit">CRIAR VERSÃO AUDITÁVEL</button>
+            <p id="versionFeedback" class="feedback" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading"><div><span class="eyebrow">02 • TRILHA DE MUDANÇAS</span><h2 id="historyTitle">Versões imutáveis</h2></div><button id="exportGovernance" class="secondary" type="button">EXPORTAR AUDITORIA JSON</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Fingerprint</th><th>Mudanças</th><th>Revisor</th><th>Motivo</th></tr></thead><tbody id="historyBody"><tr><td class="empty" colspan="6">Nenhuma versão auditada.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="compareLab" class="lab-section" aria-labelledby="compareTitle">
+        <div class="section-heading"><div><span class="eyebrow">03 • DIFF DE REGRAS</span><h2 id="compareTitle">Compare duas versões</h2></div><p>Veja campo a campo o antes e o depois. O comparador não usa resultado financeiro para classificar uma mudança como boa ou ruim.</p></div>
+        <div class="compare-controls"><label>De<select id="compareFrom"></select></label><label>Para<select id="compareTo"></select></label><button id="compareVersions" class="secondary" type="button">COMPARAR</button></div>
+        <div id="versionDiff" class="diff-grid"><p class="empty">Crie pelo menos duas versões para comparar.</p></div>
+      </section>
+
+      <section id="reviewLab" class="lab-section" aria-labelledby="reviewTitle">
+        <div class="section-heading"><div><span class="eyebrow">04 • REVISÃO POR PERÍODO</span><h2 id="reviewTitle">Compare processo, não resultado</h2></div><p>Os períodos leem somente aderência, qualidade, tipos de erro e contexto do Diário Profissional. P/L, winrate e direção ficam deliberadamente fora.</p></div>
+        <div class="period-grid">
+          <article><h3>Período A</h3><div class="date-row"><label>De<input id="periodAFrom" type="date" /></label><label>Até<input id="periodATo" type="date" /></label></div><div id="periodAResult" class="period-result"></div></article>
+          <article><h3>Período B</h3><div class="date-row"><label>De<input id="periodBFrom" type="date" /></label><label>Até<input id="periodBTo" type="date" /></label></div><div id="periodBResult" class="period-result"></div></article>
+        </div>
+        <button id="reviewPeriods" class="primary" type="button">REVISAR E COMPARAR PERÍODOS</button>
+        <div id="periodComparison" class="comparison-note">Selecione os períodos para iniciar a revisão.</div>
+      </section>
+    </main>
+  </div>
+  <script src="js/governance-core.js"></script>
+  <script src="js/governanca.js"></script>
+</body>
+</html>
