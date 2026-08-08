@@ -44,11 +44,13 @@ Status: implementado em `risco.html` com cálculos puros testáveis, cenários r
 
 Objetivo: separar análise correta de execução ruim.
 
+Status: implementado em `microestrutura.html` com cenário artificial reproduzível, decomposição do custo e rubrica independente de P/L.
+
 - spread variável;
-- slippage dependente de volatilidade artificial;
+- slippage dependente de volatilidade, liquidez e participação artificial;
 - gap e baixa liquidez;
 - ordens a mercado, limite e stop;
-- preenchimento parcial simulado;
+- preenchimento parcial por quantidade disponível;
 - comparação entre preço pretendido, preço executado e custo total;
 - relatório de implementação, sem feed ou promessa de realismo absoluto.
 
