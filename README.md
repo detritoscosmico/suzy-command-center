@@ -71,6 +71,14 @@ Seis ciclos conectam evidências do estudo a gates de processo: passaporte de co
 
 Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
 
+### Área do Aluno
+
+Arquivo: `alunos.html`
+
+Painel individual que consolida o progresso dos 12 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
+
+A metodologia e as limitações estão documentadas em `docs/area-do-aluno.md`.
+
 ### Psicologia, Disciplina e Avaliação Comportamental
 
 Arquivo: `psicologia.html`
@@ -249,6 +257,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
 - validação contínua pelo GitHub Actions;
+- Área do Aluno local com progresso dos 12 módulos, presença, plano semanal e conquistas de processo;
 - matriz de competências E0–E5 e roadmap de prontidão institucional;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
@@ -263,6 +272,7 @@ suzy-command-center/
 │       └── quality.yml
 ├── academia.html
 ├── academia-nivel2.html
+├── alunos.html
 ├── calendario.html
 ├── capstone.html
 ├── dados.html
@@ -280,6 +290,7 @@ suzy-command-center/
 ├── css/
 ├── dados/
 ├── docs/
+│   ├── area-do-aluno.md
 │   ├── matriz-competencias-institucionais.md
 │   ├── roadmap-formacao-institucional.md
 │   ├── roadmap-prontidao-institucional.md
@@ -339,6 +350,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o GitHub Pages não executa o backend local;
 - o servidor local precisa permanecer ligado para usar o SQLite;
 - não existe sincronização pela internet ou entre computadores;
+- a Área do Aluno também é local: não existe cadastro central, gestão de turmas ou sincronização entre dispositivos;
 - o envelope de versões e lixeira possui limite conservador de 350.000 caracteres codificados, além do limite geral de 2 MB da API;
 - respostas brutas e o estado completo da trilha comportamental permanecem somente no navegador e na exportação JSON; apenas o resumo consentido de um check-in pode acompanhar uma entrada do diário;
 - sem a senha e sem uma chave de recuperação válida, não existe recuperação automática da conta;
