@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Laboratório Suzy de proveniência para validar arquivos OHLC locais, autorização, fuso, período e integridade SHA-256." />
+  <title>Dados e Proveniência — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/dados.css" />
+</head>
+<body>
+  <div class="data-shell">
+    <aside class="data-sidebar">
+      <a class="data-brand" href="programa.html" aria-label="Voltar ao Programa Profissional"><img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" /><div><strong>SUZY</strong><span>DATA PROVENANCE LAB</span></div></a>
+      <div class="side-label">CICLO 06 • DADOS AUTORIZADOS</div>
+      <nav aria-label="Seções de dados e proveniência"><a href="#importLab"><span>01</span> Importar local</a><a href="#integrityLab"><span>02</span> Integridade</a><a href="#registryLab"><span>03</span> Manifestos</a><a href="#verifyLab"><span>04</span> Revalidar</a></nav>
+      <div class="policy-card"><strong>POLÍTICA DE DADOS</strong><p>Nenhum arquivo é enviado pela página. Nenhuma chave de API é solicitada ou guardada. Não existe conexão com corretora neste laboratório.</p></div>
+    </aside>
+
+    <main class="data-main">
+      <header class="data-topbar"><div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Dados sem origem não entram no estudo.</strong></div><a href="programa.html">Voltar ao programa</a></header>
+      <section class="data-hero"><div><span class="eyebrow">PROVENIÊNCIA E INTEGRIDADE</span><h1>Saiba exatamente o que entrou no laboratório.</h1><p>Importe OHLC por arquivo local, registre origem e autorização, valide a estrutura e gere um manifesto SHA-256. Se o dataset é artificial, a etiqueta fica permanente.</p></div><aside><strong>ZERO CREDENCIAIS</strong><blockquote>Arquivo local primeiro. Fonte, licença e integridade sempre.</blockquote><small>Adaptadores futuros devem viver fora do front-end e nunca expor segredos no navegador.</small></aside></section>
+
+      <section class="data-kpis" aria-label="Resumo dos datasets"><article><span>Manifestos</span><strong id="kpiDatasets">0</strong><small>registro local</small></article><article><span>Autorizados</span><strong id="kpiAuthorized">0</strong><small>arquivo local</small></article><article><span>Artificiais</span><strong id="kpiArtificial">0</strong><small>etiqueta permanente</small></article><article><span>Arquivo atual</span><strong id="kpiFileState">NENHUM</strong><small id="kpiFileDetail">selecione um CSV</small></article></section>
+
+      <section id="importLab" class="lab-section" aria-labelledby="importTitle">
+        <div class="section-heading"><div><span class="eyebrow">01 • ENTRADA LOCAL</span><h2 id="importTitle">Registre a fonte antes de usar o dado</h2></div><p>Formato aceito: CSV OHLC com timestamp, abertura, máxima, mínima e fechamento. Limite local de 2 MB para manter o laboratório leve e auditável.</p></div>
+        <div class="import-grid">
+          <form id="datasetForm" class="metadata-form">
+            <label class="wide file-label">Arquivo CSV local<input id="datasetFile" type="file" accept=".csv,text/csv,text/plain" required /></label>
+            <label>Nome do dataset<input id="datasetName" maxlength="80" required placeholder="Ex.: EURUSD M5 — agosto" /></label>
+            <label>Classificação<select id="sourceType"><option value="AUTHORIZED_LOCAL">Dado autorizado local</option><option value="ARTIFICIAL">Dado artificial</option></select></label>
+            <label>Fonte<input id="sourceName" maxlength="120" required placeholder="Fornecedor, bolsa, gerador interno..." /></label>
+            <label>URL/referência da fonte<input id="sourceUrl" maxlength="300" placeholder="Opcional" /></label>
+            <label id="licenseField">Licença / base de autorização<input id="sourceLicense" maxlength="160" placeholder="Ex.: licença pessoal para estudo" /></label>
+            <label>Fuso do arquivo<input id="sourceTimezone" maxlength="80" required value="UTC" placeholder="Ex.: UTC ou America/Sao_Paulo" /></label>
+            <label>Instrumento<input id="sourceInstrument" maxlength="40" required placeholder="Ex.: EUR/USD" /></label>
+            <label>Timeframe<input id="sourceTimeframe" maxlength="20" required placeholder="Ex.: M5" /></label>
+            <label id="authorizationField" class="wide consent"><input id="authorizationConfirmed" type="checkbox" /> Confirmo que possuo autorização/licença compatível para usar este arquivo no estudo.</label>
+            <div class="wide classification-banner" id="classificationBanner">DADO AUTORIZADO — ARQUIVO LOCAL</div>
+            <button class="primary wide" type="submit">VALIDAR E CRIAR MANIFESTO</button>
+            <p id="datasetFeedback" class="feedback wide" aria-live="polite"></p>
+          </form>
+
+          <article id="integrityLab" class="inspection-card">
+            <span class="eyebrow">02 • INSPEÇÃO</span><h3>Integridade do arquivo atual</h3>
+            <div class="inspection-kpis"><div><span>SHA-256</span><strong id="fileDigest">—</strong></div><div><span>Linhas</span><strong id="fileRows">0</strong></div><div><span>Inválidas</span><strong id="fileInvalid">0</strong></div><div><span>Duplicadas</span><strong id="fileDuplicates">0</strong></div></div>
+            <p id="filePeriod" class="period-line">Período: —</p><p id="inspectionStatus" class="status-line">Aguardando arquivo.</p>
+            <div class="table-wrap preview"><table><thead><tr><th>Timestamp</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr></thead><tbody id="previewBody"><tr><td colspan="5" class="empty">Sem prévia.</td></tr></tbody></table></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="registryLab" class="lab-section" aria-labelledby="registryTitle"><div class="section-heading"><div><span class="eyebrow">03 • REGISTRO LOCAL</span><h2 id="registryTitle">Manifestos de proveniência</h2></div><button id="exportRegistry" class="secondary" type="button">EXPORTAR MANIFESTOS JSON</button></div><div class="table-wrap"><table><thead><tr><th>Dataset</th><th>Classe</th><th>Fonte</th><th>Instrumento</th><th>Período</th><th>Linhas</th><th>SHA-256</th></tr></thead><tbody id="registryBody"><tr><td colspan="7" class="empty">Nenhum manifesto registrado.</td></tr></tbody></table></div></section>
+
+      <section id="verifyLab" class="lab-section" aria-labelledby="verifyTitle"><div class="section-heading"><div><span class="eyebrow">04 • REVALIDAÇÃO</span><h2 id="verifyTitle">O arquivo ainda é o mesmo?</h2></div><p>Selecione um manifesto e um arquivo local. O laboratório recalcula SHA-256: qualquer alteração de um byte produz incompatibilidade.</p></div><div class="verify-controls"><label>Manifesto<select id="verifyManifest"></select></label><button id="verifyFile" class="secondary" type="button">COMPARAR ARQUIVO ATUAL</button><strong id="verifyStatus" aria-live="polite">AGUARDANDO</strong></div><p class="adapter-note"><strong>Política de adaptadores:</strong> esta versão aceita somente arquivos locais. Integrações futuras devem manter credenciais no servidor, documentar licença e nunca conectar a versão pública diretamente a uma corretora.</p></section>
+    </main>
+  </div>
+  <script src="js/provenance-core.js"></script>
+  <script src="js/dados.js"></script>
+</body>
+</html>
