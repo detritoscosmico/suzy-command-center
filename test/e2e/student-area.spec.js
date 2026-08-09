@@ -35,3 +35,22 @@ test("reflete evidências existentes e indica a próxima etapa", async ({ page }
   await expect(page.locator("#studentModules")).toContainText("CONCLUÍDO");
   await expect(page.locator("#nextStudentAction")).toContainText("ACADEMIA NÍVEL 2 APROVADA");
 });
+
+test("não aceita avaliação pendente nem calendário demo como conclusão", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("suzy-academia-nivel1-v1", JSON.stringify({
+      completed: ["mentalidade", "mercados", "candles", "risco", "playbook", "validacao"],
+      passed: false,
+      bestScore: 60
+    }));
+    localStorage.setItem("suzy.calendar.educational.v1", JSON.stringify({
+      authorized: false,
+      mode: "demo",
+      events: [{ id: "demo-1" }, { id: "demo-2" }, { id: "demo-3" }]
+    }));
+  });
+  await page.goto("/alunos.html");
+  await expect(page.locator("#kpiModules")).toHaveText("0/12");
+  await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
+  await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
+});

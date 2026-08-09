@@ -53,7 +53,7 @@
     const calendar = readJson(KEYS.calendar, {});
     return {
       risk: countArray(readJson(KEYS.risk, [])), microstructure: countArray(readJson(KEYS.microstructure, [])), capstone: countArray(readJson(KEYS.capstone, [])),
-      governance: countArray(governance?.history), data: countArray(data?.manifests), calendar: countArray(calendar?.events)
+      governance: countArray(governance?.history), data: countArray(data?.manifests), calendar: SuzyStudentCore.countAuthorizedCalendarEvents(calendar)
     };
   }
 

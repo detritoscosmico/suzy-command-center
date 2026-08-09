@@ -38,6 +38,41 @@ test("monta progresso dos doze módulos com limites conservadores", () => {
   assert.equal(modules.find(module => module.id === "calendar").complete, false);
 });
 
+test("exige aprovação das academias mesmo com todas as aulas concluídas", () => {
+  const modules = core.buildModuleProgress({
+    academy1: { completed: 6, passed: false },
+    academy2: { completed: 8, passed: false }
+  });
+  const academy1 = modules.find(module => module.id === "academy1");
+  const academy2 = modules.find(module => module.id === "academy2");
+  assert.equal(academy1.percent, 100);
+  assert.equal(academy1.complete, false);
+  assert.equal(academy1.detail, "Avaliação pendente");
+  assert.equal(academy2.complete, false);
+});
+
+test("aceita somente calendário autorizado como evidência", () => {
+  const events = [{ id: "a" }, { id: "b" }, { id: "c" }];
+  assert.equal(core.countAuthorizedCalendarEvents({ mode: "demo", authorized: false, events }), 0);
+  assert.equal(core.countAuthorizedCalendarEvents({ mode: "authorized", authorized: false, events }), 0);
+  assert.equal(core.countAuthorizedCalendarEvents({ mode: "authorized", authorized: true, events }), 3);
+});
+
+test("leva ações do playbook para a página do programa", () => {
+  const summary = core.summarize({
+    nextAction: { label: "Plano operacional auditável", href: "#playbookTitle" }
+  }, core.normalizeState({}, "2026-08-09"), [], "2026-08-09");
+  assert.equal(summary.nextAction.href, "programa.html#playbookTitle");
+});
+
+test("mantém ação de revisão quando o passaporte está concluído", () => {
+  const summary = core.summarize({ qualified: true, nextAction: null }, core.normalizeState({}, "2026-08-09"), [], "2026-08-09");
+  assert.deepEqual(summary.nextAction, {
+    label: "Revisar passaporte concluído",
+    href: "programa.html#gatesTitle"
+  });
+});
+
 test("resume rotina sem usar lucro ou taxa de acerto", () => {
   const state = core.normalizeState({ attendance: ["2026-08-08", "2026-08-09"], weekKey: "2026-08-03", tasks: [{ id: "foundation", completed: true }] }, "2026-08-09");
   const modules = core.buildModuleProgress({}, {});

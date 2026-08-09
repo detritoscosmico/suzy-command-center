@@ -120,9 +120,20 @@
     return Math.round(clamp((Number(current) || 0) / Math.max(1, target), 0, 1) * 100);
   }
 
-  function moduleItem(id, title, href, current, target, detail) {
+  function moduleItem(id, title, href, current, target, detail, completeOverride) {
     const percent = progress(current, target);
-    return { id, title, href, current: Number(current) || 0, target, percent, complete: percent === 100, detail };
+    const complete = typeof completeOverride === "boolean" ? completeOverride : percent === 100;
+    return { id, title, href, current: Number(current) || 0, target, percent, complete, detail };
+  }
+
+  function academyDetail(academy, target) {
+    if (academy.passed === true) return "Avaliação aprovada";
+    return (Number(academy.completed) || 0) >= target ? "Avaliação pendente" : "Aulas concluídas";
+  }
+
+  function countAuthorizedCalendarEvents(snapshot = {}) {
+    if (snapshot?.authorized !== true || snapshot?.mode !== "authorized") return 0;
+    return Array.isArray(snapshot.events) ? snapshot.events.length : 0;
   }
 
   function buildModuleProgress(evidence = {}, additional = {}) {
@@ -132,8 +143,8 @@
     const psychology = evidence.psychology || {};
     const psychologyCurrent = (Number(psychology.lessons) || 0) + (Number(psychology.assessments) || 0) + Math.min(7, Number(psychology.checkIns) || 0);
     return [
-      moduleItem("academy1", "Fundamentos", "academia.html", academy1.passed ? 6 : academy1.completed, 6, academy1.passed ? "Avaliação aprovada" : "Aulas concluídas"),
-      moduleItem("academy2", "Análise técnica", "academia-nivel2.html", academy2.passed ? 8 : academy2.completed, 8, academy2.passed ? "Avaliação aprovada" : "Aulas concluídas"),
+      moduleItem("academy1", "Fundamentos", "academia.html", academy1.passed ? 6 : academy1.completed, 6, academyDetail(academy1, 6), academy1.passed === true),
+      moduleItem("academy2", "Análise técnica", "academia-nivel2.html", academy2.passed ? 8 : academy2.completed, 8, academyDetail(academy2, 8), academy2.passed === true),
       moduleItem("replay", "Replay", "replay.html", evidence.replayTrades, 20, "Operações encerradas"),
       moduleItem("simulator", "Custos e execução", "simulador.html", evidence.simulatorTrades, 10, "Operações simuladas"),
       moduleItem("journal", "Diário profissional", "diario.html", journal.total, 20, "Registros documentados"),
@@ -162,6 +173,15 @@
 
   function summarize(program = {}, state = {}, modules = [], today = new Date()) {
     const completedTasks = (state.tasks || []).filter(task => task.completed).length;
+    const nextAction = program.qualified === true
+      ? { label: "Revisar passaporte concluído", href: "programa.html#gatesTitle" }
+      : (program.nextAction || { label: "Começar pelos fundamentos", href: "academia.html" });
+    const normalizedNextAction = {
+      ...nextAction,
+      href: String(nextAction.href || "academia.html").startsWith("#")
+        ? `programa.html${nextAction.href}`
+        : String(nextAction.href || "academia.html")
+    };
     return {
       programPercent: Math.round(clamp(program.percent, 0, 100)),
       completedStages: Number(program.completedStages) || 0,
@@ -172,7 +192,7 @@
       weeklyTotal: TASK_DEFINITIONS.length,
       attendanceTotal: (state.attendance || []).length,
       streak: calculateStreak(state.attendance, today),
-      nextAction: program.nextAction || { label: "Começar pelos fundamentos", href: "academia.html" }
+      nextAction: normalizedNextAction
     };
   }
 
@@ -185,6 +205,7 @@
     markAttendance,
     toggleTask,
     calculateStreak,
+    countAuthorizedCalendarEvents,
     buildModuleProgress,
     deriveAchievements,
     summarize
