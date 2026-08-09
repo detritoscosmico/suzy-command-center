@@ -76,6 +76,8 @@ test("dataset artificial recebe classificação permanente", () => {
 
 test("manifesto autorizado registra SHA-256, período e política sem credenciais", () => {
   const manifest = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  assert.equal(manifest.schemaVersion, 2);
+  assert.equal(manifest.integrity.digestInput, "ORIGINAL_BYTES");
   assert.equal(manifest.integrity.sha256, sha);
   assert.equal(manifest.integrity.rows, 2);
   assert.equal(manifest.adapterPolicy.credentialsStored, false);
@@ -86,6 +88,24 @@ test("verificação detecta arquivo idêntico e alterado", () => {
   const manifest = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
   assert.equal(core.verifyDigest(manifest, sha).status, "MATCH");
   assert.equal(core.verifyDigest(manifest, "b".repeat(64)).status, "MISMATCH");
+});
+
+test("preserva manifesto legado com rótulo de fuso antigo", () => {
+  const current = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  const { digestInput, ...legacyIntegrity } = current.integrity;
+  const legacy = { ...current, schemaVersion: 1, metadata: { ...current.metadata, timezone: "BRT" }, integrity: legacyIntegrity };
+  const registry = core.normalizeRegistry([legacy]);
+  assert.equal(registry.length, 1);
+  assert.equal(registry[0].metadata.timezone, "BRT");
+  assert.equal(registry[0].integrity.digestInput, "UTF8_DECODED_TEXT");
+});
+
+test("revalida manifesto legado pelo digest do texto decodificado", () => {
+  const current = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  const { digestInput, ...legacyIntegrity } = current.integrity;
+  const legacy = { ...current, schemaVersion: 1, integrity: legacyIntegrity };
+  assert.equal(core.verifyDigest(legacy, "b".repeat(64), sha).status, "MATCH");
+  assert.equal(core.verifyDigest(legacy, "b".repeat(64), "c".repeat(64)).status, "MISMATCH");
 });
 
 test("registro remove duplicatas pelo digest", () => {

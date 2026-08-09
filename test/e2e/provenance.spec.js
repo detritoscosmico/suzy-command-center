@@ -74,6 +74,38 @@ test("calcula SHA-256 dos bytes originais incluindo BOM", async ({ page }, testI
   await expect(page.locator("#kpiFileState")).toHaveText("VALIDADO");
 });
 
+test("revalida manifesto legado com BOM e preserva fuso antigo", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const legacyDigest = createHash("sha256").update(Buffer.from(csv)).digest("hex");
+  await page.addInitScript(({ digest }) => {
+    const manifest = {
+      schemaVersion: 1,
+      id: "legacy-bom",
+      createdAt: "2026-08-08T12:00:00.000Z",
+      classification: "AUTHORIZED_LOCAL",
+      metadata: {
+        datasetName: "Legado com BOM",
+        sourceType: "AUTHORIZED_LOCAL",
+        sourceName: "Fonte legada",
+        sourceUrl: "",
+        license: "Uso autorizado",
+        timezone: "BRT",
+        instrument: "EUR/USD",
+        timeframe: "M5",
+        authorizationConfirmed: true
+      },
+      integrity: { algorithm: "SHA-256", sha256: digest, rows: 2, periodStart: "2026-08-01T10:00:00.000Z", periodEnd: "2026-08-01T10:05:00.000Z" }
+    };
+    localStorage.setItem("suzy-data-provenance-v1", JSON.stringify({ version: 1, manifests: [manifest] }));
+  }, { digest: legacyDigest });
+  await page.goto("/dados.html");
+  const bytes = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(csv)]);
+  await page.locator("#datasetFile").setInputFiles({ name: "legado-com-bom.csv", mimeType: "text/csv", buffer: bytes });
+  await expect(page.locator("#kpiDatasets")).toHaveText("1");
+  await page.locator("#verifyFile").click();
+  await expect(page.locator("#verifyStatus")).toHaveText("MATCH");
+});
+
 test("mantém somente a seleção de arquivo mais recente", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.addInitScript(() => {

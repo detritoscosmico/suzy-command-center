@@ -197,13 +197,13 @@
     };
   }
 
-  function validateMetadata(candidate = {}) {
+  function validateMetadata(candidate = {}, options = {}) {
     const metadata = normalizeMetadata(candidate);
     const problems = [];
     if (!metadata.datasetName) problems.push("Nome do dataset obrigatório.");
     if (!metadata.sourceName) problems.push("Fonte obrigatória.");
     if (!metadata.timezone) problems.push("Fuso horário obrigatório.");
-    else if (!isValidTimezone(metadata.timezone)) problems.push("Fuso horário inválido. Use UTC ou um identificador IANA.");
+    else if (!isValidTimezone(metadata.timezone) && options.allowLegacyTimezone !== true) problems.push("Fuso horário inválido. Use UTC ou um identificador IANA.");
     if (!metadata.instrument) problems.push("Instrumento obrigatório.");
     if (!metadata.timeframe) problems.push("Período/timeframe obrigatório.");
     if (metadata.sourceType === "AUTHORIZED_LOCAL") {
@@ -229,7 +229,7 @@
     if (!Number.isFinite(timestamp.getTime())) throw new Error("Data do manifesto inválida.");
     const artificial = evaluation.metadata.sourceType === "ARTIFICIAL";
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       id: `${digest.slice(0, 12)}-${timestamp.getTime()}`,
       createdAt: timestamp.toISOString(),
       classification: artificial ? "ARTIFICIAL_PERMANENT" : "AUTHORIZED_LOCAL",
@@ -237,6 +237,7 @@
       metadata: evaluation.metadata,
       integrity: {
         algorithm: "SHA-256",
+        digestInput: "ORIGINAL_BYTES",
         sha256: digest,
         structuralValidation: "PASS",
         rows: inspection.validRows,
@@ -251,17 +252,18 @@
 
   function normalizeManifest(candidate = {}) {
     const digest = normalizeDigest(candidate?.integrity?.sha256);
-    const metadataEvaluation = validateMetadata(candidate.metadata);
+    const legacyDigest = Number(candidate.schemaVersion || 1) < 2 && candidate?.integrity?.digestInput !== "ORIGINAL_BYTES";
+    const metadataEvaluation = validateMetadata(candidate.metadata, { allowLegacyTimezone: legacyDigest });
     const createdAt = new Date(candidate.createdAt);
     if (!digest || !metadataEvaluation.valid || !Number.isFinite(createdAt.getTime())) return null;
     const artificial = candidate.classification === "ARTIFICIAL_PERMANENT" || metadataEvaluation.metadata.sourceType === "ARTIFICIAL";
     return {
       ...candidate,
-      schemaVersion: 1,
+      schemaVersion: legacyDigest ? 1 : 2,
       classification: artificial ? "ARTIFICIAL_PERMANENT" : "AUTHORIZED_LOCAL",
       permanentLabel: artificial ? "DADO ARTIFICIAL — ETIQUETA PERMANENTE" : "DADO AUTORIZADO — ARQUIVO LOCAL",
       metadata: metadataEvaluation.metadata,
-      integrity: { ...candidate.integrity, algorithm: "SHA-256", sha256: digest },
+      integrity: { ...candidate.integrity, algorithm: "SHA-256", digestInput: legacyDigest ? "UTF8_DECODED_TEXT" : "ORIGINAL_BYTES", sha256: digest },
       adapterPolicy: { mode: "LOCAL_FILE_ONLY", credentialsStored: false, brokerConnection: false }
     };
   }
@@ -276,11 +278,13 @@
     }).slice(0, MAX_DATASETS);
   }
 
-  function verifyDigest(manifest, sha256) {
+  function verifyDigest(manifest, sha256, legacySha256) {
     const normalized = normalizeManifest(manifest);
     const digest = normalizeDigest(sha256);
-    if (!normalized || !digest) return { valid: false, status: "INVALID", message: "Manifesto ou SHA-256 inválido." };
-    const match = normalized.integrity.sha256 === digest;
+    const legacyDigest = normalizeDigest(legacySha256);
+    if (!normalized || (!digest && !legacyDigest)) return { valid: false, status: "INVALID", message: "Manifesto ou SHA-256 inválido." };
+    const stored = normalized.integrity.sha256;
+    const match = stored === digest || (normalized.integrity.digestInput === "UTF8_DECODED_TEXT" && stored === legacyDigest);
     return { valid: match, status: match ? "MATCH" : "MISMATCH", message: match ? "Arquivo corresponde ao manifesto registrado." : "Arquivo diferente: SHA-256 não corresponde ao manifesto." };
   }
 

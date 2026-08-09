@@ -8,6 +8,7 @@
   let registry = loadRegistry();
   let currentText = "";
   let currentDigest = "";
+  let currentLegacyDigest = "";
   let currentInspection = null;
   let loadSequence = 0;
 
@@ -74,6 +75,7 @@
     const feedback = $("datasetFeedback");
     currentText = "";
     currentDigest = "";
+    currentLegacyDigest = "";
     currentInspection = null;
     if (!file) { renderInspection(); return; }
     if (file.size > MAX_FILE_BYTES) {
@@ -84,11 +86,15 @@
     }
     const bytes = await file.arrayBuffer();
     const text = new TextDecoder("utf-8").decode(bytes);
-    const digest = await sha256(bytes);
+    const [digest, legacyDigest] = await Promise.all([
+      sha256(bytes),
+      sha256(new TextEncoder().encode(text))
+    ]);
     if (requestId !== loadSequence || $("datasetFile").files[0] !== file) return;
     const inspection = core.inspectCsv(text, { timezone: $("sourceTimezone").value });
     currentText = text;
     currentDigest = digest;
+    currentLegacyDigest = legacyDigest;
     currentInspection = inspection;
     feedback.textContent = currentInspection.valid ? "Arquivo lido localmente. Revise os metadados e crie o manifesto." : currentInspection.error;
     feedback.className = `feedback wide ${currentInspection.valid ? "success" : "error"}`;
@@ -165,7 +171,7 @@
       currentInspection = core.inspectCsv(currentText, { timezone: metadata.timezone });
       renderInspection();
       const manifest = core.createManifest(metadata, currentInspection, currentDigest);
-      if (registry.some(item => item.integrity.sha256 === manifest.integrity.sha256)) throw new Error("Este arquivo já possui manifesto registrado pelo mesmo SHA-256.");
+      if (registry.some(item => core.verifyDigest(item, currentDigest, currentLegacyDigest).valid)) throw new Error("Este arquivo já possui manifesto registrado pelo mesmo SHA-256.");
       registry = core.normalizeRegistry([manifest, ...registry]);
       saveRegistry();
       renderRegistry();
@@ -179,7 +185,7 @@
 
   function verifyCurrentFile() {
     const manifest = registry.find(item => item.id === $("verifyManifest").value);
-    const result = core.verifyDigest(manifest, currentDigest);
+    const result = core.verifyDigest(manifest, currentDigest, currentLegacyDigest);
     $("verifyStatus").textContent = result.status;
     $("verifyStatus").className = result.valid ? "pass" : "fail";
     $("datasetFeedback").textContent = result.message;
