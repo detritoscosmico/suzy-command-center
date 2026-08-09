@@ -15,6 +15,7 @@ A página lê somente dados existentes no `localStorage` do navegador:
 - versões de governança;
 - manifestos de proveniência;
 - eventos do calendário autorizado.
+- aprovação E3 da trilha de ética e limites regulatórios.
 
 O resultado financeiro e a taxa de acerto não são usados para liberar conquistas ou classificar o aluno.
 

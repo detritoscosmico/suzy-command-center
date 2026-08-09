@@ -36,8 +36,8 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 | Custos e qualidade de execução | E1 | E3 | E2 | E2 | E1 | Simulador e microestrutura artificial |
 | Decisão sob incerteza | E3 | E3 | E3 | E1 | E2 | Capstone com desfecho oculto |
 | Proveniência e integridade de dados | E2 | E1 | E1 | E3 | E1 | Manifesto, validação OHLC e SHA-256 |
-| Ética e conduta profissional | E1 | E1 | E1 | E1 | E1 | Avisos e limites; falta avaliação dedicada |
-| Regulação e estrutura institucional | E0 | E1 | E0 | E0 | E0 | Apenas noções de microestrutura; falta currículo jurisdicional |
+| Ética e conduta profissional | E1 | E3 | E1 | E1 | E1 | Trilha Brasil com fontes oficiais, 12 variantes e rubrica publicada |
+| Regulação e estrutura institucional | E0 | E3 | E0 | E0 | E0 | Limites da função-alvo avaliados em `etica.html`; demais funções permanecem abertas |
 | Métodos quantitativos e estatística | E1 | E1 | E2 | E1 | E1 | Métricas isoladas; falta trilha progressiva |
 | Economia e análise macro | E1 | E1 | E1 | E0 | E1 | Calendário e casos; falta base econômica completa |
 | Demonstrações financeiras e valuation | E0 | E0 | E0 | E0 | E0 | Não implementado |
@@ -55,8 +55,8 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 
 ## Bloqueadores para uma alegação forte de padrão profissional
 
-1. Definir a função-alvo e a jurisdição; “Wall Street” não é um currículo único.
-2. Cobrir fundamentos financeiros, quantitativos, éticos e regulatórios ausentes.
+1. Concluir os fundamentos financeiros, quantitativos, econômicos e de portfólio do Ciclo 8.
+2. Ampliar ética e regulação para as demais funções somente quando seus escopos forem aprovados.
 3. Calibrar simuladores com dados licenciados e documentar erro de modelo.
 4. Medir retenção, generalização e consistência entre avaliadores.
 5. Conduzir piloto externo com participantes e revisores independentes.

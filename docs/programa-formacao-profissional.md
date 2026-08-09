@@ -71,3 +71,7 @@ O arquivo `test/professional.test.js` verifica:
 O Playwright inclui `programa.html` na auditoria automatizada de acessibilidade WCAG.
 
 A evolução planejada de risco, microestrutura, capstone, governança e dados autorizados está em `docs/roadmap-formacao-institucional.md`.
+
+## Ciclo 8 — primeira entrega
+
+`etica.html` acrescenta uma avaliação E3 de ética e limites regulatórios para a função-alvo aprovada no Brasil. O banco possui 12 variantes; cada sessão usa seis casos reproduzíveis e exige média 80 sem violação dura. A aprovação é uma evidência educacional interna e não altera os cinco gates originais do passaporte.

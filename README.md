@@ -71,17 +71,32 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html` e `dados.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html` e `etica.html`.
 
 Seis ciclos conectam evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook e proveniência de dados autorizados. A versão 1.23 acrescenta uma matriz institucional que separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
 Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md`, `docs/roadmap-prontidao-institucional.md` e `docs/decisao-funcao-jurisdicao.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
 
+### Ética e Limites Regulatórios — Brasil
+
+Arquivo: `etica.html`
+
+- função-alvo e fronteiras aprovadas exibidas antes da avaliação;
+- links para as páginas oficiais das Resoluções CVM 19, 20, 21 e 178;
+- banco de 12 cenários sobre conta própria, consultoria, análise, gestão de terceiros, assessoria, conflitos e enquadramento incerto;
+- sessões reproduzíveis de seis variantes;
+- rubrica pública de 100 pontos;
+- aprovação E3 interna somente com média mínima de 80 e nenhuma violação dura;
+- histórico limitado e salvo apenas no navegador;
+- aviso explícito de que a trilha não fornece parecer jurídico, registro ou habilitação profissional.
+
+A metodologia está documentada em `docs/trilha-etica-limites-regulatorios.md`.
+
 ### Área do Aluno
 
 Arquivo: `alunos.html`
 
-Painel individual que consolida o progresso dos 12 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
+Painel individual que consolida o progresso dos 13 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
 
 A metodologia e as limitações estão documentadas em `docs/area-do-aluno.md`.
 
@@ -263,8 +278,9 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
 - validação contínua pelo GitHub Actions;
-- Área do Aluno local com progresso dos 12 módulos, presença, plano semanal e conquistas de processo;
+- Área do Aluno local com progresso dos 13 módulos, presença, plano semanal e conquistas de processo;
 - matriz de competências E0–E5 e roadmap de prontidão institucional;
+- trilha E3 de ética e limites regulatórios da função-alvo no Brasil;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -282,6 +298,7 @@ suzy-command-center/
 ├── calendario.html
 ├── capstone.html
 ├── dados.html
+├── etica.html
 ├── diario.html
 ├── governanca.html
 ├── index.html
@@ -370,13 +387,14 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
 - a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
+- a trilha regulatória ensina fronteiras do projeto e não substitui parecer jurídico, registro ou orientação profissional para um caso concreto;
 - o projeto ainda não possui uma licença de software escolhida pelo mantenedor;
 - CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
 - testes automatizados de acessibilidade não substituem revisão manual com teclado, leitor de tela e usuários reais.
 
 ## Próximas etapas recomendadas
 
-1. Implementar o Ciclo 8 para a função-alvo e a jurisdição aprovadas, com avaliações E3.
+1. Concluir as trilhas pendentes do Ciclo 8: estatística, economia, demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio.
 2. Definir explicitamente a licença do repositório.
 3. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
 4. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
