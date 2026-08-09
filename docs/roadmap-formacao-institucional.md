@@ -86,6 +86,8 @@ Status: implementado em `governanca.html` com snapshots imutáveis do playbook, 
 
 Objetivo: permitir estudos mais realistas sem violar licença, privacidade ou segurança.
 
+Status: implementado em `dados.html` com importação OHLC estritamente local, manifesto de origem, autorização, fuso, período detectado, validação estrutural e SHA-256.
+
 - importação local de fontes autorizadas;
 - metadados de origem, período e fuso;
 - validação de integridade;
