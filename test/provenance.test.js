@@ -35,6 +35,11 @@ test("aplica o fuso declarado a timestamps sem offset", () => {
   assert.equal(saoPaulo.timezone, "America/Sao_Paulo");
 });
 
+test("aceita precisão de microssegundos e nanossegundos sem fuso", () => {
+  assert.equal(core.parseTimestamp("2026-08-01T10:00:00.123456", "UTC").toISOString(), "2026-08-01T10:00:00.123Z");
+  assert.equal(core.parseTimestamp("2026-08-01T10:00:00.987654321", "America/Sao_Paulo").toISOString(), "2026-08-01T13:00:00.987Z");
+});
+
 test("rejeita fuso inválido e manifesto inspecionado em outro fuso", () => {
   assert.equal(core.inspectCsv(csv, { timezone: "Planeta/Marte" }).valid, false);
   assert.throws(() => core.createManifest(metadata({ timezone: "America/Sao_Paulo" }), core.inspectCsv(csv, { timezone: "UTC" }), sha), /inspecionado novamente/);

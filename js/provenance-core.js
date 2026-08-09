@@ -108,11 +108,11 @@
       const explicit = new Date(text);
       return Number.isFinite(explicit.getTime()) ? explicit : null;
     }
-    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/);
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?$/);
     if (!match) return null;
     const values = match.slice(1, 7).map(value => Number(value || 0));
     const [year, month, day, hour, minute, second] = values;
-    const milliseconds = Number(String(match[7] || "0").padEnd(3, "0"));
+    const milliseconds = Number(String(match[7] || "0").slice(0, 3).padEnd(3, "0"));
     const wallClock = Date.UTC(year, month - 1, day, hour, minute, second);
     const check = new Date(wallClock);
     if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day
