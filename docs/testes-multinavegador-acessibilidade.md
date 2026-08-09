@@ -37,12 +37,19 @@ Também existe um teste de navegação por teclado no Command Center, confirmand
 - `simulador.html`;
 - `diario.html`;
 - `calendario.html`;
+- `psicologia.html`;
+- `programa.html`;
+- `risco.html`;
+- `microestrutura.html`;
+- `capstone.html`;
+- `governanca.html`;
+- `dados.html`;
 - `login.html`.
 
 ## Execução local
 
 ```bash
-npm install
+npm ci
 npx playwright install chromium firefox webkit
 npm run check
 npm run test:unit
