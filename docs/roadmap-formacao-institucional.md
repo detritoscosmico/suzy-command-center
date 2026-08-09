@@ -95,6 +95,23 @@ Status: implementado em `dados.html` com importação OHLC estritamente local, m
 - adaptadores opcionais, nunca chaves expostas no front-end;
 - nenhuma conexão com corretora na versão educacional pública.
 
+## Ciclo 7 — Prontidão institucional
+
+Objetivo: tornar a evolução do projeto verificável por competências, evidências e controles de engenharia, sem alegar certificação ou equivalência institucional.
+
+Status: primeira entrega implementada na versão 1.23.0.
+
+- matriz de competências por função e por nível de evidência;
+- lacunas explícitas entre conteúdo, simulação, avaliação e operação real;
+- critérios de avanço para os próximos ciclos;
+- política pública de reporte de vulnerabilidades;
+- instalação reprodutível com lockfile e `npm ci`;
+- atualização assistida de dependências com Dependabot;
+- análise estática de JavaScript com CodeQL;
+- decisão de licença registrada como pendência do mantenedor, sem presumir autorização.
+
+Os critérios, os bloqueadores e a ordem de evolução estão documentados em `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`.
+
 ## Critério de conclusão
 
 Nenhum ciclo é considerado concluído apenas porque a interface existe. Cada entrega precisa de:

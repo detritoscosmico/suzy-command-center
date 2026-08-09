@@ -26,7 +26,7 @@ Também é possível abrir os arquivos HTML diretamente no navegador.
 Requer Node.js 22 ou superior.
 
 ```bash
-npm install
+npm ci
 npm run serve:secure
 ```
 
@@ -62,6 +62,14 @@ Seis aulas sobre mentalidade, mercados, candles, gestão de risco, playbook e va
 Arquivo: `academia-nivel2.html`
 
 Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliação final com nota mínima de 75%. Abrange estrutura, zonas, tendência, pullbacks, candles, indicadores, confluência, invalidação, risco-retorno, checklist e playbook.
+
+### Programa de Formação por Competências
+
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html` e `dados.html`.
+
+Seis ciclos conectam evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook e proveniência de dados autorizados. A versão 1.23 acrescenta uma matriz institucional que separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
+
+Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
 
 ### Psicologia, Disciplina e Avaliação Comportamental
 
@@ -240,73 +248,48 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - layout responsivo para computador e celular;
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
-- validação contínua pelo GitHub Actions.
+- validação contínua pelo GitHub Actions;
+- matriz de competências E0–E5 e roadmap de prontidão institucional;
+- instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
 
 ```text
 suzy-command-center/
-├── .github/workflows/quality.yml
+├── .github/
+│   ├── dependabot.yml
+│   └── workflows/
+│       ├── codeql.yml
+│       └── quality.yml
 ├── academia.html
 ├── academia-nivel2.html
 ├── calendario.html
+├── capstone.html
+├── dados.html
 ├── diario.html
+├── governanca.html
 ├── index.html
 ├── login.html
+├── microestrutura.html
+├── programa.html
 ├── psicologia.html
 ├── replay.html
+├── risco.html
 ├── simulador.html
-├── playwright.config.js
 ├── assets/
 ├── css/
-│   ├── calendario.css
-│   ├── diario.css
-│   ├── diario-sync.css
-│   ├── login.css
-│   └── psicologia.css
 ├── dados/
 ├── docs/
-│   ├── backend-local-seguro.md
-│   ├── calendario-economico-autorizado.md
-│   ├── criptografia-repouso-sqlite.md
-│   ├── diario-profissional.md
-│   ├── importacao-historico-replay.md
-│   ├── recuperacao-senha-local.md
-│   ├── simulador-custos-operacionais.md
-│   ├── sincronizacao-direta-diario.md
-│   ├── testes-multinavegador-acessibilidade.md
-│   └── trilha-psicologia-disciplina.md
+│   ├── matriz-competencias-institucionais.md
+│   ├── roadmap-formacao-institucional.md
+│   ├── roadmap-prontidao-institucional.md
+│   └── documentação dos módulos
 ├── js/
-│   ├── calendario.js
-│   ├── calendar-core.js
-│   ├── diario.js
-│   ├── diario-sync.js
-│   ├── journal-core.js
-│   ├── journal-lifecycle-core.js
-│   ├── journal-sync-core.js
-│   ├── login.js
-│   ├── psicologia.js
-│   └── psychology-core.js
 ├── server/
-│   ├── database.js
-│   ├── encryption.js
-│   ├── security.js
-│   ├── server.js
-│   └── validation.js
 ├── test/
-│   ├── e2e/
-│   │   ├── accessibility.spec.js
-│   │   └── critical-flows.spec.js
-│   ├── calendar.test.js
-│   ├── database-encryption.test.js
-│   ├── journal-lifecycle.test.js
-│   ├── journal-sqlite-lifecycle.test.js
-│   ├── journal-sync.test.js
-│   ├── psychology.test.js
-│   ├── server-api.test.js
-│   ├── server-security.test.js
-│   └── demais testes unitários
 ├── package.json
+├── package-lock.json
+├── SECURITY.md
 └── README.md
 ```
 
@@ -315,7 +298,7 @@ suzy-command-center/
 Instale as dependências e os três motores de navegador:
 
 ```bash
-npm install
+npm ci
 npx playwright install chromium firefox webkit
 ```
 
@@ -368,14 +351,17 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - não executa ordens reais ou automáticas;
 - a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
+- a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
+- o projeto ainda não possui uma licença de software escolhida pelo mantenedor;
+- CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
 - testes automatizados de acessibilidade não substituem revisão manual com teclado, leitor de tela e usuários reais.
 
 ## Próximas etapas recomendadas
 
-1. Ampliar testes manuais com leitores de tela.
-2. Avaliar rotação assistida da chave AES com recriptografia transacional.
-3. Avaliar sincronização opcional entre computadores com criptografia ponta a ponta.
-4. Criar relatórios agregados de processo por faixa de prontidão, sem transformar correlação em sinal operacional.
+1. Escolher a função profissional e a jurisdição prioritárias.
+2. Implementar o Ciclo 8 de fundamentos profissionais com avaliações E3.
+3. Definir explicitamente a licença do repositório.
+4. Planejar calibração de mercado, retenção e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
