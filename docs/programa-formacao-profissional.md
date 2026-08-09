@@ -72,6 +72,8 @@ O Playwright inclui `programa.html` na auditoria automatizada de acessibilidade 
 
 A evolução planejada de risco, microestrutura, capstone, governança e dados autorizados está em `docs/roadmap-formacao-institucional.md`.
 
-## Ciclo 8 — primeira entrega
+## Ciclo 8 — fundamentos profissionais
 
 `etica.html` acrescenta uma avaliação E3 de ética e limites regulatórios para a função-alvo aprovada no Brasil. O banco possui 12 variantes; cada sessão usa seis casos reproduzíveis e exige média 80 sem violação dura. A aprovação é uma evidência educacional interna e não altera os cinco gates originais do passaporte.
+
+`estatistica.html` acrescenta prática guiada de leitura amostral e uma avaliação E3 de estatística para Quant/Dados. O banco também possui 12 variantes e usa o mesmo gate de seis casos, média 80 e zero violação dura. A aprovação não valida estratégia, taxa de acerto ou lucratividade.

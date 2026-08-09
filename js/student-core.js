@@ -155,7 +155,8 @@
       moduleItem("governance", "Governança", "governanca.html", additional.governance || 0, 1, "Versões auditáveis"),
       moduleItem("data", "Dados e proveniência", "dados.html", additional.data || 0, 1, "Manifestos registrados"),
       moduleItem("calendar", "Risco de eventos", "calendario.html", additional.calendar || 0, 1, "Eventos importados"),
-      moduleItem("ethics", "Ética e regulação", "etica.html", additional.ethics || 0, 1, "Avaliação E3 aprovada")
+      moduleItem("ethics", "Ética e regulação", "etica.html", additional.ethics || 0, 1, "Avaliação E3 aprovada"),
+      moduleItem("statistics", "Estatística e amostras", "estatistica.html", additional.statistics || 0, 1, "Avaliação E3 aprovada")
     ];
   }
 
