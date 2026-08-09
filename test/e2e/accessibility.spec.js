@@ -8,6 +8,7 @@ const publicPages = [
   "/microestrutura.html",
   "/capstone.html",
   "/governanca.html",
+  "/dados.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",
