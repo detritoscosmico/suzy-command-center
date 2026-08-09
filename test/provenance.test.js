@@ -40,6 +40,27 @@ test("aceita precisão de microssegundos e nanossegundos sem fuso", () => {
   assert.equal(core.parseTimestamp("2026-08-01T10:00:00.987654321", "America/Sao_Paulo").toISOString(), "2026-08-01T13:00:00.987Z");
 });
 
+test("reutiliza o formatador de fuso durante toda a inspeção", () => {
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+  let constructions = 0;
+  Intl.DateTimeFormat = function (...args) {
+    constructions += 1;
+    return new OriginalDateTimeFormat(...args);
+  };
+  try {
+    const rows = Array.from({ length: 500 }, (_, index) => {
+      const timestamp = new Date(Date.UTC(2026, 7, 1, 10, index)).toISOString().replace("Z", "");
+      return `${timestamp},100,102,99,101`;
+    });
+    const result = core.inspectCsv(["timestamp,open,high,low,close", ...rows].join("\n"), { timezone: "America/Sao_Paulo" });
+    assert.equal(result.valid, true);
+    assert.equal(result.validRows, 500);
+    assert.ok(constructions <= 2, `esperava no máximo 2 formatadores, recebeu ${constructions}`);
+  } finally {
+    Intl.DateTimeFormat = OriginalDateTimeFormat;
+  }
+});
+
 test("rejeita fuso inválido e manifesto inspecionado em outro fuso", () => {
   assert.equal(core.inspectCsv(csv, { timezone: "Planeta/Marte" }).valid, false);
   assert.throws(() => core.createManifest(metadata({ timezone: "America/Sao_Paulo" }), core.inspectCsv(csv, { timezone: "UTC" }), sha), /inspecionado novamente/);
