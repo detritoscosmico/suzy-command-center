@@ -4,6 +4,19 @@
 
 Transformar a ambição de “nível profissional” em gates auditáveis. O avanço é medido por evidência educacional, fidelidade declarada, segurança e revisão independente — nunca por aparência da interface ou promessa de retorno.
 
+## Decisão-base do mantenedor
+
+Status: aprovada em 9 de agosto de 2026.
+
+- função-alvo: operador de execução discricionária intradiária em conta própria, em formação;
+- jurisdição de referência: Brasil;
+- mercados estudados: Forex, criptomoedas, commodities, índices e ações;
+- períodos prioritários: M1 e M5;
+- escopo: educação, simulação, gestão de risco, registro e avaliação de processo;
+- fora do escopo: consultoria, análise profissional, gestão de terceiros, assessoria, intermediação, conexão com corretora e execução automática.
+
+A justificativa, as referências oficiais e os gatilhos de revisão estão em `docs/decisao-funcao-jurisdicao.md`.
+
 ## Ciclo 7 — Linha de base e cadeia de desenvolvimento
 
 Status: entregue na versão 1.23.0.
@@ -20,7 +33,7 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 ## Ciclo 8 — Fundamentos profissionais
 
 - ética e conflitos de interesse;
-- estrutura regulatória por jurisdição escolhida;
+- estrutura regulatória brasileira e limites da função-alvo aprovada;
 - estatística, probabilidade e leitura crítica de amostras;
 - economia, demonstrações financeiras e valuation;
 - renda fixa, derivativos, alternativos e portfólio.
@@ -58,7 +71,7 @@ Gate: threat model revisado, restauração ensaiada e objetivos de disponibilida
 
 ## Ciclo 12 — Piloto e validação externa
 
-- selecionar uma função-alvo e critérios de entrada;
+- aplicar a função-alvo aprovada aos critérios de entrada e aos casos do piloto;
 - executar piloto com 20–50 participantes;
 - incluir revisores independentes e declaração de conflitos;
 - comparar retenção, processo e transferência para novos casos;
@@ -68,13 +81,15 @@ Gate: evidência E5 em competências selecionadas. Mesmo após o gate, certifica
 
 ## Decisões do mantenedor
 
-As seguintes escolhas não devem ser automatizadas sem aprovação explícita:
+A função-alvo e a jurisdição prioritária foram aprovadas em 9 de agosto de 2026 e registradas em `docs/decisao-funcao-jurisdicao.md`.
 
-- função e jurisdição prioritárias;
+As escolhas restantes não devem ser automatizadas sem aprovação explícita:
+
 - licença de software;
 - política de coleta e retenção para um futuro serviço hospedado;
 - uso de provedores ou dados pagos;
-- qualquer integração com corretora ou execução real.
+- qualquer integração com corretora ou execução real;
+- alteração da função-alvo ou da jurisdição de referência.
 
 ## Ordem recomendada
 

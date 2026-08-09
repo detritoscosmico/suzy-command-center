@@ -5,6 +5,12 @@ Central educacional para treinamento, registro de operações, gestão de risco 
 - **GitHub Pages:** demonstração estática, com dados salvos no navegador;
 - **modo local seguro:** servidor restrito ao computador, autenticação e histórico persistente criptografado em SQLite.
 
+## Função-alvo e jurisdição
+
+Por decisão aprovada do mantenedor, o projeto forma um **operador de execução discricionária intradiária em conta própria, em formação**, com **Brasil** como jurisdição de referência. Os mercados estudados são Forex, criptomoedas, commodities, índices e ações, com prioridade educacional para M1 e M5.
+
+A decisão limita o projeto a educação, simulação, gestão de risco, registro e avaliação de processo. Ela não autoriza consultoria, análise profissional, gestão de terceiros, assessoria, intermediação, conexão com corretora ou execução automática. Consulte `docs/decisao-funcao-jurisdicao.md`.
+
 ## Demonstração pública
 
 A versão publicada no GitHub Pages continua funcionando sem backend. Ela não conecta com corretora, não executa ordens e não utiliza cotações reais.
@@ -69,7 +75,7 @@ Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`,
 
 Seis ciclos conectam evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook e proveniência de dados autorizados. A versão 1.23 acrescenta uma matriz institucional que separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
-Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
+Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md`, `docs/roadmap-prontidao-institucional.md` e `docs/decisao-funcao-jurisdicao.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
 
 ### Área do Aluno
 
@@ -370,10 +376,10 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Escolher a função profissional e a jurisdição prioritárias.
-2. Implementar o Ciclo 8 de fundamentos profissionais com avaliações E3.
-3. Definir explicitamente a licença do repositório.
-4. Planejar calibração de mercado, retenção e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+1. Implementar o Ciclo 8 para a função-alvo e a jurisdição aprovadas, com avaliações E3.
+2. Definir explicitamente a licença do repositório.
+3. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+4. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
