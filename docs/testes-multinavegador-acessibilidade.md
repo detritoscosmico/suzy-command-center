@@ -31,6 +31,7 @@ Também existe um teste de navegação por teclado no Command Center, confirmand
 ## Páginas auditadas
 
 - `index.html`;
+- `alunos.html`;
 - `academia.html`;
 - `academia-nivel2.html`;
 - `replay.html`;

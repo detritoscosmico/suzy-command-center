@@ -3,6 +3,7 @@ const AxeBuilder = require("@axe-core/playwright").default;
 
 const publicPages = [
   "/index.html",
+  "/alunos.html",
   "/programa.html",
   "/risco.html",
   "/microestrutura.html",

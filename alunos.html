@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Área do Aluno Suzy: progresso, plano semanal, presença, módulos e conquistas educacionais salvos localmente." />
+  <title>Área do Aluno — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/alunos.css" />
+</head>
+<body>
+  <div class="student-shell">
+    <aside class="student-sidebar">
+      <a class="student-brand" href="index.html" aria-label="Voltar ao Suzy Command Center">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>STUDENT DESK</span></div>
+      </a>
+      <div class="side-label">ÁREA DO ALUNO</div>
+      <nav aria-label="Seções da Área do Aluno">
+        <a href="#overview"><span>01</span> Visão geral</a>
+        <a href="#profile"><span>02</span> Meu perfil</a>
+        <a href="#modules"><span>03</span> Módulos</a>
+        <a href="#week"><span>04</span> Plano semanal</a>
+        <a href="#achievements"><span>05</span> Conquistas</a>
+      </nav>
+      <div class="privacy-card"><strong>PRIVACIDADE LOCAL</strong><p>Nome, presença e progresso permanecem neste navegador. A página pública não cria cadastro central nem expõe uma lista de alunos.</p></div>
+    </aside>
+
+    <main class="student-main">
+      <header class="student-topbar">
+        <div><span>SUZY COMMAND CENTER</span><strong>Formação organizada em um só lugar</strong></div>
+        <div class="top-links"><a href="programa.html">Programa profissional</a><a href="index.html">Painel principal</a></div>
+      </header>
+
+      <section id="overview" class="student-hero" aria-labelledby="studentGreeting">
+        <div>
+          <span class="eyebrow">PAINEL INDIVIDUAL DE ESTUDOS</span>
+          <h1 id="studentGreeting">Sua evolução começa com processo.</h1>
+          <p id="studentStatus">Configure seu perfil e siga a próxima evidência do programa.</p>
+          <div class="hero-actions"><a id="nextStudentAction" class="primary" href="academia.html">COMEÇAR PELOS FUNDAMENTOS</a><button id="markAttendance" type="button">MARCAR ESTUDO DE HOJE</button></div>
+          <p id="attendanceFeedback" class="feedback" aria-live="polite"></p>
+        </div>
+        <aside>
+          <strong>PROGRESSO DO PASSAPORTE</strong>
+          <span id="heroProgramPercent">0%</span>
+          <div class="hero-progress" role="progressbar" aria-label="Progresso do passaporte profissional" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="heroProgramBar"></i></div>
+          <p id="heroProgramDetail">0 de 5 gates concluídos</p>
+        </aside>
+      </section>
+
+      <section class="student-kpis" aria-label="Resumo da evolução">
+        <article><span>Módulos completos</span><strong id="kpiModules">0/12</strong><small>evidências locais</small></article>
+        <article><span>Plano semanal</span><strong id="kpiWeek">0/6</strong><small>tarefas concluídas</small></article>
+        <article><span>Sequência</span><strong id="kpiStreak">0 dias</strong><small>presença de estudo</small></article>
+        <article><span>Dias registrados</span><strong id="kpiAttendance">0</strong><small>últimos 365 dias</small></article>
+      </section>
+
+      <section id="profile" class="section-block" aria-labelledby="profileTitle">
+        <div class="section-heading"><div><span class="eyebrow">02 • IDENTIDADE DE ESTUDO</span><h2 id="profileTitle">Meu perfil de aluno</h2></div><p>Este perfil serve apenas para personalizar o plano local. Não solicitamos e-mail, telefone, senha ou documento.</p></div>
+        <form id="studentProfileForm" class="profile-form">
+          <label>Nome de exibição<input id="studentName" maxlength="60" autocomplete="name" placeholder="Como a Suzy deve chamar você?" required /></label>
+          <label>Objetivo principal<select id="studentGoal"><option>Formação completa</option><option>Análise técnica</option><option>Execução</option><option>Gestão de risco</option><option>Disciplina</option></select></label>
+          <label>Horas de estudo por semana<input id="studentWeeklyHours" type="number" min="1" max="40" value="5" required /></label>
+          <button class="primary" type="submit">SALVAR PERFIL</button>
+          <p id="profileFeedback" class="feedback wide" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <div class="study-grid">
+        <section id="modules" class="section-block" aria-labelledby="modulesTitle">
+          <div class="section-heading compact"><div><span class="eyebrow">03 • TRILHA COMPLETA</span><h2 id="modulesTitle">Meus módulos</h2></div><button id="refreshStudentData" type="button">ATUALIZAR</button></div>
+          <div id="studentModules" class="modules-grid"></div>
+        </section>
+
+        <section id="week" class="section-block" aria-labelledby="weekTitle">
+          <div class="section-heading"><div><span class="eyebrow">04 • ROTINA</span><h2 id="weekTitle">Plano desta semana</h2></div><p id="weekLabel">Semana atual</p></div>
+          <div id="weeklyTasks" class="weekly-tasks"></div>
+          <p class="local-note">As tarefas reiniciam toda segunda-feira. Marcar uma tarefa não altera as evidências exigidas pelos módulos.</p>
+        </section>
+      </div>
+
+      <section id="achievements" class="section-block" aria-labelledby="achievementsTitle">
+        <div class="section-heading"><div><span class="eyebrow">05 • MARCOS</span><h2 id="achievementsTitle">Conquistas de processo</h2></div><p>Conquistas reconhecem consistência educacional. Resultado financeiro e taxa de acerto não entram nessa avaliação.</p></div>
+        <div id="achievementGrid" class="achievement-grid"></div>
+      </section>
+
+      <section class="section-block history-block" aria-labelledby="historyTitle">
+        <div class="section-heading compact"><div><span class="eyebrow">PRESENÇA</span><h2 id="historyTitle">Histórico de estudo</h2></div><button id="exportStudentReport" type="button">EXPORTAR RELATÓRIO JSON</button></div>
+        <div id="attendanceHistory" class="attendance-history"><span>Nenhum dia registrado.</span></div>
+        <p class="local-note">O relatório é educacional e não comprova habilitação profissional, certificação ou desempenho em mercado real.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/journal-core.js"></script>
+  <script src="js/replay-core.js"></script>
+  <script src="js/simulator-core.js"></script>
+  <script src="js/psychology-core.js"></script>
+  <script src="js/professional-core.js"></script>
+  <script src="js/student-core.js"></script>
+  <script src="js/alunos.js"></script>
+</body>
+</html>

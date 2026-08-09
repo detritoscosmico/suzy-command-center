@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 
 const publicPages = [
   { path: "/index.html", heading: "Painel de Ativos" },
+  { path: "/alunos.html", heading: "Sua evolução começa com processo." },
   { path: "/academia.html", heading: "Academia Suzy — Fundamentos" },
   { path: "/academia-nivel2.html", heading: "Análise técnica com contexto" },
   { path: "/replay.html", heading: "Laboratório de Replay — Nível 1" },
