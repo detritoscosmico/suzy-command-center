@@ -9,6 +9,7 @@
   let currentText = "";
   let currentDigest = "";
   let currentInspection = null;
+  let loadSequence = 0;
 
   function loadRegistry() {
     try {
@@ -23,8 +24,7 @@
     localStorage.setItem(REGISTRY_KEY, JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), manifests: registry }));
   }
 
-  async function sha256(text) {
-    const bytes = new TextEncoder().encode(text);
+  async function sha256(bytes) {
     const digest = await crypto.subtle.digest("SHA-256", bytes);
     return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
   }
@@ -69,6 +69,7 @@
   }
 
   async function loadFile() {
+    const requestId = ++loadSequence;
     const file = $("datasetFile").files[0];
     const feedback = $("datasetFeedback");
     currentText = "";
@@ -81,9 +82,14 @@
       renderInspection();
       return;
     }
-    currentText = await file.text();
-    currentDigest = await sha256(currentText);
-    currentInspection = core.inspectCsv(currentText);
+    const bytes = await file.arrayBuffer();
+    const text = new TextDecoder("utf-8").decode(bytes);
+    const digest = await sha256(bytes);
+    if (requestId !== loadSequence || $("datasetFile").files[0] !== file) return;
+    const inspection = core.inspectCsv(text, { timezone: $("sourceTimezone").value });
+    currentText = text;
+    currentDigest = digest;
+    currentInspection = inspection;
     feedback.textContent = currentInspection.valid ? "Arquivo lido localmente. Revise os metadados e crie o manifesto." : currentInspection.error;
     feedback.className = `feedback wide ${currentInspection.valid ? "success" : "error"}`;
     renderInspection();
@@ -155,7 +161,10 @@
     const feedback = $("datasetFeedback");
     try {
       if (!currentText || !currentDigest) throw new Error("Selecione e valide um arquivo CSV local primeiro.");
-      const manifest = core.createManifest(metadataFromForm(), currentInspection, currentDigest);
+      const metadata = metadataFromForm();
+      currentInspection = core.inspectCsv(currentText, { timezone: metadata.timezone });
+      renderInspection();
+      const manifest = core.createManifest(metadata, currentInspection, currentDigest);
       if (registry.some(item => item.integrity.sha256 === manifest.integrity.sha256)) throw new Error("Este arquivo já possui manifesto registrado pelo mesmo SHA-256.");
       registry = core.normalizeRegistry([manifest, ...registry]);
       saveRegistry();
@@ -190,6 +199,7 @@
   }
 
   $("datasetFile").addEventListener("change", loadFile);
+  $("sourceTimezone").addEventListener("change", loadFile);
   $("sourceType").addEventListener("change", syncSourceType);
   $("datasetForm").addEventListener("submit", createManifest);
   $("verifyFile").addEventListener("click", verifyCurrentFile);

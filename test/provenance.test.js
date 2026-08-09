@@ -26,6 +26,20 @@ test("inspeciona OHLC válido e deriva período", () => {
   assert.equal(result.periodEnd, "2026-08-01T10:05:00.000Z");
 });
 
+test("aplica o fuso declarado a timestamps sem offset", () => {
+  const localCsv = "timestamp,open,high,low,close\n2026-08-01T10:00:00,100,102,99,101";
+  const utc = core.inspectCsv(localCsv, { timezone: "UTC" });
+  const saoPaulo = core.inspectCsv(localCsv, { timezone: "America/Sao_Paulo" });
+  assert.equal(utc.periodStart, "2026-08-01T10:00:00.000Z");
+  assert.equal(saoPaulo.periodStart, "2026-08-01T13:00:00.000Z");
+  assert.equal(saoPaulo.timezone, "America/Sao_Paulo");
+});
+
+test("rejeita fuso inválido e manifesto inspecionado em outro fuso", () => {
+  assert.equal(core.inspectCsv(csv, { timezone: "Planeta/Marte" }).valid, false);
+  assert.throws(() => core.createManifest(metadata({ timezone: "America/Sao_Paulo" }), core.inspectCsv(csv, { timezone: "UTC" }), sha), /inspecionado novamente/);
+});
+
 test("aceita cabeçalhos em português e decimal com vírgula usando ponto e vírgula", () => {
   const text = "data;abertura;máxima;mínima;fechamento\n2026-08-01T10:00:00Z;100,1;102,2;99,5;101,8";
   const result = core.inspectCsv(text);

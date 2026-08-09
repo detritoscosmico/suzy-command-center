@@ -62,7 +62,72 @@
     return result;
   }
 
-  function inspectCsv(text) {
+  function normalizeTimezone(value) {
+    const timezone = cleanText(value, 80);
+    if (!timezone) return "";
+    try {
+      return new Intl.DateTimeFormat("en-US", { timeZone: timezone }).resolvedOptions().timeZone;
+    } catch {
+      return timezone;
+    }
+  }
+
+  function isValidTimezone(value) {
+    try {
+      new Intl.DateTimeFormat("en-US", { timeZone: value }).format();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function zonedParts(timestamp, timezone) {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(new Date(timestamp));
+    return Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, Number(part.value)]));
+  }
+
+  function timezoneOffset(timestamp, timezone) {
+    const parts = zonedParts(timestamp, timezone);
+    return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second) - timestamp;
+  }
+
+  function parseTimestamp(value, timezone = "UTC") {
+    const text = String(value ?? "").trim();
+    const normalizedTimezone = normalizeTimezone(timezone);
+    if (!text || !isValidTimezone(normalizedTimezone)) return null;
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(text)) {
+      const explicit = new Date(text);
+      return Number.isFinite(explicit.getTime()) ? explicit : null;
+    }
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/);
+    if (!match) return null;
+    const values = match.slice(1, 7).map(value => Number(value || 0));
+    const [year, month, day, hour, minute, second] = values;
+    const milliseconds = Number(String(match[7] || "0").padEnd(3, "0"));
+    const wallClock = Date.UTC(year, month - 1, day, hour, minute, second);
+    const check = new Date(wallClock);
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day
+      || check.getUTCHours() !== hour || check.getUTCMinutes() !== minute || check.getUTCSeconds() !== second) return null;
+    let timestamp = wallClock - timezoneOffset(wallClock, normalizedTimezone);
+    timestamp = wallClock - timezoneOffset(timestamp, normalizedTimezone);
+    const converted = zonedParts(timestamp, normalizedTimezone);
+    if (converted.year !== year || converted.month !== month || converted.day !== day || converted.hour !== hour
+      || converted.minute !== minute || converted.second !== second) return null;
+    return new Date(timestamp + milliseconds);
+  }
+
+  function inspectCsv(text, options = {}) {
+    const timezone = normalizeTimezone(options.timezone || "UTC");
+    if (!isValidTimezone(timezone)) return { valid: false, error: "Fuso horário inválido. Use UTC ou um identificador IANA, como America/Sao_Paulo.", timezone, rowCount: 0, invalidRows: 0, duplicateTimestamps: 0, rows: [] };
     const raw = String(text ?? "").replace(/^\uFEFF/, "");
     const lines = raw.split(/\r?\n/).filter(line => line.trim());
     if (lines.length < 2) return { valid: false, error: "O CSV precisa de cabeçalho e pelo menos uma linha de dados.", rowCount: 0, invalidRows: 0, duplicateTimestamps: 0, rows: [] };
@@ -79,12 +144,12 @@
     for (let index = 1; index < lines.length; index += 1) {
       const cells = parseCsvLine(lines[index], delimiter);
       const timestampText = cells[columns.timestamp];
-      const timestamp = new Date(timestampText);
+      const timestamp = parseTimestamp(timestampText, timezone);
       const open = parseNumber(cells[columns.open]);
       const high = parseNumber(cells[columns.high]);
       const low = parseNumber(cells[columns.low]);
       const close = parseNumber(cells[columns.close]);
-      const timestampValid = Number.isFinite(timestamp.getTime());
+      const timestampValid = timestamp && Number.isFinite(timestamp.getTime());
       const pricesValid = [open, high, low, close].every(value => value !== null)
         && high >= Math.max(open, close, low) && low <= Math.min(open, close, high);
       if (!timestampValid || !pricesValid) {
@@ -104,6 +169,7 @@
     return {
       valid,
       error: valid ? null : "O arquivo contém linhas OHLC inválidas ou timestamps duplicados.",
+      timezone,
       delimiter,
       headers,
       rowCount: lines.length - 1,
@@ -124,7 +190,7 @@
       sourceName: cleanText(candidate.sourceName, 120),
       sourceUrl: cleanText(candidate.sourceUrl, 300),
       license: cleanText(candidate.license, 160),
-      timezone: cleanText(candidate.timezone, 80),
+      timezone: normalizeTimezone(candidate.timezone),
       instrument: cleanText(candidate.instrument, 40).toUpperCase(),
       timeframe: cleanText(candidate.timeframe, 20).toUpperCase(),
       authorizationConfirmed: candidate.authorizationConfirmed === true
@@ -137,6 +203,7 @@
     if (!metadata.datasetName) problems.push("Nome do dataset obrigatório.");
     if (!metadata.sourceName) problems.push("Fonte obrigatória.");
     if (!metadata.timezone) problems.push("Fuso horário obrigatório.");
+    else if (!isValidTimezone(metadata.timezone)) problems.push("Fuso horário inválido. Use UTC ou um identificador IANA.");
     if (!metadata.instrument) problems.push("Instrumento obrigatório.");
     if (!metadata.timeframe) problems.push("Período/timeframe obrigatório.");
     if (metadata.sourceType === "AUTHORIZED_LOCAL") {
@@ -155,6 +222,7 @@
     const evaluation = validateMetadata(candidateMetadata);
     if (!evaluation.valid) throw new Error(evaluation.problems.join(" "));
     if (!inspection?.valid) throw new Error(inspection?.error || "Integridade estrutural do CSV não aprovada.");
+    if (inspection.timezone !== evaluation.metadata.timezone) throw new Error("O CSV precisa ser inspecionado novamente com o fuso horário declarado.");
     const digest = normalizeDigest(sha256);
     if (!digest) throw new Error("SHA-256 do arquivo não disponível.");
     const timestamp = new Date(now);
@@ -221,6 +289,7 @@
     SOURCE_TYPES,
     parseCsvLine,
     detectDelimiter,
+    parseTimestamp,
     inspectCsv,
     normalizeMetadata,
     validateMetadata,
