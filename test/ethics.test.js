@@ -90,3 +90,32 @@ test("estado recalcula notas e ignora aprovação ou pontuação forjada", () =>
   assert.equal(state.bestAverage, 0);
   assert.equal(state.history[0].score, 0);
 });
+
+test("aprovação E3 e melhor média sobrevivem à poda do histórico", () => {
+  const approvedSession = core.createSession(91);
+  const history = approvedSession.cases.map((item, index) => ({
+    sessionId: "approved-session",
+    seed: 91,
+    timestamp: new Date(Date.UTC(2026, 7, 1, 10, index)).toISOString(),
+    caseId: item.id,
+    answer: correctAnswer(item)
+  }));
+
+  for (let sessionIndex = 0; sessionIndex < 10; sessionIndex += 1) {
+    core.createSession(100 + sessionIndex).cases.forEach((item, caseIndex) => {
+      history.push({
+        sessionId: `later-session-${sessionIndex}`,
+        seed: 100 + sessionIndex,
+        timestamp: new Date(Date.UTC(2026, 7, 2 + sessionIndex, 10, caseIndex)).toISOString(),
+        caseId: item.id,
+        answer: { action: "", conflict: "", source: "", rationale: "" }
+      });
+    });
+  }
+
+  const state = history.reduce((current, attempt) => core.recordAttempt(current, attempt), {});
+  assert.equal(state.history.length, core.MAX_HISTORY);
+  assert.equal(state.history.filter(attempt => attempt.sessionId === "approved-session").length, core.REQUIRED_CASES);
+  assert.equal(state.passed, true);
+  assert.equal(state.bestAverage, 100);
+});

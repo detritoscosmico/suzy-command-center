@@ -208,17 +208,9 @@
     };
   }
 
-  function normalizeHistory(history = []) {
-    if (!Array.isArray(history)) return [];
-    const bySessionCase = new Map();
-    history.map(normalizeAttempt).filter(Boolean).forEach(attempt => bySessionCase.set(`${attempt.sessionId}:${attempt.caseId}`, attempt));
-    return [...bySessionCase.values()].sort((left, right) => left.timestamp.localeCompare(right.timestamp)).slice(-MAX_HISTORY);
-  }
-
-  function evaluateSession(attempts = []) {
-    const normalized = normalizeHistory(attempts);
+  function evaluateNormalizedSession(attempts = []) {
     const unique = new Map();
-    normalized.forEach(attempt => unique.set(attempt.caseId, attempt));
+    attempts.forEach(attempt => unique.set(attempt.caseId, attempt));
     const results = [...unique.values()];
     const completed = results.length;
     const average = completed ? Number((results.reduce((sum, item) => sum + item.score, 0) / completed).toFixed(1)) : 0;
@@ -232,13 +224,52 @@
     };
   }
 
-  function summarizeSessions(history = []) {
+  function summarizeNormalizedSessions(history = []) {
     const groups = new Map();
-    normalizeHistory(history).forEach(attempt => {
+    history.forEach(attempt => {
       if (!groups.has(attempt.sessionId)) groups.set(attempt.sessionId, []);
       groups.get(attempt.sessionId).push(attempt);
     });
-    return [...groups.entries()].map(([sessionId, attempts]) => ({ sessionId, ...evaluateSession(attempts) }));
+    return [...groups.entries()].map(([sessionId, attempts]) => ({
+      sessionId,
+      lastTimestamp: attempts.reduce((latest, attempt) => attempt.timestamp > latest ? attempt.timestamp : latest, ""),
+      ...evaluateNormalizedSession(attempts)
+    }));
+  }
+
+  function normalizeHistory(history = []) {
+    if (!Array.isArray(history)) return [];
+    const bySessionCase = new Map();
+    history.map(normalizeAttempt).filter(Boolean).forEach(attempt => bySessionCase.set(`${attempt.sessionId}:${attempt.caseId}`, attempt));
+    const normalized = [...bySessionCase.values()].sort((left, right) => left.timestamp.localeCompare(right.timestamp));
+    if (normalized.length <= MAX_HISTORY) return normalized;
+
+    const completedSessions = summarizeNormalizedSessions(normalized)
+      .filter(session => session.completed >= REQUIRED_CASES);
+    const bestSession = completedSessions.reduce((best, session) => {
+      if (!best || session.average > best.average) return session;
+      if (session.average === best.average && session.lastTimestamp > best.lastTimestamp) return session;
+      return best;
+    }, null);
+    const latestPassingSession = completedSessions
+      .filter(session => session.passed)
+      .reduce((latest, session) => !latest || session.lastTimestamp > latest.lastTimestamp ? session : latest, null);
+    const preservedSessionIds = new Set(
+      [bestSession?.sessionId, latestPassingSession?.sessionId].filter(Boolean)
+    );
+    const preserved = normalized.filter(attempt => preservedSessionIds.has(attempt.sessionId));
+    const recent = normalized
+      .filter(attempt => !preservedSessionIds.has(attempt.sessionId))
+      .slice(-(MAX_HISTORY - preserved.length));
+    return [...preserved, ...recent].sort((left, right) => left.timestamp.localeCompare(right.timestamp));
+  }
+
+  function evaluateSession(attempts = []) {
+    return evaluateNormalizedSession(normalizeHistory(attempts));
+  }
+
+  function summarizeSessions(history = []) {
+    return summarizeNormalizedSessions(normalizeHistory(history)).map(({ lastTimestamp, ...session }) => session);
   }
 
   function normalizeState(candidate = {}) {
