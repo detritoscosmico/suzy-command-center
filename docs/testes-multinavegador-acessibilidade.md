@@ -45,6 +45,7 @@ Também existe um teste de navegação por teclado no Command Center, confirmand
 - `capstone.html`;
 - `governanca.html`;
 - `dados.html`;
+- `etica.html`;
 - `login.html`.
 
 ## Execução local

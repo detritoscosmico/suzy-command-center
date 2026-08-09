@@ -10,6 +10,7 @@ const publicPages = [
   "/capstone.html",
   "/governanca.html",
   "/dados.html",
+  "/etica.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",

@@ -2,7 +2,7 @@
   "use strict";
   const STUDENT_KEY = "suzy-student-area-v1";
   const PROGRAM_KEY = "suzy-professional-program-v1";
-  const KEYS = Object.freeze({ academy1: "suzy-academia-nivel1-v1", academy2: "suzy-academia-nivel2-v1", replay: "suzy-replay-lab-v2", replayLegacy: "suzy-replay-lab-v1", simulator: "suzy-order-simulator-v1", journal: "suzy-professional-journal-v1", psychology: "suzy_psychology_v1", risk: "suzy-risk-lab-v1", microstructure: "suzy-microstructure-lab-v1", capstone: "suzy-capstone-v1", governance: "suzy-governance-v1", data: "suzy-data-provenance-v1", calendar: "suzy.calendar.educational.v1" });
+  const KEYS = Object.freeze({ academy1: "suzy-academia-nivel1-v1", academy2: "suzy-academia-nivel2-v1", replay: "suzy-replay-lab-v2", replayLegacy: "suzy-replay-lab-v1", simulator: "suzy-order-simulator-v1", journal: "suzy-professional-journal-v1", psychology: "suzy_psychology_v1", risk: "suzy-risk-lab-v1", microstructure: "suzy-microstructure-lab-v1", capstone: "suzy-capstone-v1", governance: "suzy-governance-v1", data: "suzy-data-provenance-v1", calendar: "suzy.calendar.educational.v1", ethics: "suzy-ethics-regulation-v1" });
   const $ = id => document.getElementById(id);
   let state = loadState();
 
@@ -51,9 +51,10 @@
     const governance = readJson(KEYS.governance, {});
     const data = readJson(KEYS.data, {});
     const calendar = readJson(KEYS.calendar, {});
+    const ethics = SuzyEthicsCore.normalizeState(readJson(KEYS.ethics, {}));
     return {
       risk: countArray(readJson(KEYS.risk, [])), microstructure: countArray(readJson(KEYS.microstructure, [])), capstone: countArray(readJson(KEYS.capstone, [])),
-      governance: countArray(governance?.history), data: countArray(data?.manifests), calendar: SuzyStudentCore.countAuthorizedCalendarEvents(calendar)
+      governance: countArray(governance?.history), data: countArray(data?.manifests), calendar: SuzyStudentCore.countAuthorizedCalendarEvents(calendar), ethics: ethics.passed ? 1 : 0
     };
   }
 
