@@ -125,3 +125,15 @@ test("mantém somente a seleção de arquivo mais recente", async ({ page }, tes
   await expect(page.locator("#filePeriod")).toContainText("2026-09-01T10:00:00.000Z");
   await expect(page.locator("#previewBody")).not.toContainText("2026-07-01");
 });
+
+test("troca o fuso sem limpar o arquivo já carregado", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/dados.html");
+  const localCsv = csv.replaceAll("Z,", ",");
+  await selectCsv(page, localCsv);
+  await fillAuthorizedMetadata(page);
+  await page.locator("#sourceTimezone").fill("America/Sao_Paulo");
+  await page.locator("#datasetForm button[type=submit]").click();
+  await expect(page.locator("#kpiDatasets")).toHaveText("1");
+  await expect(page.locator("#registryBody")).toContainText("2026-08-01T13:00:00.000Z");
+});

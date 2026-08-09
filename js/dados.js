@@ -115,6 +115,12 @@
     };
   }
 
+  function refreshInspectionTimezone() {
+    if (!currentText) return;
+    currentInspection = core.inspectCsv(currentText, { timezone: $("sourceTimezone").value });
+    renderInspection();
+  }
+
   function syncSourceType() {
     const artificial = $("sourceType").value === "ARTIFICIAL";
     $("sourceLicense").disabled = artificial;
@@ -205,7 +211,7 @@
   }
 
   $("datasetFile").addEventListener("change", loadFile);
-  $("sourceTimezone").addEventListener("change", loadFile);
+  $("sourceTimezone").addEventListener("change", refreshInspectionTimezone);
   $("sourceType").addEventListener("change", syncSourceType);
   $("datasetForm").addEventListener("submit", createManifest);
   $("verifyFile").addEventListener("click", verifyCurrentFile);
