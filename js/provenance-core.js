@@ -62,7 +62,85 @@
     return result;
   }
 
-  function inspectCsv(text) {
+  function normalizeTimezone(value) {
+    return resolveTimezone(value).timezone;
+  }
+
+  function resolveTimezone(value) {
+    const timezone = cleanText(value, 80);
+    if (!timezone) return { valid: false, timezone: "" };
+    try {
+      const formatter = new Intl.DateTimeFormat("en-US", { timeZone: timezone });
+      return { valid: true, timezone: formatter.resolvedOptions().timeZone };
+    } catch {
+      return { valid: false, timezone };
+    }
+  }
+
+  function isValidTimezone(value) {
+    return resolveTimezone(value).valid;
+  }
+
+  function createTimezoneContext(value) {
+    const resolved = resolveTimezone(value);
+    if (!resolved.valid) return resolved;
+    return {
+      ...resolved,
+      formatter: new Intl.DateTimeFormat("en-CA", {
+        timeZone: resolved.timezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      })
+    };
+  }
+
+  function zonedParts(timestamp, context) {
+    const parts = context.formatter.formatToParts(new Date(timestamp));
+    return Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, Number(part.value)]));
+  }
+
+  function parseTimestampWithContext(value, context) {
+    const text = String(value ?? "").trim();
+    if (!text || !context?.valid) return null;
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(text)) {
+      const explicit = new Date(text);
+      return Number.isFinite(explicit.getTime()) ? explicit : null;
+    }
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?$/);
+    if (!match) return null;
+    const values = match.slice(1, 7).map(part => Number(part || 0));
+    const [year, month, day, hour, minute, second] = values;
+    const milliseconds = Number(String(match[7] || "0").slice(0, 3).padEnd(3, "0"));
+    const wallClock = Date.UTC(year, month - 1, day, hour, minute, second);
+    const check = new Date(wallClock);
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day
+      || check.getUTCHours() !== hour || check.getUTCMinutes() !== minute || check.getUTCSeconds() !== second) return null;
+    let timestamp = wallClock - timezoneOffset(wallClock, context);
+    timestamp = wallClock - timezoneOffset(timestamp, context);
+    const converted = zonedParts(timestamp, context);
+    if (converted.year !== year || converted.month !== month || converted.day !== day || converted.hour !== hour
+      || converted.minute !== minute || converted.second !== second) return null;
+    return new Date(timestamp + milliseconds);
+  }
+
+  function timezoneOffset(timestamp, context) {
+    const parts = zonedParts(timestamp, context);
+    return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second) - timestamp;
+  }
+
+  function parseTimestamp(value, timezone = "UTC") {
+    return parseTimestampWithContext(value, createTimezoneContext(timezone));
+  }
+
+  function inspectCsv(text, options = {}) {
+    const timezoneContext = createTimezoneContext(options.timezone || "UTC");
+    const timezone = timezoneContext.timezone;
+    if (!timezoneContext.valid) return { valid: false, error: "Fuso horário inválido. Use UTC ou um identificador IANA, como America/Sao_Paulo.", timezone, rowCount: 0, invalidRows: 0, duplicateTimestamps: 0, rows: [] };
     const raw = String(text ?? "").replace(/^\uFEFF/, "");
     const lines = raw.split(/\r?\n/).filter(line => line.trim());
     if (lines.length < 2) return { valid: false, error: "O CSV precisa de cabeçalho e pelo menos uma linha de dados.", rowCount: 0, invalidRows: 0, duplicateTimestamps: 0, rows: [] };
@@ -79,12 +157,12 @@
     for (let index = 1; index < lines.length; index += 1) {
       const cells = parseCsvLine(lines[index], delimiter);
       const timestampText = cells[columns.timestamp];
-      const timestamp = new Date(timestampText);
+      const timestamp = parseTimestampWithContext(timestampText, timezoneContext);
       const open = parseNumber(cells[columns.open]);
       const high = parseNumber(cells[columns.high]);
       const low = parseNumber(cells[columns.low]);
       const close = parseNumber(cells[columns.close]);
-      const timestampValid = Number.isFinite(timestamp.getTime());
+      const timestampValid = timestamp && Number.isFinite(timestamp.getTime());
       const pricesValid = [open, high, low, close].every(value => value !== null)
         && high >= Math.max(open, close, low) && low <= Math.min(open, close, high);
       if (!timestampValid || !pricesValid) {
@@ -104,6 +182,7 @@
     return {
       valid,
       error: valid ? null : "O arquivo contém linhas OHLC inválidas ou timestamps duplicados.",
+      timezone,
       delimiter,
       headers,
       rowCount: lines.length - 1,
@@ -124,19 +203,20 @@
       sourceName: cleanText(candidate.sourceName, 120),
       sourceUrl: cleanText(candidate.sourceUrl, 300),
       license: cleanText(candidate.license, 160),
-      timezone: cleanText(candidate.timezone, 80),
+      timezone: normalizeTimezone(candidate.timezone),
       instrument: cleanText(candidate.instrument, 40).toUpperCase(),
       timeframe: cleanText(candidate.timeframe, 20).toUpperCase(),
       authorizationConfirmed: candidate.authorizationConfirmed === true
     };
   }
 
-  function validateMetadata(candidate = {}) {
+  function validateMetadata(candidate = {}, options = {}) {
     const metadata = normalizeMetadata(candidate);
     const problems = [];
     if (!metadata.datasetName) problems.push("Nome do dataset obrigatório.");
     if (!metadata.sourceName) problems.push("Fonte obrigatória.");
     if (!metadata.timezone) problems.push("Fuso horário obrigatório.");
+    else if (!isValidTimezone(metadata.timezone) && options.allowLegacyTimezone !== true) problems.push("Fuso horário inválido. Use UTC ou um identificador IANA.");
     if (!metadata.instrument) problems.push("Instrumento obrigatório.");
     if (!metadata.timeframe) problems.push("Período/timeframe obrigatório.");
     if (metadata.sourceType === "AUTHORIZED_LOCAL") {
@@ -155,13 +235,14 @@
     const evaluation = validateMetadata(candidateMetadata);
     if (!evaluation.valid) throw new Error(evaluation.problems.join(" "));
     if (!inspection?.valid) throw new Error(inspection?.error || "Integridade estrutural do CSV não aprovada.");
+    if (inspection.timezone !== evaluation.metadata.timezone) throw new Error("O CSV precisa ser inspecionado novamente com o fuso horário declarado.");
     const digest = normalizeDigest(sha256);
     if (!digest) throw new Error("SHA-256 do arquivo não disponível.");
     const timestamp = new Date(now);
     if (!Number.isFinite(timestamp.getTime())) throw new Error("Data do manifesto inválida.");
     const artificial = evaluation.metadata.sourceType === "ARTIFICIAL";
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       id: `${digest.slice(0, 12)}-${timestamp.getTime()}`,
       createdAt: timestamp.toISOString(),
       classification: artificial ? "ARTIFICIAL_PERMANENT" : "AUTHORIZED_LOCAL",
@@ -169,6 +250,7 @@
       metadata: evaluation.metadata,
       integrity: {
         algorithm: "SHA-256",
+        digestInput: "ORIGINAL_BYTES",
         sha256: digest,
         structuralValidation: "PASS",
         rows: inspection.validRows,
@@ -183,17 +265,18 @@
 
   function normalizeManifest(candidate = {}) {
     const digest = normalizeDigest(candidate?.integrity?.sha256);
-    const metadataEvaluation = validateMetadata(candidate.metadata);
+    const legacyDigest = Number(candidate.schemaVersion || 1) < 2 && candidate?.integrity?.digestInput !== "ORIGINAL_BYTES";
+    const metadataEvaluation = validateMetadata(candidate.metadata, { allowLegacyTimezone: legacyDigest });
     const createdAt = new Date(candidate.createdAt);
     if (!digest || !metadataEvaluation.valid || !Number.isFinite(createdAt.getTime())) return null;
     const artificial = candidate.classification === "ARTIFICIAL_PERMANENT" || metadataEvaluation.metadata.sourceType === "ARTIFICIAL";
     return {
       ...candidate,
-      schemaVersion: 1,
+      schemaVersion: legacyDigest ? 1 : 2,
       classification: artificial ? "ARTIFICIAL_PERMANENT" : "AUTHORIZED_LOCAL",
       permanentLabel: artificial ? "DADO ARTIFICIAL — ETIQUETA PERMANENTE" : "DADO AUTORIZADO — ARQUIVO LOCAL",
       metadata: metadataEvaluation.metadata,
-      integrity: { ...candidate.integrity, algorithm: "SHA-256", sha256: digest },
+      integrity: { ...candidate.integrity, algorithm: "SHA-256", digestInput: legacyDigest ? "UTF8_DECODED_TEXT" : "ORIGINAL_BYTES", sha256: digest },
       adapterPolicy: { mode: "LOCAL_FILE_ONLY", credentialsStored: false, brokerConnection: false }
     };
   }
@@ -208,11 +291,13 @@
     }).slice(0, MAX_DATASETS);
   }
 
-  function verifyDigest(manifest, sha256) {
+  function verifyDigest(manifest, sha256, legacySha256) {
     const normalized = normalizeManifest(manifest);
     const digest = normalizeDigest(sha256);
-    if (!normalized || !digest) return { valid: false, status: "INVALID", message: "Manifesto ou SHA-256 inválido." };
-    const match = normalized.integrity.sha256 === digest;
+    const legacyDigest = normalizeDigest(legacySha256);
+    if (!normalized || (!digest && !legacyDigest)) return { valid: false, status: "INVALID", message: "Manifesto ou SHA-256 inválido." };
+    const stored = normalized.integrity.sha256;
+    const match = stored === digest || (normalized.integrity.digestInput === "UTF8_DECODED_TEXT" && stored === legacyDigest);
     return { valid: match, status: match ? "MATCH" : "MISMATCH", message: match ? "Arquivo corresponde ao manifesto registrado." : "Arquivo diferente: SHA-256 não corresponde ao manifesto." };
   }
 
@@ -221,6 +306,7 @@
     SOURCE_TYPES,
     parseCsvLine,
     detectDelimiter,
+    parseTimestamp,
     inspectCsv,
     normalizeMetadata,
     validateMetadata,

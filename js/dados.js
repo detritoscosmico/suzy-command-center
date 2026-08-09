@@ -8,7 +8,9 @@
   let registry = loadRegistry();
   let currentText = "";
   let currentDigest = "";
+  let currentLegacyDigest = "";
   let currentInspection = null;
+  let loadSequence = 0;
 
   function loadRegistry() {
     try {
@@ -23,8 +25,7 @@
     localStorage.setItem(REGISTRY_KEY, JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), manifests: registry }));
   }
 
-  async function sha256(text) {
-    const bytes = new TextEncoder().encode(text);
+  async function sha256(bytes) {
     const digest = await crypto.subtle.digest("SHA-256", bytes);
     return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
   }
@@ -69,10 +70,12 @@
   }
 
   async function loadFile() {
+    const requestId = ++loadSequence;
     const file = $("datasetFile").files[0];
     const feedback = $("datasetFeedback");
     currentText = "";
     currentDigest = "";
+    currentLegacyDigest = "";
     currentInspection = null;
     if (!file) { renderInspection(); return; }
     if (file.size > MAX_FILE_BYTES) {
@@ -81,9 +84,18 @@
       renderInspection();
       return;
     }
-    currentText = await file.text();
-    currentDigest = await sha256(currentText);
-    currentInspection = core.inspectCsv(currentText);
+    const bytes = await file.arrayBuffer();
+    const text = new TextDecoder("utf-8").decode(bytes);
+    const [digest, legacyDigest] = await Promise.all([
+      sha256(bytes),
+      sha256(new TextEncoder().encode(text))
+    ]);
+    if (requestId !== loadSequence || $("datasetFile").files[0] !== file) return;
+    const inspection = core.inspectCsv(text, { timezone: $("sourceTimezone").value });
+    currentText = text;
+    currentDigest = digest;
+    currentLegacyDigest = legacyDigest;
+    currentInspection = inspection;
     feedback.textContent = currentInspection.valid ? "Arquivo lido localmente. Revise os metadados e crie o manifesto." : currentInspection.error;
     feedback.className = `feedback wide ${currentInspection.valid ? "success" : "error"}`;
     renderInspection();
@@ -101,6 +113,12 @@
       timeframe: $("sourceTimeframe").value,
       authorizationConfirmed: $("authorizationConfirmed").checked
     };
+  }
+
+  function refreshInspectionTimezone() {
+    if (!currentText) return;
+    currentInspection = core.inspectCsv(currentText, { timezone: $("sourceTimezone").value });
+    renderInspection();
   }
 
   function syncSourceType() {
@@ -155,8 +173,11 @@
     const feedback = $("datasetFeedback");
     try {
       if (!currentText || !currentDigest) throw new Error("Selecione e valide um arquivo CSV local primeiro.");
-      const manifest = core.createManifest(metadataFromForm(), currentInspection, currentDigest);
-      if (registry.some(item => item.integrity.sha256 === manifest.integrity.sha256)) throw new Error("Este arquivo já possui manifesto registrado pelo mesmo SHA-256.");
+      const metadata = metadataFromForm();
+      currentInspection = core.inspectCsv(currentText, { timezone: metadata.timezone });
+      renderInspection();
+      const manifest = core.createManifest(metadata, currentInspection, currentDigest);
+      if (registry.some(item => core.verifyDigest(item, currentDigest, currentLegacyDigest).valid)) throw new Error("Este arquivo já possui manifesto registrado pelo mesmo SHA-256.");
       registry = core.normalizeRegistry([manifest, ...registry]);
       saveRegistry();
       renderRegistry();
@@ -170,7 +191,7 @@
 
   function verifyCurrentFile() {
     const manifest = registry.find(item => item.id === $("verifyManifest").value);
-    const result = core.verifyDigest(manifest, currentDigest);
+    const result = core.verifyDigest(manifest, currentDigest, currentLegacyDigest);
     $("verifyStatus").textContent = result.status;
     $("verifyStatus").className = result.valid ? "pass" : "fail";
     $("datasetFeedback").textContent = result.message;
@@ -190,6 +211,7 @@
   }
 
   $("datasetFile").addEventListener("change", loadFile);
+  $("sourceTimezone").addEventListener("change", refreshInspectionTimezone);
   $("sourceType").addEventListener("change", syncSourceType);
   $("datasetForm").addEventListener("submit", createManifest);
   $("verifyFile").addEventListener("click", verifyCurrentFile);

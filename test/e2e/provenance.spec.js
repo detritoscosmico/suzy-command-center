@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { createHash } = require("node:crypto");
 
 function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== "chromium-desktop", "Fluxo coberto uma vez no Chromium desktop.");
@@ -61,4 +62,78 @@ test("revalidação detecta arquivo alterado pelo SHA-256", async ({ page }, tes
   await page.locator("#verifyFile").click();
   await expect(page.locator("#verifyStatus")).toHaveText("MISMATCH");
   await expect(page.locator("#datasetFeedback")).toContainText("SHA-256 não corresponde");
+});
+
+test("calcula SHA-256 dos bytes originais incluindo BOM", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/dados.html");
+  const bytes = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(csv)]);
+  await page.locator("#datasetFile").setInputFiles({ name: "com-bom.csv", mimeType: "text/csv", buffer: bytes });
+  const expected = createHash("sha256").update(bytes).digest("hex");
+  await expect(page.locator("#fileDigest")).toHaveText(expected);
+  await expect(page.locator("#kpiFileState")).toHaveText("VALIDADO");
+});
+
+test("revalida manifesto legado com BOM e preserva fuso antigo", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const legacyDigest = createHash("sha256").update(Buffer.from(csv)).digest("hex");
+  await page.addInitScript(({ digest }) => {
+    const manifest = {
+      schemaVersion: 1,
+      id: "legacy-bom",
+      createdAt: "2026-08-08T12:00:00.000Z",
+      classification: "AUTHORIZED_LOCAL",
+      metadata: {
+        datasetName: "Legado com BOM",
+        sourceType: "AUTHORIZED_LOCAL",
+        sourceName: "Fonte legada",
+        sourceUrl: "",
+        license: "Uso autorizado",
+        timezone: "BRT",
+        instrument: "EUR/USD",
+        timeframe: "M5",
+        authorizationConfirmed: true
+      },
+      integrity: { algorithm: "SHA-256", sha256: digest, rows: 2, periodStart: "2026-08-01T10:00:00.000Z", periodEnd: "2026-08-01T10:05:00.000Z" }
+    };
+    localStorage.setItem("suzy-data-provenance-v1", JSON.stringify({ version: 1, manifests: [manifest] }));
+  }, { digest: legacyDigest });
+  await page.goto("/dados.html");
+  const bytes = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(csv)]);
+  await page.locator("#datasetFile").setInputFiles({ name: "legado-com-bom.csv", mimeType: "text/csv", buffer: bytes });
+  await expect(page.locator("#kpiDatasets")).toHaveText("1");
+  await page.locator("#verifyFile").click();
+  await expect(page.locator("#verifyStatus")).toHaveText("MATCH");
+});
+
+test("mantém somente a seleção de arquivo mais recente", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.addInitScript(() => {
+    const original = File.prototype.arrayBuffer;
+    File.prototype.arrayBuffer = async function () {
+      if (this.name === "lento.csv") await new Promise(resolve => setTimeout(resolve, 150));
+      return original.call(this);
+    };
+  });
+  await page.goto("/dados.html");
+  const slow = csv.replaceAll("2026-08-01", "2026-07-01");
+  const recent = csv.replaceAll("2026-08-01", "2026-09-01");
+  await page.locator("#datasetFile").setInputFiles({ name: "lento.csv", mimeType: "text/csv", buffer: Buffer.from(slow) });
+  await page.locator("#datasetFile").setInputFiles({ name: "recente.csv", mimeType: "text/csv", buffer: Buffer.from(recent) });
+  await expect(page.locator("#filePeriod")).toContainText("2026-09-01T10:00:00.000Z");
+  await page.waitForTimeout(200);
+  await expect(page.locator("#filePeriod")).toContainText("2026-09-01T10:00:00.000Z");
+  await expect(page.locator("#previewBody")).not.toContainText("2026-07-01");
+});
+
+test("troca o fuso sem limpar o arquivo já carregado", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/dados.html");
+  const localCsv = csv.replaceAll("Z,", ",");
+  await selectCsv(page, localCsv);
+  await fillAuthorizedMetadata(page);
+  await page.locator("#sourceTimezone").fill("America/Sao_Paulo");
+  await page.locator("#datasetForm button[type=submit]").click();
+  await expect(page.locator("#kpiDatasets")).toHaveText("1");
+  await expect(page.locator("#registryBody")).toContainText("2026-08-01T13:00:00.000Z");
 });

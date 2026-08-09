@@ -26,6 +26,46 @@ test("inspeciona OHLC válido e deriva período", () => {
   assert.equal(result.periodEnd, "2026-08-01T10:05:00.000Z");
 });
 
+test("aplica o fuso declarado a timestamps sem offset", () => {
+  const localCsv = "timestamp,open,high,low,close\n2026-08-01T10:00:00,100,102,99,101";
+  const utc = core.inspectCsv(localCsv, { timezone: "UTC" });
+  const saoPaulo = core.inspectCsv(localCsv, { timezone: "America/Sao_Paulo" });
+  assert.equal(utc.periodStart, "2026-08-01T10:00:00.000Z");
+  assert.equal(saoPaulo.periodStart, "2026-08-01T13:00:00.000Z");
+  assert.equal(saoPaulo.timezone, "America/Sao_Paulo");
+});
+
+test("aceita precisão de microssegundos e nanossegundos sem fuso", () => {
+  assert.equal(core.parseTimestamp("2026-08-01T10:00:00.123456", "UTC").toISOString(), "2026-08-01T10:00:00.123Z");
+  assert.equal(core.parseTimestamp("2026-08-01T10:00:00.987654321", "America/Sao_Paulo").toISOString(), "2026-08-01T13:00:00.987Z");
+});
+
+test("reutiliza o formatador de fuso durante toda a inspeção", () => {
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+  let constructions = 0;
+  Intl.DateTimeFormat = function (...args) {
+    constructions += 1;
+    return new OriginalDateTimeFormat(...args);
+  };
+  try {
+    const rows = Array.from({ length: 500 }, (_, index) => {
+      const timestamp = new Date(Date.UTC(2026, 7, 1, 10, index)).toISOString().replace("Z", "");
+      return `${timestamp},100,102,99,101`;
+    });
+    const result = core.inspectCsv(["timestamp,open,high,low,close", ...rows].join("\n"), { timezone: "America/Sao_Paulo" });
+    assert.equal(result.valid, true);
+    assert.equal(result.validRows, 500);
+    assert.ok(constructions <= 2, `esperava no máximo 2 formatadores, recebeu ${constructions}`);
+  } finally {
+    Intl.DateTimeFormat = OriginalDateTimeFormat;
+  }
+});
+
+test("rejeita fuso inválido e manifesto inspecionado em outro fuso", () => {
+  assert.equal(core.inspectCsv(csv, { timezone: "Planeta/Marte" }).valid, false);
+  assert.throws(() => core.createManifest(metadata({ timezone: "America/Sao_Paulo" }), core.inspectCsv(csv, { timezone: "UTC" }), sha), /inspecionado novamente/);
+});
+
 test("aceita cabeçalhos em português e decimal com vírgula usando ponto e vírgula", () => {
   const text = "data;abertura;máxima;mínima;fechamento\n2026-08-01T10:00:00Z;100,1;102,2;99,5;101,8";
   const result = core.inspectCsv(text);
@@ -62,6 +102,8 @@ test("dataset artificial recebe classificação permanente", () => {
 
 test("manifesto autorizado registra SHA-256, período e política sem credenciais", () => {
   const manifest = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  assert.equal(manifest.schemaVersion, 2);
+  assert.equal(manifest.integrity.digestInput, "ORIGINAL_BYTES");
   assert.equal(manifest.integrity.sha256, sha);
   assert.equal(manifest.integrity.rows, 2);
   assert.equal(manifest.adapterPolicy.credentialsStored, false);
@@ -72,6 +114,24 @@ test("verificação detecta arquivo idêntico e alterado", () => {
   const manifest = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
   assert.equal(core.verifyDigest(manifest, sha).status, "MATCH");
   assert.equal(core.verifyDigest(manifest, "b".repeat(64)).status, "MISMATCH");
+});
+
+test("preserva manifesto legado com rótulo de fuso antigo", () => {
+  const current = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  const { digestInput, ...legacyIntegrity } = current.integrity;
+  const legacy = { ...current, schemaVersion: 1, metadata: { ...current.metadata, timezone: "BRT" }, integrity: legacyIntegrity };
+  const registry = core.normalizeRegistry([legacy]);
+  assert.equal(registry.length, 1);
+  assert.equal(registry[0].metadata.timezone, "BRT");
+  assert.equal(registry[0].integrity.digestInput, "UTF8_DECODED_TEXT");
+});
+
+test("revalida manifesto legado pelo digest do texto decodificado", () => {
+  const current = core.createManifest(metadata(), core.inspectCsv(csv), sha, "2026-08-08T12:00:00Z");
+  const { digestInput, ...legacyIntegrity } = current.integrity;
+  const legacy = { ...current, schemaVersion: 1, integrity: legacyIntegrity };
+  assert.equal(core.verifyDigest(legacy, "b".repeat(64), sha).status, "MATCH");
+  assert.equal(core.verifyDigest(legacy, "b".repeat(64), "c".repeat(64)).status, "MISMATCH");
 });
 
 test("registro remove duplicatas pelo digest", () => {
