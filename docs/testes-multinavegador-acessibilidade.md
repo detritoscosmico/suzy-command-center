@@ -46,6 +46,7 @@ Também existe um teste de navegação por teclado no Command Center, confirmand
 - `governanca.html`;
 - `dados.html`;
 - `etica.html`;
+- `estatistica.html`;
 - `login.html`.
 
 ## Execução local

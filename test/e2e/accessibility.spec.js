@@ -11,6 +11,7 @@ const publicPages = [
   "/governanca.html",
   "/dados.html",
   "/etica.html",
+  "/estatistica.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trilha educacional Suzy de estatística, probabilidade e leitura crítica de amostras aplicadas a estudos de trading." />
+  <title>Estatística e Probabilidade — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/estatistica.css" />
+</head>
+<body>
+  <div class="eth-shell">
+    <aside class="eth-sidebar">
+      <a class="eth-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>STATISTICS DESK</span></div>
+      </a>
+      <div class="side-label">CICLO 08 • ENTREGA 02</div>
+      <nav aria-label="Seções da trilha de estatística">
+        <a href="#conceptLab"><span>01</span> Fundamentos</a>
+        <a href="#sampleLab"><span>02</span> Amostra</a>
+        <a href="#sourceLab"><span>03</span> Fontes</a>
+        <a href="#caseLab"><span>04</span> Avaliação</a>
+        <a href="#rubricLab"><span>05</span> Rubrica</a>
+        <a href="#historyLab"><span>06</span> Histórico</a>
+      </nav>
+      <div class="boundary-card">
+        <strong>REGRA DE EVIDÊNCIA</strong>
+        <p>Uma sequência de ganhos é observação, não validação. Declare amostra, protocolo, custos, incerteza, dependência e período antes de concluir.</p>
+      </div>
+    </aside>
+
+    <main class="eth-main">
+      <header class="eth-topbar">
+        <div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Probabilidade limita a certeza; método limita a conclusão.</strong></div>
+        <a href="programa.html">Voltar ao programa</a>
+      </header>
+
+      <section class="eth-hero">
+        <div>
+          <span class="eyebrow">ESTATÍSTICA • PROBABILIDADE • AMOSTRAS</span>
+          <h1>Amostra antes de certeza.</h1>
+          <p>Aprenda a separar descrição, evidência limitada e conclusão inválida. A avaliação mede leitura de incerteza, viés, dependência, vazamento e próxima validação — nunca lucro ou taxa de acerto isolada.</p>
+        </div>
+        <aside>
+          <strong>O QUE E3 SIGNIFICA AQUI</strong>
+          <blockquote>Reconhecer o que os dados conseguem — e não conseguem — sustentar.</blockquote>
+          <small>Aprovação interna não valida uma estratégia, não estima lucro futuro e não substitui revisão estatística independente.</small>
+        </aside>
+      </section>
+
+      <section class="eth-kpis" aria-label="Resumo da trilha">
+        <article><span>Casos desta sessão</span><strong id="kpiCases">0/6</strong><small>variantes únicas</small></article>
+        <article><span>Média da sessão</span><strong id="kpiAverage">0</strong><small>mínimo 80</small></article>
+        <article><span>Violações duras</span><strong id="kpiViolations">0</strong><small>precisa ser zero</small></article>
+        <article><span>Competência E3</span><strong id="kpiStatus">EM FORMAÇÃO</strong><small id="kpiBest">melhor média: 0</small></article>
+      </section>
+
+      <section id="conceptLab" class="lab-section" aria-labelledby="conceptTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">01 • MAPA DE RACIOCÍNIO</span><h2 id="conceptTitle">Quatro perguntas antes da conclusão</h2></div>
+          <p>Não existe número mágico universal de operações. A pergunta certa é se o desenho e a precisão são adequados à alegação feita.</p>
+        </div>
+        <div class="concept-grid">
+          <article><strong>POPULAÇÃO × AMOSTRA</strong><p>A amostra descreve observações coletadas. Inferir além dela exige desenho, representatividade e incerteza explícitos.</p></article>
+          <article><strong>EFEITO × RUÍDO</strong><p>Média, taxa de acerto e expectativa variam de amostra para amostra. Dispersão e intervalos importam.</p></article>
+          <article><strong>TREINO × TESTE</strong><p>Dados usados para escolher regras não podem servir como prova final da mesma escolha.</p></article>
+          <article><strong>PASSADO × REGIME</strong><p>Dependência temporal, liquidez, custos e mudanças de regime limitam a generalização.</p></article>
+        </div>
+      </section>
+
+      <section id="sampleLab" class="lab-section" aria-labelledby="sampleTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">02 • PRÁTICA GUIADA</span><h2 id="sampleTitle">Leia a amostra sem vender certeza</h2></div>
+          <p>O intervalo de Wilson resume incerteza da proporção observada. A expectativa combina frequência e magnitude. Nenhum dos dois prova estabilidade futura.</p>
+        </div>
+        <form id="sampleForm" class="sample-form">
+          <label>Vitórias<input id="sampleWins" type="number" min="0" max="1000000" step="1" value="7" required /></label>
+          <label>Perdas<input id="sampleLosses" type="number" min="0" max="1000000" step="1" value="3" required /></label>
+          <label>Ganho médio (R)<input id="sampleAverageWin" type="number" min="0" max="1000" step="0.01" value="0.50" required /></label>
+          <label>Perda média (R)<input id="sampleAverageLoss" type="number" min="0" max="1000" step="0.01" value="1" required /></label>
+          <button class="primary" type="submit">CALCULAR RESUMO</button>
+        </form>
+        <div class="sample-results" aria-label="Resumo da amostra">
+          <article><span>Operações</span><strong id="sampleTotal">10</strong></article>
+          <article><span>Taxa de acerto</span><strong id="sampleWinRate">70%</strong></article>
+          <article><span>Intervalo 95%</span><strong id="sampleInterval">—</strong></article>
+          <article><span>Expectativa</span><strong id="sampleExpectancy">—</strong></article>
+          <article><span>Acerto de equilíbrio</span><strong id="sampleBreakeven">—</strong></article>
+        </div>
+        <p id="sampleFeedback" class="feedback" aria-live="polite">Calcule para atualizar o resumo.</p>
+      </section>
+
+      <section id="sourceLab" class="lab-section" aria-labelledby="sourceTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">03 • FONTES METODOLÓGICAS</span><h2 id="sourceTitle">Método antes da narrativa</h2></div>
+          <p>As referências sustentam os conceitos da trilha. Elas não certificam a Suzy nem prescrevem um número universal de operações.</p>
+        </div>
+        <div class="source-grid statistics-sources">
+          <a href="https://www.itl.nist.gov/div898/handbook/prc/section2/prc222.htm" target="_blank" rel="noopener noreferrer"><strong>NIST • AMOSTRA</strong><span>Precisão, variabilidade e tamanho de amostra.</span></a>
+          <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35.htm" target="_blank" rel="noopener noreferrer"><strong>NIST • ESTIMATIVAS</strong><span>População, amostra e estimativas pontuais.</span></a>
+          <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm" target="_blank" rel="noopener noreferrer"><strong>NIST • INTERVALOS</strong><span>Limites de confiança e interpretação.</span></a>
+          <a href="https://scikit-learn.org/stable/common_pitfalls.html#data-leakage" target="_blank" rel="noopener noreferrer"><strong>SCIKIT-LEARN • LEAKAGE</strong><span>Separação entre treino e teste.</span></a>
+          <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank" rel="noopener noreferrer"><strong>SCIKIT-LEARN • VALIDAÇÃO</strong><span>Dependência e séries temporais.</span></a>
+          <a href="https://www.amstat.org/your-career/ethical-guidelines-for-statistical-practice" target="_blank" rel="noopener noreferrer"><strong>ASA • INTEGRIDADE</strong><span>Limites, vieses e transparência.</span></a>
+          <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2326253" target="_blank" rel="noopener noreferrer"><strong>BACKTEST OVERFITTING</strong><span>Risco ao escolher entre muitas configurações.</span></a>
+        </div>
+      </section>
+
+      <section class="lab-section compact" aria-labelledby="sessionTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">04 • SESSÃO REPRODUZÍVEL</span><h2 id="sessionTitle">Banco de variantes</h2></div>
+          <p>A mesma semente gera a mesma ordem de seis casos. A aprovação exige média 80 e nenhuma violação dura.</p>
+        </div>
+        <div class="session-controls">
+          <label>Semente da sessão<input id="sessionSeed" type="number" step="1" value="20260809" /></label>
+          <button id="startSession" class="primary" type="button">INICIAR / REINICIAR SESSÃO</button>
+          <span id="sessionLabel" aria-live="polite">Sessão pronta.</span>
+        </div>
+      </section>
+
+      <section id="caseLab" class="lab-section" aria-labelledby="caseTitle">
+        <div class="case-header">
+          <div><span id="caseProgress" class="eyebrow">CASO 1 DE 6</span><h2 id="caseTitle">Carregando caso...</h2></div>
+          <span class="locked-answer">GABARITO BLOQUEADO</span>
+        </div>
+        <div class="case-grid">
+          <article class="facts-card">
+            <h3>Dados e alegação</h3>
+            <ul id="caseFacts"></ul>
+            <p class="caution-note">Julgue somente o desenho descrito. Não invente custos, independência, representatividade ou teste fora da amostra.</p>
+          </article>
+
+          <form id="caseForm" class="decision-card">
+            <div class="decision-grid">
+              <label>Força da conclusão<select id="caseConclusion" required></select></label>
+              <label>Risco estatístico principal<select id="caseRisk" required></select></label>
+              <label>Próxima validação necessária<select id="caseAction" required></select></label>
+              <label>Fonte metodológica<select id="caseSource" required></select></label>
+              <label class="wide">Justificativa auditável<textarea id="caseRationale" maxlength="1200" required placeholder="Explique o limite da amostra, o risco principal e por que a próxima validação é necessária. Mínimo útil: 60 caracteres."></textarea></label>
+            </div>
+            <button class="primary" type="submit">TRAVAR RESPOSTA E AVALIAR</button>
+            <p id="caseFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <section id="caseResult" class="case-result" hidden aria-labelledby="resultTitle">
+          <div class="result-summary"><div><span>NOTA</span><strong id="caseScore">—</strong></div><div><span>ESTADO</span><strong id="caseResultState">—</strong></div></div>
+          <h3 id="resultTitle">Rubrica aplicada</h3>
+          <div id="caseChecks" class="checks-grid"></div>
+          <div id="hardViolation" class="hard-violation" hidden></div>
+          <div class="explanation-card"><strong>LEITURA DO CASO</strong><p id="caseExplanation"></p><small id="caseExpected"></small></div>
+          <button id="nextCase" class="primary" type="button">PRÓXIMO CASO</button>
+        </section>
+      </section>
+
+      <section id="rubricLab" class="lab-section" aria-labelledby="rubricTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">05 • RUBRICA PÚBLICA</span><h2 id="rubricTitle">A conclusão não pode ser maior que o método</h2></div>
+          <p>Tratar método inválido como evidência favorável limita a nota a 49. Validar alegação com amostra insuficiente limita a 69.</p>
+        </div>
+        <div class="rubric-grid statistics-rubric">
+          <article><strong>35</strong><span>Força correta da conclusão</span></article>
+          <article><strong>25</strong><span>Risco estatístico principal</span></article>
+          <article><strong>20</strong><span>Próxima validação necessária</span></article>
+          <article><strong>10</strong><span>Fonte metodológica</span></article>
+          <article><strong>10</strong><span>Justificativa auditável</span></article>
+        </div>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">06 • AUDITORIA LOCAL</span><h2 id="historyTitle">Histórico de respostas</h2></div>
+          <button id="clearHistory" class="secondary" type="button">LIMPAR HISTÓRICO</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Sessão</th><th>Caso</th><th>Nota</th><th>Violação</th></tr></thead><tbody id="historyBody"><tr><td colspan="5" class="empty">Nenhuma resposta registrada.</td></tr></tbody></table></div>
+      </section>
+    </main>
+  </div>
+  <script src="js/statistics-core.js"></script>
+  <script src="js/estatistica.js"></script>
+</body>
+</html>

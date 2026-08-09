@@ -6,7 +6,7 @@ test.beforeEach(async ({}, testInfo) => {
 
 test("salva perfil, presença e plano semanal somente no navegador", async ({ page }) => {
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/13");
+  await expect(page.locator("#kpiModules")).toHaveText("0/14");
   await page.locator("#studentName").fill("Danilo Alves");
   await page.locator("#studentGoal").selectOption("Gestão de risco");
   await page.locator("#studentWeeklyHours").fill("7");
@@ -50,7 +50,7 @@ test("não aceita avaliação pendente nem calendário demo como conclusão", as
     }));
   });
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/13");
+  await expect(page.locator("#kpiModules")).toHaveText("0/14");
   await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
   await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
 });
@@ -76,5 +76,29 @@ test("reconhece a aprovação E3 de ética como evidência local", async ({ page
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="etica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/13");
+  await expect(page.locator("#kpiModules")).toHaveText("1/14");
+});
+
+test("reconhece a aprovação E3 de estatística como evidência local", async ({ page }) => {
+  await page.addInitScript(() => {
+    const coreCases = [
+      ["tiny-winning-streak", "INSUFFICIENT_EVIDENCE", "SMALL_SAMPLE", "EXPAND_SAMPLE", "NIST_SAMPLE_SIZE"],
+      ["predeclared-holdout", "SUPPORTED_LIMITED", "NON_STATIONARITY", "STRATIFY_REGIMES", "ASA_ETHICS"],
+      ["cherry-picked-session", "INVALID_METHOD", "SELECTION_BIAS", "AUDIT_SELECTION", "ASA_ETHICS"],
+      ["hundred-variants-best", "INVALID_METHOD", "MULTIPLE_TESTING", "USE_HOLDOUT", "PBO"],
+      ["future-normalization", "INVALID_METHOD", "DATA_LEAKAGE", "REBUILD_PIPELINE", "SKLEARN_LEAKAGE"],
+      ["shuffled-time-series", "INVALID_METHOD", "DEPENDENCE", "TIME_AWARE_VALIDATION", "SKLEARN_CV"]
+    ];
+    const history = coreCases.map(([caseId, conclusion, risk, action, source], index) => ({
+      sessionId: "statistics-e3",
+      seed: 11,
+      timestamp: new Date(Date.UTC(2026, 7, 9, 11, index)).toISOString(),
+      caseId,
+      answer: { conclusion, risk, action, source, rationale: "A conclusão respeita o desenho da amostra, documenta a incerteza e define a validação necessária para o caso." }
+    }));
+    localStorage.setItem("suzy-statistics-probability-v1", JSON.stringify({ version: 1, history }));
+  });
+  await page.goto("/alunos.html");
+  await expect(page.locator('#studentModules a[href="estatistica.html"]')).toContainText("CONCLUÍDO");
+  await expect(page.locator("#kpiModules")).toHaveText("1/14");
 });

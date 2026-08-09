@@ -112,6 +112,17 @@ Status: primeira entrega implementada na versão 1.23.0.
 
 Os critérios, os bloqueadores e a ordem de evolução estão documentados em `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`.
 
+## Ciclo 8 — Fundamentos profissionais
+
+Objetivo: construir fundamentos que permitam avaliar conduta, evidência e instrumentos sem confundir conteúdo interno com habilitação ou validação de mercado.
+
+Status: em execução. Duas entregas alcançaram E3 interno em competências selecionadas:
+
+- ética e limites regulatórios no Brasil para a função-alvo de execução;
+- estatística, probabilidade e leitura crítica de amostras para Quant/Dados.
+
+A segunda entrega inclui resumo amostral guiado, 12 variantes, sessões reproduzíveis, fontes metodológicas e uma rubrica independente de lucro. Economia, demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
+
 ## Critério de conclusão
 
 Nenhum ciclo é considerado concluído apenas porque a interface existe. Cada entrega precisa de:

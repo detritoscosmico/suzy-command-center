@@ -38,7 +38,7 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 | Proveniência e integridade de dados | E2 | E1 | E1 | E3 | E1 | Manifesto, validação OHLC e SHA-256 |
 | Ética e conduta profissional | E1 | E3 | E1 | E1 | E1 | Trilha Brasil com fontes oficiais, 12 variantes e rubrica publicada |
 | Regulação e estrutura institucional | E0 | E3 | E0 | E0 | E0 | Limites da função-alvo avaliados em `etica.html`; demais funções permanecem abertas |
-| Métodos quantitativos e estatística | E1 | E1 | E2 | E1 | E1 | Métricas isoladas; falta trilha progressiva |
+| Métodos quantitativos e estatística | E2 | E2 | E2 | E3 | E2 | Trilha com resumo amostral, 12 variantes e rubrica em `estatistica.html` |
 | Economia e análise macro | E1 | E1 | E1 | E0 | E1 | Calendário e casos; falta base econômica completa |
 | Demonstrações financeiras e valuation | E0 | E0 | E0 | E0 | E0 | Não implementado |
 | Renda fixa, derivativos e alternativos | E0 | E0 | E1 | E0 | E0 | Não implementado como trilha |

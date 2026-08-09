@@ -14,8 +14,9 @@ A página lê somente dados existentes no `localStorage` do navegador:
 - casos do capstone;
 - versões de governança;
 - manifestos de proveniência;
-- eventos do calendário autorizado.
-- aprovação E3 da trilha de ética e limites regulatórios.
+- eventos do calendário autorizado;
+- aprovação E3 da trilha de ética e limites regulatórios;
+- aprovação E3 da trilha de estatística, probabilidade e leitura crítica de amostras.
 
 O resultado financeiro e a taxa de acerto não são usados para liberar conquistas ou classificar o aluno.
 

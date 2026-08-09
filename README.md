@@ -71,9 +71,9 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html` e `etica.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html` e `estatistica.html`.
 
-Seis ciclos conectam evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook e proveniência de dados autorizados. A versão 1.23 acrescenta uma matriz institucional que separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
+O programa conecta evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook, proveniência de dados e fundamentos profissionais. A matriz institucional separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
 Consulte `docs/roadmap-formacao-institucional.md`, `docs/matriz-competencias-institucionais.md`, `docs/roadmap-prontidao-institucional.md` e `docs/decisao-funcao-jurisdicao.md`. O programa não concede licença, certificação ou equivalência com uma instituição financeira.
 
@@ -92,11 +92,25 @@ Arquivo: `etica.html`
 
 A metodologia está documentada em `docs/trilha-etica-limites-regulatorios.md`.
 
+### Estatística, Probabilidade e Leitura Crítica de Amostras
+
+Arquivo: `estatistica.html`
+
+- prática guiada de taxa de acerto, expectativa amostral, equilíbrio e intervalo de Wilson;
+- banco de 12 cenários sobre amostra pequena, viés de seleção, múltiplos testes, vazamento, dependência, métricas e regimes;
+- sessões reproduzíveis de seis variantes;
+- rubrica pública de 100 pontos;
+- aprovação E3 interna somente com média mínima de 80 e nenhuma violação dura;
+- estado recalculado a partir das respostas e histórico limitado no navegador;
+- aviso explícito de que a trilha não valida estratégia, retorno ou taxa de acerto futura.
+
+A metodologia está documentada em `docs/trilha-estatistica-probabilidade.md`.
+
 ### Área do Aluno
 
 Arquivo: `alunos.html`
 
-Painel individual que consolida o progresso dos 13 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
+Painel individual que consolida o progresso dos 14 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
 
 A metodologia e as limitações estão documentadas em `docs/area-do-aluno.md`.
 
@@ -278,9 +292,10 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
 - validação contínua pelo GitHub Actions;
-- Área do Aluno local com progresso dos 13 módulos, presença, plano semanal e conquistas de processo;
+- Área do Aluno local com progresso dos 14 módulos, presença, plano semanal e conquistas de processo;
 - matriz de competências E0–E5 e roadmap de prontidão institucional;
 - trilha E3 de ética e limites regulatórios da função-alvo no Brasil;
+- trilha E3 de estatística, probabilidade e leitura crítica de amostras;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -299,6 +314,7 @@ suzy-command-center/
 ├── capstone.html
 ├── dados.html
 ├── etica.html
+├── estatistica.html
 ├── diario.html
 ├── governanca.html
 ├── index.html
