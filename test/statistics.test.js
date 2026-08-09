@@ -29,6 +29,18 @@ test("resumo combina taxa de acerto, magnitude, equilíbrio e intervalo", () => 
   assert.ok(summary.interval.upper > summary.winRate);
 });
 
+test("intervalo de Wilson preserva a soma completa das contagens permitidas", () => {
+  const summary = core.summarizeSample({
+    wins: 1_000_000,
+    losses: 1_000_000,
+    averageWin: 1,
+    averageLoss: 1
+  });
+  assert.equal(summary.total, 2_000_000);
+  assert.equal(summary.winRate, 50);
+  assert.deepEqual(summary.interval, { lower: 49.93, upper: 50.07 });
+});
+
 test("resumo vazio não produz divisão inválida", () => {
   assert.deepEqual(core.summarizeSample({}), {
     wins: 0, losses: 0, total: 0, averageWin: 0, averageLoss: 0,

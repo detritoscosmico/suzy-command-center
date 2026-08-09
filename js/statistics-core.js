@@ -136,8 +136,9 @@
   }
 
   function calculateWilsonInterval(successes, total, z = 1.96) {
-    const n = Math.trunc(finiteNumber(total));
-    const wins = Math.min(n, Math.trunc(finiteNumber(successes)));
+    const maximumCount = Number.MAX_SAFE_INTEGER;
+    const n = Math.trunc(finiteNumber(total, 0, maximumCount));
+    const wins = Math.min(n, Math.trunc(finiteNumber(successes, 0, maximumCount)));
     if (!n) return { lower: 0, upper: 0 };
     const p = wins / n;
     const zSquared = z * z;
