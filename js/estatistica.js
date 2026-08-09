@@ -30,6 +30,7 @@
     STRATIFY_REGIMES: "Estratificar por regime e contexto",
     REPORT_INTERVAL: "Relatar intervalo e premissas"
   });
+  const SOURCE_LABELS = Object.freeze(Object.fromEntries(core.SOURCES.map(source => [source.id, source.title])));
 
   let state = loadState();
   let session = null;
@@ -142,7 +143,7 @@
     $("hardViolation").hidden = !grade.hardViolation;
     $("hardViolation").textContent = grade.hardViolation ? `VIOLAÇÃO DURA: ${grade.hardViolation}` : "";
     $("caseExplanation").textContent = grade.explanation;
-    $("caseExpected").textContent = `Resposta esperada: ${CONCLUSION_LABELS[grade.expectedConclusion]}; ${RISK_LABELS[grade.expectedRisk]}; ${ACTION_LABELS[grade.expectedAction]}.`;
+    $("caseExpected").textContent = `Resposta esperada: ${CONCLUSION_LABELS[grade.expectedConclusion]}; ${RISK_LABELS[grade.expectedRisk]}; ${ACTION_LABELS[grade.expectedAction]}; ${SOURCE_LABELS[grade.expectedSource]}.`;
     $("caseResult").hidden = false;
     $("caseFeedback").textContent = "Resposta travada. A nota mede leitura metodológica, não resultado financeiro.";
     renderKpis();

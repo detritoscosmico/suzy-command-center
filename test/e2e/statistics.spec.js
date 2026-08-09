@@ -73,3 +73,30 @@ test("aprovar método inválido gera violação dura e nota máxima 49", async (
   await expect(page.locator("#hardViolation")).toContainText("VIOLAÇÃO DURA");
   await expect(page.locator("#kpiViolations")).toHaveText("1");
 });
+
+test("revela a fonte metodológica esperada após resposta incorreta", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/estatistica.html");
+  const expected = await page.evaluate(() => {
+    const item = window.SuzyStatisticsCore.findCase(document.querySelector("#caseLab").dataset.caseId);
+    const expectedSource = window.SuzyStatisticsCore.SOURCES.find(source => source.id === item.expectedSource);
+    const wrongSource = window.SuzyStatisticsCore.SOURCES.find(source => source.id !== item.expectedSource);
+    return {
+      conclusion: item.expectedConclusion,
+      risk: item.expectedRisk,
+      action: item.expectedAction,
+      sourceTitle: expectedSource.title,
+      wrongSource: wrongSource.id
+    };
+  });
+
+  await page.locator("#caseConclusion").selectOption(expected.conclusion);
+  await page.locator("#caseRisk").selectOption(expected.risk);
+  await page.locator("#caseAction").selectOption(expected.action);
+  await page.locator("#caseSource").selectOption(expected.wrongSource);
+  await page.locator("#caseRationale").fill("A conclusão respeita o desenho da amostra, explicita a incerteza e define uma validação coerente com o risco principal identificado.");
+  await page.locator("#caseForm button[type=submit]").click();
+
+  await expect(page.locator("#caseScore")).toHaveText("90");
+  await expect(page.locator("#caseExpected")).toContainText(expected.sourceTitle);
+});
