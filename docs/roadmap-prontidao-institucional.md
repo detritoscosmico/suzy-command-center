@@ -32,12 +32,13 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução na versão 1.27.0.
+Status: em execução na versão 1.28.0.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
 - entrega 3 concluída: economia e macroeconomia aplicada, com snapshot guiado, 12 variantes, fontes primárias e avaliação E3 centrada em mecanismo, surpresa e incerteza;
-- demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
+- entrega 4 concluída: demonstrações financeiras, com snapshot guiado, 12 variantes, fontes CVM/CPC/IFRS e avaliação E3 centrada em reconciliação entre DRE, balanço, fluxo de caixa e notas;
+- valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
 
 - ética e conflitos de interesse;
 - estrutura regulatória brasileira e limites da função-alvo aprovada;
