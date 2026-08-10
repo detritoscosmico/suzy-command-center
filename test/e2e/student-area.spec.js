@@ -6,7 +6,7 @@ test.beforeEach(async ({}, testInfo) => {
 
 test("salva perfil, presença e plano semanal somente no navegador", async ({ page }) => {
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/14");
+  await expect(page.locator("#kpiModules")).toHaveText("0/15");
   await page.locator("#studentName").fill("Danilo Alves");
   await page.locator("#studentGoal").selectOption("Gestão de risco");
   await page.locator("#studentWeeklyHours").fill("7");
@@ -50,7 +50,7 @@ test("não aceita avaliação pendente nem calendário demo como conclusão", as
     }));
   });
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/14");
+  await expect(page.locator("#kpiModules")).toHaveText("0/15");
   await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
   await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
 });
@@ -76,7 +76,7 @@ test("reconhece a aprovação E3 de ética como evidência local", async ({ page
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="etica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/14");
+  await expect(page.locator("#kpiModules")).toHaveText("1/15");
 });
 
 test("reconhece a aprovação E3 de estatística como evidência local", async ({ page }) => {
@@ -100,5 +100,29 @@ test("reconhece a aprovação E3 de estatística como evidência local", async (
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="estatistica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/14");
+  await expect(page.locator("#kpiModules")).toHaveText("1/15");
+});
+
+test("reconhece a aprovação E3 de economia como evidência local", async ({ page }) => {
+  await page.addInitScript(() => {
+    const coreCases = [
+      ["inflation-above-consensus", "TIGHTENING_BIAS", "INFLATION_SURPRISE", "CHECK_EXPECTATIONS", "BCB_TARGET"],
+      ["fully-priced-rate-hike", "CONDITIONAL", "PRICING_SURPRISE", "CHECK_PRICING", "BCB_COPOM"],
+      ["headline-down-services-sticky", "CONDITIONAL", "INFLATION_COMPOSITION", "CHECK_COMPOSITION", "IBGE_IPCA"],
+      ["strong-growth-tight-labor", "TIGHTENING_BIAS", "ACTIVITY_LABOR", "CHECK_LAGS", "IBGE_PIB"],
+      ["weak-growth-rising-unemployment", "EASING_BIAS", "GROWTH_SLOWDOWN", "CHECK_INFLATION_PERSISTENCE", "IBGE_LABOR"],
+      ["fiscal-term-premium", "TIGHTENING_BIAS", "FISCAL_TERM_PREMIUM", "CHECK_FISCAL", "TESOURO"]
+    ];
+    const history = coreCases.map(([caseId, interpretation, driver, action, source], index) => ({
+      sessionId: "economics-e3",
+      seed: 13,
+      timestamp: new Date(Date.UTC(2026, 7, 10, 12, index)).toISOString(),
+      caseId,
+      answer: { interpretation, driver, action, source, rationale: "A leitura separa nível de surpresa, descreve o mecanismo macroeconômico e documenta a verificação necessária antes de qualquer conclusão de mercado." }
+    }));
+    localStorage.setItem("suzy-economics-macro-v1", JSON.stringify({ version: 1, history }));
+  });
+  await page.goto("/alunos.html");
+  await expect(page.locator('#studentModules a[href="economia.html"]')).toContainText("CONCLUÍDO");
+  await expect(page.locator("#kpiModules")).toHaveText("1/15");
 });

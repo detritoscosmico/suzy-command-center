@@ -32,16 +32,18 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução na versão 1.26.0.
+Status: em execução na versão 1.27.0.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
-- as trilhas de economia, demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
+- entrega 3 concluída: economia e macroeconomia aplicada, com snapshot guiado, 12 variantes, fontes primárias e avaliação E3 centrada em mecanismo, surpresa e incerteza;
+- demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
 
 - ética e conflitos de interesse;
 - estrutura regulatória brasileira e limites da função-alvo aprovada;
 - estatística, probabilidade e leitura crítica de amostras;
-- economia, demonstrações financeiras e valuation;
+- economia e macroeconomia;
+- demonstrações financeiras e valuation;
 - renda fixa, derivativos, alternativos e portfólio.
 
 Gate: cada trilha alcança E3 com fonte primária, banco de variantes e rubrica publicada.
