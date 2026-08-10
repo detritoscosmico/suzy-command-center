@@ -116,13 +116,14 @@ Os critérios, os bloqueadores e a ordem de evolução estão documentados em `d
 
 Objetivo: construir fundamentos que permitam avaliar conduta, evidência e instrumentos sem confundir conteúdo interno com habilitação ou validação de mercado.
 
-Status: em execução. Três entregas alcançaram E3 interno em competências selecionadas:
+Status: em execução. Quatro entregas alcançaram E3 interno em competências selecionadas:
 
 - ética e limites regulatórios no Brasil para a função-alvo de execução;
 - estatística, probabilidade e leitura crítica de amostras para Quant/Dados;
-- economia e macroeconomia aplicada, com leitura de inflação, juros, atividade, trabalho, fiscal, câmbio, expectativas e curva.
+- economia e macroeconomia aplicada, com leitura de inflação, juros, atividade, trabalho, fiscal, câmbio, expectativas e curva;
+- demonstrações financeiras, com reconciliação de DRE, balanço, fluxo de caixa, capital de giro, alavancagem, recorrência e notas explicativas.
 
-A terceira entrega inclui snapshot macro guiado, 12 variantes, sessões reproduzíveis, fontes primárias e uma rubrica que penaliza inversão de mecanismo e chamadas determinísticas sem contexto. Demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
+A quarta entrega inclui snapshot financeiro guiado, 12 variantes, sessões reproduzíveis, fontes primárias e uma rubrica que penaliza inversão de qualidade/consistência e conclusões determinísticas quando notas ou reconciliações adicionais são necessárias. Valuation, renda fixa, derivativos, alternativos e portfólio permanecem pendentes.
 
 ## Critério de conclusão
 
