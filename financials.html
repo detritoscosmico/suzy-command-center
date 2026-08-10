@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trilha educacional Suzy de demonstrações financeiras aplicada a DRE, balanço, fluxo de caixa, capital de giro, alavancagem e notas explicativas." />
+  <title>Demonstrações Financeiras — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/estatistica.css" />
+</head>
+<body>
+  <div class="eth-shell">
+    <aside class="eth-sidebar">
+      <a class="eth-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>FINANCIAL DESK</span></div>
+      </a>
+      <div class="side-label">CICLO 08 • ENTREGA 04</div>
+      <nav aria-label="Seções da trilha de demonstrações financeiras">
+        <a href="#conceptLab"><span>01</span> Fundamentos</a>
+        <a href="#financialLab"><span>02</span> Snapshot</a>
+        <a href="#sourceLab"><span>03</span> Fontes</a>
+        <a href="#caseLab"><span>04</span> Avaliação</a>
+        <a href="#rubricLab"><span>05</span> Rubrica</a>
+        <a href="#historyLab"><span>06</span> Histórico</a>
+      </nav>
+      <div class="boundary-card">
+        <strong>REGRA DE LEITURA</strong>
+        <p>Lucro, caixa, margem, capital de giro e alavancagem precisam ser reconciliados. Um índice isolado não determina qualidade, valor ou decisão de investimento.</p>
+      </div>
+    </aside>
+
+    <main class="eth-main">
+      <header class="eth-topbar">
+        <div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Contabilidade é reconciliação, não atalho.</strong></div>
+        <a href="programa.html">Voltar ao programa</a>
+      </header>
+
+      <section class="eth-hero">
+        <div>
+          <span class="eyebrow">DRE • BALANÇO • DFC • NOTAS</span>
+          <h1>Caixa antes da narrativa.</h1>
+          <p>Aprenda a relacionar receita, margens, lucro, caixa operacional, capex, capital de giro, dívida, patrimônio e itens não recorrentes sem transformar um múltiplo ou indicador isolado em recomendação.</p>
+        </div>
+        <aside>
+          <strong>O QUE E3 SIGNIFICA AQUI</strong>
+          <blockquote>Explicar de onde vieram lucro, caixa e mudanças patrimoniais antes de concluir.</blockquote>
+          <small>Aprovação interna não certifica competência contábil profissional, não substitui auditoria e não prevê preço de ativos.</small>
+        </aside>
+      </section>
+
+      <section class="eth-kpis" aria-label="Resumo da trilha">
+        <article><span>Casos desta sessão</span><strong id="kpiCases">0/6</strong><small>variantes únicas</small></article>
+        <article><span>Média da sessão</span><strong id="kpiAverage">0</strong><small>mínimo 80</small></article>
+        <article><span>Violações duras</span><strong id="kpiViolations">0</strong><small>precisa ser zero</small></article>
+        <article><span>Competência E3</span><strong id="kpiStatus">EM FORMAÇÃO</strong><small id="kpiBest">melhor média: 0</small></article>
+      </section>
+
+      <section id="conceptLab" class="lab-section" aria-labelledby="conceptTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">01 • MAPA DE RACIOCÍNIO</span><h2 id="conceptTitle">Quatro reconciliações obrigatórias</h2></div>
+          <p>Uma leitura profissional começa pela relação entre demonstrações e termina nas notas, não em um número solto.</p>
+        </div>
+        <div class="concept-grid">
+          <article><strong>RECEITA × MARGEM</strong><p>Crescimento nominal pode coexistir com piora de mix, preço, custos ou rentabilidade. Segmentos e margens mostram a qualidade da expansão.</p></article>
+          <article><strong>LUCRO × CAIXA</strong><p>Lucro contábil contém accruals e itens não caixa. A DFC ajuda a identificar capital de giro, reconciliações e conversão em caixa.</p></article>
+          <article><strong>LIQUIDEZ × COMPOSIÇÃO</strong><p>Índices dependem da qualidade dos componentes. Estoques, recebíveis, vencimentos e concentração importam tanto quanto a razão final.</p></article>
+          <article><strong>RECORRENTE × NÃO RECORRENTE</strong><p>Venda de ativos, impairment, efeitos cambiais e políticas contábeis podem alterar o lucro sem representar a operação recorrente.</p></article>
+        </div>
+      </section>
+
+      <section id="financialLab" class="lab-section" aria-labelledby="financialTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">02 • PRÁTICA GUIADA</span><h2 id="financialTitle">Reconcilie um snapshot financeiro</h2></div>
+          <p>Os cálculos abaixo são aproximações educacionais. Eles organizam perguntas para DRE, balanço e DFC; não atribuem valor intrínseco nem sinal de investimento.</p>
+        </div>
+        <form id="financialForm" class="sample-form">
+          <label>Receita<input id="finRevenue" type="number" step="0.01" value="1000" required /></label>
+          <label>Lucro bruto<input id="finGrossProfit" type="number" step="0.01" value="420" required /></label>
+          <label>Lucro operacional<input id="finOperatingProfit" type="number" step="0.01" value="150" required /></label>
+          <label>Lucro líquido<input id="finNetIncome" type="number" step="0.01" value="100" required /></label>
+          <label>Caixa operacional<input id="finOperatingCashFlow" type="number" step="0.01" value="120" required /></label>
+          <label>Capex<input id="finCapex" type="number" min="0" step="0.01" value="70" required /></label>
+          <label>Ativo circulante<input id="finCurrentAssets" type="number" step="0.01" value="500" required /></label>
+          <label>Passivo circulante<input id="finCurrentLiabilities" type="number" step="0.01" value="250" required /></label>
+          <label>Dívida total<input id="finTotalDebt" type="number" min="0" step="0.01" value="300" required /></label>
+          <label>Caixa e equivalentes<input id="finCash" type="number" min="0" step="0.01" value="80" required /></label>
+          <label>Patrimônio líquido<input id="finEquity" type="number" step="0.01" value="400" required /></label>
+          <button class="primary" type="submit">CALCULAR SNAPSHOT</button>
+        </form>
+        <div class="sample-results" aria-label="Resumo das demonstrações financeiras">
+          <article><span>Margem bruta</span><strong id="finGrossMargin">—</strong></article>
+          <article><span>Margem operacional</span><strong id="finOperatingMargin">—</strong></article>
+          <article><span>FCF aprox.</span><strong id="finFcf">—</strong></article>
+          <article><span>Liquidez corrente</span><strong id="finCurrentRatio">—</strong></article>
+          <article><span>Dívida líquida</span><strong id="finNetDebt">—</strong></article>
+          <article><span>Ponte lucro-caixa</span><strong id="finCashBridge">—</strong></article>
+        </div>
+        <p id="finFeedback" class="feedback" aria-live="polite">Calcule para atualizar o snapshot.</p>
+      </section>
+
+      <section id="sourceLab" class="lab-section" aria-labelledby="sourceTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">03 • FONTES PRIMÁRIAS</span><h2 id="sourceTitle">Demonstração antes do comentário</h2></div>
+          <p>A trilha prioriza documentos regulatórios e normativos. As fontes não certificam a Suzy nem validam automaticamente interpretações específicas.</p>
+        </div>
+        <div class="source-grid statistics-sources">
+          <a href="https://www.gov.br/cvm/pt-br/assuntos/regulados/consultas-por-participante/companhias" target="_blank" rel="noopener noreferrer"><strong>CVM • COMPANHIAS</strong><span>Informações periódicas e eventuais, DFP/ITR e dados de companhias.</span></a>
+          <a href="https://www.cpc.org.br/CPC/Documentos-Emitidos/Pronunciamentos" target="_blank" rel="noopener noreferrer"><strong>CPC • PRONUNCIAMENTOS</strong><span>Normas brasileiras convergidas e documentos emitidos.</span></a>
+          <a href="https://www.cpc.org.br/CPC/Documentos-Emitidos/Pronunciamentos" target="_blank" rel="noopener noreferrer"><strong>CPC 03 • FLUXOS DE CAIXA</strong><span>Classificação e apresentação de fluxos operacionais, investimento e financiamento.</span></a>
+          <a href="https://www.cpc.org.br/CPC/Documentos-Emitidos/Pronunciamentos" target="_blank" rel="noopener noreferrer"><strong>CPC 26 • APRESENTAÇÃO</strong><span>Estrutura e apresentação das demonstrações contábeis.</span></a>
+          <a href="https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows.html/" target="_blank" rel="noopener noreferrer"><strong>IFRS • IAS 7</strong><span>Referência internacional para demonstração dos fluxos de caixa.</span></a>
+          <a href="https://www.ifrs.org/issued-standards/list-of-standards/ifrs-18-presentation-and-disclosure-in-financial-statements/" target="_blank" rel="noopener noreferrer"><strong>IFRS • IFRS 18</strong><span>Nova apresentação e divulgação, efetiva para períodos anuais iniciados em 2027.</span></a>
+        </div>
+      </section>
+
+      <section class="lab-section compact" aria-labelledby="sessionTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">04 • SESSÃO REPRODUZÍVEL</span><h2 id="sessionTitle">Banco de variantes</h2></div>
+          <p>A mesma semente gera a mesma ordem de seis casos. A aprovação exige média 80 e nenhuma violação dura.</p>
+        </div>
+        <div class="session-controls">
+          <label>Semente da sessão<input id="sessionSeed" type="number" step="1" value="20260810" /></label>
+          <button id="startSession" class="primary" type="button">INICIAR / REINICIAR SESSÃO</button>
+          <span id="sessionLabel" aria-live="polite">Sessão pronta.</span>
+        </div>
+      </section>
+
+      <section id="caseLab" class="lab-section" aria-labelledby="caseTitle">
+        <div class="case-header">
+          <div><span id="caseProgress" class="eyebrow">CASO 1 DE 6</span><h2 id="caseTitle">Carregando caso...</h2></div>
+          <span class="locked-answer">GABARITO BLOQUEADO</span>
+        </div>
+        <div class="case-grid">
+          <article class="facts-card">
+            <h3>Dados e contexto</h3>
+            <ul id="caseFacts"></ul>
+            <p class="caution-note">Julgue somente o mecanismo descrito. Não invente nota explicativa, recorrência, causalidade, valor justo, guidance ou reação de mercado ausentes do caso.</p>
+          </article>
+
+          <form id="caseForm" class="decision-card">
+            <div class="decision-grid">
+              <label>Leitura da qualidade<select id="caseInterpretation" required></select></label>
+              <label>Motor contábil<select id="caseDriver" required></select></label>
+              <label>Próxima verificação<select id="caseAction" required></select></label>
+              <label>Fonte primária<select id="caseSource" required></select></label>
+              <label class="wide">Justificativa auditável<textarea id="caseRationale" maxlength="1200" required placeholder="Explique a reconciliação, a limitação e qual evidência precisa ser verificada. Mínimo útil: 60 caracteres."></textarea></label>
+            </div>
+            <button class="primary" type="submit">TRAVAR RESPOSTA E AVALIAR</button>
+            <p id="caseFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <section id="caseResult" class="case-result" hidden aria-labelledby="resultTitle">
+          <div class="result-summary"><div><span>NOTA</span><strong id="caseScore">—</strong></div><div><span>ESTADO</span><strong id="caseResultState">—</strong></div></div>
+          <h3 id="resultTitle">Rubrica aplicada</h3>
+          <div id="caseChecks" class="checks-grid"></div>
+          <div id="hardViolation" class="hard-violation" hidden></div>
+          <div class="explanation-card"><strong>LEITURA DO CASO</strong><p id="caseExplanation"></p><small id="caseExpected"></small></div>
+          <button id="nextCase" class="primary" type="button">PRÓXIMO CASO</button>
+        </section>
+      </section>
+
+      <section id="rubricLab" class="lab-section" aria-labelledby="rubricTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">05 • RUBRICA PÚBLICA</span><h2 id="rubricTitle">Reconciliação antes da conclusão</h2></div>
+          <p>Inverter uma deterioração/fortalecimento central limita a nota a 49. Forçar conclusão em caso que depende de notas ou reconciliação limita a 69.</p>
+        </div>
+        <div class="rubric-grid statistics-rubric">
+          <article><strong>35</strong><span>Leitura da qualidade</span></article>
+          <article><strong>25</strong><span>Motor contábil dominante</span></article>
+          <article><strong>20</strong><span>Próxima verificação</span></article>
+          <article><strong>10</strong><span>Fonte primária</span></article>
+          <article><strong>10</strong><span>Justificativa auditável</span></article>
+        </div>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div><span class="eyebrow">06 • AUDITORIA LOCAL</span><h2 id="historyTitle">Histórico de respostas</h2></div>
+          <button id="clearHistory" class="secondary" type="button">LIMPAR HISTÓRICO</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Sessão</th><th>Caso</th><th>Nota</th><th>Violação</th></tr></thead><tbody id="historyBody"><tr><td colspan="5" class="empty">Nenhuma resposta registrada.</td></tr></tbody></table></div>
+      </section>
+    </main>
+  </div>
+  <script src="js/financials-core.js"></script>
+  <script src="js/financials.js"></script>
+</body>
+</html>
