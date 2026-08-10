@@ -157,7 +157,8 @@
       moduleItem("calendar", "Risco de eventos", "calendario.html", additional.calendar || 0, 1, "Eventos importados"),
       moduleItem("ethics", "Ética e regulação", "etica.html", additional.ethics || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("statistics", "Estatística e amostras", "estatistica.html", additional.statistics || 0, 1, "Avaliação E3 aprovada"),
-      moduleItem("economics", "Economia e macro", "economia.html", additional.economics || 0, 1, "Avaliação E3 aprovada")
+      moduleItem("economics", "Economia e macro", "economia.html", additional.economics || 0, 1, "Avaliação E3 aprovada"),
+      moduleItem("financials", "Demonstrações financeiras", "financials.html", additional.financials || 0, 1, "Avaliação E3 aprovada")
     ];
   }
 
