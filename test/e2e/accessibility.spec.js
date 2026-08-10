@@ -13,6 +13,7 @@ const publicPages = [
   "/etica.html",
   "/estatistica.html",
   "/economia.html",
+  "/financials.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",
