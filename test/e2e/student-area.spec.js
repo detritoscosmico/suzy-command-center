@@ -130,8 +130,8 @@ test("reconhece a aprovação E3 de economia como evidência local", async ({ pa
 test("reconhece a aprovação E3 de demonstrações financeiras como evidência local", async ({ page }) => {
   await page.addInitScript(() => {
     const coreCases = [
-      ["revenue-up-margin-down", "QUALITY_WEAKENED", "MARGIN_MIX", "CHECK_SEGMENTS", "CVM_COMPANIES"],
-      ["profit-up-cfo-down", "QUALITY_WEAKENED", "WORKING_CAPITAL", "CHECK_CFO_RECONCILIATION", "CPC03"],
+      ["revenue-up-margin-up", "QUALITY_STRENGTHENED", "MARGIN_MIX", "CHECK_SEGMENTS", "CVM_COMPANIES"],
+      ["profit-and-cfo-rise", "QUALITY_STRENGTHENED", "WORKING_CAPITAL", "CHECK_CFO_RECONCILIATION", "CPC03"],
       ["cfo-boosted-by-payables", "CONDITIONAL", "PAYABLES_STRETCH", "CHECK_WORKING_CAPITAL", "CPC03"],
       ["acquisition-debt-jump", "CONDITIONAL", "ACQUISITION_FUNDING", "CHECK_DEBT_MATURITY", "CVM_COMPANIES"],
       ["impairment-noncash", "CONDITIONAL", "IMPAIRMENT_NONCASH", "CHECK_NOTES", "CPC_PRONOUNCEMENTS"],
