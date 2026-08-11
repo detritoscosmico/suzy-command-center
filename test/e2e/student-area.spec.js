@@ -6,7 +6,7 @@ test.beforeEach(async ({}, testInfo) => {
 
 test("salva perfil, presença e plano semanal somente no navegador", async ({ page }) => {
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/15");
+  await expect(page.locator("#kpiModules")).toHaveText("0/16");
   await page.locator("#studentName").fill("Danilo Alves");
   await page.locator("#studentGoal").selectOption("Gestão de risco");
   await page.locator("#studentWeeklyHours").fill("7");
@@ -50,7 +50,7 @@ test("não aceita avaliação pendente nem calendário demo como conclusão", as
     }));
   });
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/15");
+  await expect(page.locator("#kpiModules")).toHaveText("0/16");
   await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
   await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
 });
@@ -76,7 +76,7 @@ test("reconhece a aprovação E3 de ética como evidência local", async ({ page
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="etica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/15");
+  await expect(page.locator("#kpiModules")).toHaveText("1/16");
 });
 
 test("reconhece a aprovação E3 de estatística como evidência local", async ({ page }) => {
@@ -100,7 +100,7 @@ test("reconhece a aprovação E3 de estatística como evidência local", async (
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="estatistica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/15");
+  await expect(page.locator("#kpiModules")).toHaveText("1/16");
 });
 
 test("reconhece a aprovação E3 de economia como evidência local", async ({ page }) => {
@@ -124,5 +124,29 @@ test("reconhece a aprovação E3 de economia como evidência local", async ({ pa
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="economia.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/15");
+  await expect(page.locator("#kpiModules")).toHaveText("1/16");
+});
+
+test("reconhece a aprovação E3 de demonstrações financeiras como evidência local", async ({ page }) => {
+  await page.addInitScript(() => {
+    const coreCases = [
+      ["revenue-up-margin-up", "QUALITY_STRENGTHENED", "MARGIN_MIX", "CHECK_SEGMENTS", "CVM_COMPANIES"],
+      ["profit-and-cfo-rise", "QUALITY_STRENGTHENED", "WORKING_CAPITAL", "CHECK_CFO_RECONCILIATION", "CPC03"],
+      ["cfo-boosted-by-payables", "CONDITIONAL", "PAYABLES_STRETCH", "CHECK_WORKING_CAPITAL", "CPC03"],
+      ["acquisition-debt-jump", "CONDITIONAL", "ACQUISITION_FUNDING", "CHECK_DEBT_MATURITY", "CVM_COMPANIES"],
+      ["impairment-noncash", "CONDITIONAL", "IMPAIRMENT_NONCASH", "CHECK_NOTES", "CPC_PRONOUNCEMENTS"],
+      ["capitalized-development-costs", "QUALITY_WEAKENED", "CAPITALIZATION_POLICY", "CHECK_CAPITALIZATION", "CPC_PRONOUNCEMENTS"]
+    ];
+    const history = coreCases.map(([caseId, interpretation, driver, action, source], index) => ({
+      sessionId: "financials-e3",
+      seed: 17,
+      timestamp: new Date(Date.UTC(2026, 7, 10, 13, index)).toISOString(),
+      caseId,
+      answer: { interpretation, driver, action, source, rationale: "A leitura reconcilia DRE, balanço, fluxo de caixa e notas, documenta a limitação e define a próxima evidência necessária antes de qualquer conclusão." }
+    }));
+    localStorage.setItem("suzy-financial-statements-v1", JSON.stringify({ version: 1, history }));
+  });
+  await page.goto("/alunos.html");
+  await expect(page.locator('#studentModules a[href="financials.html"]')).toContainText("CONCLUÍDO");
+  await expect(page.locator("#kpiModules")).toHaveText("1/16");
 });
