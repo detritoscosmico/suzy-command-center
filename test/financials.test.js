@@ -12,11 +12,14 @@ function correctAnswer(item) {
   };
 }
 
-test("banco possui doze variantes únicas e fontes primárias identificadas", () => {
+test("banco possui variantes únicas, fontes primárias e cobertura das três leituras", () => {
   assert.ok(core.CASES.length >= 12);
   assert.equal(new Set(core.CASES.map(item => item.id)).size, core.CASES.length);
   assert.ok(core.SOURCES.every(item => item.url.startsWith("https://")));
   assert.ok(core.CASES.every(item => core.SOURCES.some(source => source.id === item.expectedSource)));
+  const coverage = new Map(core.INTERPRETATIONS.map(interpretation => [interpretation, 0]));
+  core.CASES.forEach(item => coverage.set(item.expectedInterpretation, (coverage.get(item.expectedInterpretation) || 0) + 1));
+  core.INTERPRETATIONS.forEach(interpretation => assert.ok(coverage.get(interpretation) >= 2, `Cobertura insuficiente para ${interpretation}`));
 });
 
 test("snapshot calcula margens, FCF aproximado, liquidez e dívida líquida", () => {
@@ -57,7 +60,7 @@ test("leitura contábil completa recebe nota integral", () => {
 });
 
 test("inverter leitura central de qualidade limita a nota a 49", () => {
-  const item = core.findCase("profit-up-cfo-down");
+  const item = core.findCase("capitalized-development-costs");
   const grade = core.gradeCase(item.id, { ...correctAnswer(item), interpretation: "QUALITY_STRENGTHENED" });
   assert.equal(grade.score, 49);
   assert.equal(grade.passed, false);

@@ -48,18 +48,18 @@
 
   const CASES = Object.freeze([
     {
-      id: "revenue-up-margin-down",
-      title: "Receita cresce, margem operacional comprime",
-      facts: ["A receita cresceu 18% no período.", "O lucro operacional cresceu apenas 2% e a margem caiu de 14% para 12%.", "A companhia informa mudança relevante de mix e custos de insumos."],
-      expectedInterpretation: "QUALITY_WEAKENED", expectedDriver: "MARGIN_MIX", expectedAction: "CHECK_SEGMENTS", expectedSource: "CVM_COMPANIES", severity: "OPPOSITE_QUALITY",
-      explanation: "Crescimento de receita não implica melhora equivalente da qualidade econômica. A compressão de margem exige decompor mix, preço, volume, segmentos e custos antes de atribuir força ao resultado."
+      id: "revenue-up-margin-up",
+      title: "Receita cresce com expansão de margem operacional",
+      facts: ["A receita cresceu 12% no período.", "O lucro operacional avançou 28% e a margem subiu de 14% para 16%.", "A melhora aparece nos principais segmentos e não há item não recorrente material identificado no resumo apresentado."],
+      expectedInterpretation: "QUALITY_STRENGTHENED", expectedDriver: "MARGIN_MIX", expectedAction: "CHECK_SEGMENTS", expectedSource: "CVM_COMPANIES", severity: "OPPOSITE_QUALITY",
+      explanation: "Crescimento acompanhado de expansão de margem e sem item não recorrente material identificado fortalece a consistência observada. A conclusão ainda deve ser confirmada por segmentos, preço, volume, custos e recorrência."
     },
     {
-      id: "profit-up-cfo-down",
-      title: "Lucro sobe enquanto caixa operacional recua",
-      facts: ["O lucro líquido aumentou 25%.", "O fluxo de caixa operacional caiu 20%.", "Contas a receber e estoques cresceram acima da receita."],
-      expectedInterpretation: "QUALITY_WEAKENED", expectedDriver: "WORKING_CAPITAL", expectedAction: "CHECK_CFO_RECONCILIATION", expectedSource: "CPC03", severity: "OPPOSITE_QUALITY",
-      explanation: "Divergência persistente entre lucro e caixa pode refletir consumo de capital de giro ou accruals. A leitura exige reconciliar lucro, contas a receber, estoques, fornecedores e demais ajustes não caixa."
+      id: "profit-and-cfo-rise",
+      title: "Lucro e caixa operacional avançam de forma alinhada",
+      facts: ["O lucro líquido aumentou 18%.", "O fluxo de caixa operacional cresceu 22% no mesmo período.", "Contas a receber e estoques evoluíram em linha com a receita, sem distorção relevante de capital de giro identificada no resumo apresentado."],
+      expectedInterpretation: "QUALITY_STRENGTHENED", expectedDriver: "WORKING_CAPITAL", expectedAction: "CHECK_CFO_RECONCILIATION", expectedSource: "CPC03", severity: "OPPOSITE_QUALITY",
+      explanation: "Lucro e caixa operacional avançando de forma coerente, sem distorção relevante de capital de giro identificada, reforçam a qualidade observada. A reconciliação do caixa e os componentes recorrentes ainda precisam ser verificados."
     },
     {
       id: "cfo-boosted-by-payables",
