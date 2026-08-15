@@ -28,6 +28,19 @@ test("prioriza vozes pt-BR e distribui as disponíveis entre os perfis", () => {
   assert.equal(VoiceCore.resolveVoice(voices, "deep").name, "Português Portugal");
 });
 
+test("prefere voz local a uma voz remota marcada como padrão", () => {
+  const candidates = [
+    { name: "Brasil remota padrão", lang: "pt-BR", default: true, localService: false },
+    { name: "Brasil local", lang: "pt-BR", default: false, localService: true }
+  ];
+
+  assert.deepEqual(
+    VoiceCore.portugueseVoices(candidates).map(voice => voice.name),
+    ["Brasil local", "Brasil remota padrão"]
+  );
+  assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Brasil local");
+});
+
 test("mantém pt-BR como fallback quando o dispositivo não lista vozes em português", () => {
   const settings = VoiceCore.createSpeechSettings("calm", [{ name: "English", lang: "en-US" }]);
   assert.equal(settings.voice, null);

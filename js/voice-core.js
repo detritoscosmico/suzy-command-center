@@ -39,8 +39,8 @@
       .filter(voice => languageRank(voice) < 3)
       .map((voice, index) => ({ voice, index }))
       .sort((a, b) => languageRank(a.voice) - languageRank(b.voice)
-        || Number(Boolean(b.voice.default)) - Number(Boolean(a.voice.default))
         || Number(Boolean(b.voice.localService)) - Number(Boolean(a.voice.localService))
+        || Number(Boolean(b.voice.default)) - Number(Boolean(a.voice.default))
         || a.index - b.index)
       .map(entry => entry.voice);
   }
