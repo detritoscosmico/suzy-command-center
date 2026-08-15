@@ -110,6 +110,48 @@ test("registra uma operação demo no Command Center", async ({ page }, testInfo
   await expect(page.locator("#tradeFeedback")).not.toBeEmpty();
 });
 
+test("oferece quatro vozes da Suzy e salva a preferência escolhida", async ({ page }) => {
+  await page.addInitScript(() => {
+    const voices = [
+      { name: "Suzy Sistema 1", lang: "pt-BR", default: true, localService: true },
+      { name: "Suzy Sistema 2", lang: "pt-BR", default: false, localService: true },
+      { name: "Suzy Sistema 3", lang: "pt-BR", default: false, localService: true },
+      { name: "Suzy Sistema 4", lang: "pt-BR", default: false, localService: true }
+    ];
+    window.__suzySpoken = [];
+    Object.defineProperty(window, "speechSynthesis", {
+      configurable: true,
+      value: {
+        addEventListener() {},
+        cancel() {},
+        getVoices: () => voices,
+        speak(utterance) {
+          window.__suzySpoken.push({ voice: utterance.voice?.name, rate: utterance.rate, pitch: utterance.pitch, text: utterance.text });
+          utterance.onend?.();
+        }
+      }
+    });
+    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      configurable: true,
+      value: function SpeechSynthesisUtterance(text) { this.text = text; }
+    });
+  });
+  await page.goto("/index.html");
+
+  await expect(page.locator("#voiceProfile option")).toHaveCount(4);
+  await page.locator("#voiceProfile").selectOption("deep");
+  await expect(page.locator("#voiceStatus")).toContainText("Voz Grave selecionada");
+  await page.locator("#voiceBtn").click();
+
+  const result = await page.evaluate(() => ({
+    selected: localStorage.getItem("suzy-voice-profile-v1"),
+    spoken: window.__suzySpoken[0]
+  }));
+  expect(result.selected).toBe("deep");
+  expect(result.spoken).toMatchObject({ voice: "Suzy Sistema 4", rate: 0.88, pitch: 0.78 });
+  expect(result.spoken.text).toContain("Danilo");
+});
+
 test("filtra as 24 ações globais do catálogo", async ({ page }) => {
   await page.goto("/index.html");
   await page.locator("#categoryFilter").selectOption("Ações");

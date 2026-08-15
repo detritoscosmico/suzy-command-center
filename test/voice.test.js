@@ -1,0 +1,49 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const VoiceCore = require("../js/voice-core.js");
+
+const voices = [
+  { name: "Português Portugal", lang: "pt-PT", default: false, localService: true },
+  { name: "Brasil 2", lang: "pt-BR", default: false, localService: true },
+  { name: "English", lang: "en-US", default: true, localService: true },
+  { name: "Brasil principal", lang: "pt_BR", default: true, localService: true },
+  { name: "Brasil remoto", lang: "pt-BR", default: false, localService: false }
+];
+
+test("expõe exatamente quatro perfis de voz distintos", () => {
+  const profiles = VoiceCore.listProfiles();
+  assert.deepEqual(profiles.map(profile => profile.id), ["natural", "calm", "energetic", "deep"]);
+  assert.equal(new Set(profiles.map(profile => `${profile.rate}:${profile.pitch}`)).size, 4);
+});
+
+test("normaliza uma preferência desconhecida para a voz Natural", () => {
+  assert.equal(VoiceCore.normalizeProfileId("inexistente"), "natural");
+  assert.equal(VoiceCore.getProfile(null).label, "Natural");
+});
+
+test("prioriza vozes pt-BR e distribui as disponíveis entre os perfis", () => {
+  const ordered = VoiceCore.portugueseVoices(voices);
+  assert.deepEqual(ordered.map(voice => voice.name), ["Brasil principal", "Brasil 2", "Brasil remoto", "Português Portugal"]);
+  assert.equal(VoiceCore.resolveVoice(voices, "natural").name, "Brasil principal");
+  assert.equal(VoiceCore.resolveVoice(voices, "deep").name, "Português Portugal");
+});
+
+test("prefere voz local a uma voz remota marcada como padrão", () => {
+  const candidates = [
+    { name: "Brasil remota padrão", lang: "pt-BR", default: true, localService: false },
+    { name: "Brasil local", lang: "pt-BR", default: false, localService: true }
+  ];
+
+  assert.deepEqual(
+    VoiceCore.portugueseVoices(candidates).map(voice => voice.name),
+    ["Brasil local", "Brasil remota padrão"]
+  );
+  assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Brasil local");
+});
+
+test("mantém pt-BR como fallback quando o dispositivo não lista vozes em português", () => {
+  const settings = VoiceCore.createSpeechSettings("calm", [{ name: "English", lang: "en-US" }]);
+  assert.equal(settings.voice, null);
+  assert.equal(settings.lang, "pt-BR");
+  assert.equal(settings.profile.id, "calm");
+});
