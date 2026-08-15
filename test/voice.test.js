@@ -41,6 +41,39 @@ test("prefere voz local a uma voz remota marcada como padrão", () => {
   assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Brasil local");
 });
 
+test("Brave prioriza uma voz feminina mesmo quando a voz masculina é a padrão", () => {
+  const braveVoices = [
+    { name: "Microsoft Antonio Online (Natural) - Portuguese (Brazil)", lang: "pt-BR", default: true, localService: true },
+    { name: "Google português do Brasil", lang: "pt-BR", default: false, localService: true },
+    { name: "Microsoft Francisca Online (Natural) - Portuguese (Brazil)", lang: "pt-BR", default: false, localService: false }
+  ];
+
+  assert.deepEqual(
+    VoiceCore.preferredPortugueseVoices(braveVoices).map(voice => voice.name),
+    ["Microsoft Francisca Online (Natural) - Portuguese (Brazil)"]
+  );
+  assert.equal(VoiceCore.resolveVoice(braveVoices, "natural").name, "Microsoft Francisca Online (Natural) - Portuguese (Brazil)");
+  assert.equal(VoiceCore.resolveVoice(braveVoices, "deep").name, "Microsoft Francisca Online (Natural) - Portuguese (Brazil)");
+});
+
+test("evita voz explicitamente masculina quando o navegador oferece uma alternativa neutra", () => {
+  const candidates = [
+    { name: "Microsoft Antonio - Portuguese (Brazil)", lang: "pt-BR", default: true, localService: true },
+    { name: "Google português do Brasil", lang: "pt-BR", default: false, localService: false }
+  ];
+
+  assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Google português do Brasil");
+});
+
+test("mantém uma voz portuguesa como último recurso quando só há vozes masculinas", () => {
+  const candidates = [
+    { name: "Microsoft Antonio - Portuguese (Brazil)", lang: "pt-BR", default: true, localService: true },
+    { name: "Felipe", lang: "pt-BR", default: false, localService: true }
+  ];
+
+  assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Microsoft Antonio - Portuguese (Brazil)");
+});
+
 test("mantém pt-BR como fallback quando o dispositivo não lista vozes em português", () => {
   const settings = VoiceCore.createSpeechSettings("calm", [{ name: "English", lang: "en-US" }]);
   assert.equal(settings.voice, null);

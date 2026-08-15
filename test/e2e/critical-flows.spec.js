@@ -113,10 +113,11 @@ test("registra uma operação demo no Command Center", async ({ page }, testInfo
 test("oferece quatro vozes da Suzy e salva a preferência escolhida", async ({ page }) => {
   await page.addInitScript(() => {
     const voices = [
-      { name: "Suzy Sistema 1", lang: "pt-BR", default: true, localService: true },
-      { name: "Suzy Sistema 2", lang: "pt-BR", default: false, localService: true },
-      { name: "Suzy Sistema 3", lang: "pt-BR", default: false, localService: true },
-      { name: "Suzy Sistema 4", lang: "pt-BR", default: false, localService: true }
+      { name: "Microsoft Antonio", lang: "pt-BR", default: true, localService: true },
+      { name: "Microsoft Francisca", lang: "pt-BR", default: false, localService: true },
+      { name: "Microsoft Maria", lang: "pt-BR", default: false, localService: true },
+      { name: "Luciana", lang: "pt-BR", default: false, localService: true },
+      { name: "Joana", lang: "pt-BR", default: false, localService: true }
     ];
     window.__suzySpoken = [];
     Object.defineProperty(window, "speechSynthesis", {
@@ -148,7 +149,7 @@ test("oferece quatro vozes da Suzy e salva a preferência escolhida", async ({ p
     spoken: window.__suzySpoken[0]
   }));
   expect(result.selected).toBe("deep");
-  expect(result.spoken).toMatchObject({ voice: "Suzy Sistema 4", rate: 0.88, pitch: 0.78 });
+  expect(result.spoken).toMatchObject({ voice: "Joana", rate: 0.88, pitch: 0.78 });
   expect(result.spoken.text).toContain("Danilo");
 });
 

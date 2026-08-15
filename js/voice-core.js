@@ -13,6 +13,15 @@
   ]);
 
   const PROFILE_BY_ID = Object.freeze(Object.fromEntries(PROFILES.map(profile => [profile.id, profile])));
+  const FEMININE_VOICE_TOKENS = Object.freeze([
+    "female", "feminina", "mulher", "francisca", "maria", "luciana", "joana",
+    "catarina", "fernanda", "heloisa", "leticia", "camila", "vitoria", "paula",
+    "beatriz", "ines", "claudia", "helena"
+  ]);
+  const MASCULINE_VOICE_TOKENS = Object.freeze([
+    "male", "masculina", "masculino", "homem", "antonio", "felipe", "ricardo",
+    "tiago", "thiago", "joaquim", "jorge", "paulo", "daniel"
+  ]);
 
   function normalizeProfileId(value) {
     return Object.prototype.hasOwnProperty.call(PROFILE_BY_ID, value) ? value : "natural";
@@ -34,19 +43,44 @@
     return 3;
   }
 
+  function voiceWords(voice) {
+    return new Set(`${voice?.name || ""} ${voice?.voiceURI || ""}`
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean));
+  }
+
+  function feminineVoiceRank(voice) {
+    const words = voiceWords(voice);
+    if (FEMININE_VOICE_TOKENS.some(token => words.has(token))) return 0;
+    if (MASCULINE_VOICE_TOKENS.some(token => words.has(token))) return 2;
+    return 1;
+  }
+
   function portugueseVoices(voices) {
     return (Array.isArray(voices) ? voices : [])
       .filter(voice => languageRank(voice) < 3)
       .map((voice, index) => ({ voice, index }))
       .sort((a, b) => languageRank(a.voice) - languageRank(b.voice)
+        || feminineVoiceRank(a.voice) - feminineVoiceRank(b.voice)
         || Number(Boolean(b.voice.localService)) - Number(Boolean(a.voice.localService))
         || Number(Boolean(b.voice.default)) - Number(Boolean(a.voice.default))
         || a.index - b.index)
       .map(entry => entry.voice);
   }
 
-  function resolveVoice(voices, profileId) {
+  function preferredPortugueseVoices(voices) {
     const candidates = portugueseVoices(voices);
+    const feminine = candidates.filter(voice => feminineVoiceRank(voice) === 0);
+    if (feminine.length) return feminine;
+    const notMasculine = candidates.filter(voice => feminineVoiceRank(voice) === 1);
+    return notMasculine.length ? notMasculine : candidates;
+  }
+
+  function resolveVoice(voices, profileId) {
+    const candidates = preferredPortugueseVoices(voices);
     if (!candidates.length) return null;
     const profile = getProfile(profileId);
     return candidates[profile.voiceOffset % candidates.length];
@@ -71,6 +105,7 @@
     getProfile,
     listProfiles,
     portugueseVoices,
+    preferredPortugueseVoices,
     resolveVoice,
     createSpeechSettings
   };
