@@ -6,7 +6,7 @@ test.beforeEach(async ({}, testInfo) => {
 
 test("salva perfil, presença e plano semanal somente no navegador", async ({ page }) => {
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/16");
+  await expect(page.locator("#kpiModules")).toHaveText("0/17");
   await page.locator("#studentName").fill("Danilo Alves");
   await page.locator("#studentGoal").selectOption("Gestão de risco");
   await page.locator("#studentWeeklyHours").fill("7");
@@ -50,7 +50,7 @@ test("não aceita avaliação pendente nem calendário demo como conclusão", as
     }));
   });
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/16");
+  await expect(page.locator("#kpiModules")).toHaveText("0/17");
   await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
   await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
 });
@@ -76,7 +76,7 @@ test("reconhece a aprovação E3 de ética como evidência local", async ({ page
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="etica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/16");
+  await expect(page.locator("#kpiModules")).toHaveText("1/17");
 });
 
 test("reconhece a aprovação E3 de estatística como evidência local", async ({ page }) => {
@@ -100,7 +100,7 @@ test("reconhece a aprovação E3 de estatística como evidência local", async (
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="estatistica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/16");
+  await expect(page.locator("#kpiModules")).toHaveText("1/17");
 });
 
 test("reconhece a aprovação E3 de economia como evidência local", async ({ page }) => {
@@ -124,7 +124,7 @@ test("reconhece a aprovação E3 de economia como evidência local", async ({ pa
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="economia.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/16");
+  await expect(page.locator("#kpiModules")).toHaveText("1/17");
 });
 
 test("reconhece a aprovação E3 de demonstrações financeiras como evidência local", async ({ page }) => {
@@ -148,5 +148,29 @@ test("reconhece a aprovação E3 de demonstrações financeiras como evidência 
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="financials.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/16");
+  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+});
+
+test("reconhece a aprovação E3 de valuation como evidência local", async ({ page }) => {
+  await page.addInitScript(() => {
+    const coreCases = [
+      ["low-discount-rate", "OVERSTATED_ASSUMPTIONS", "DISCOUNT_RATE", "RECALCULATE_WACC", "BCB_SELIC"],
+      ["terminal-growth-high", "OVERSTATED_ASSUMPTIONS", "TERMINAL_GROWTH", "RUN_SENSITIVITY", "BCB_SELIC"],
+      ["margin-recovery", "OVERSTATED_ASSUMPTIONS", "MARGIN_ASSUMPTION", "NORMALIZE_MARGIN", "CVM_FILINGS"],
+      ["debt-reconciliation", "INSUFFICIENT_EVIDENCE", "CAPITAL_STRUCTURE", "RECONCILE_NET_DEBT", "CVM_FILINGS"],
+      ["cyclical-peak", "INSUFFICIENT_EVIDENCE", "CYCLICAL_EARNINGS", "NORMALIZE_CYCLE", "CVM_FILINGS"],
+      ["peer-mismatch", "INSUFFICIENT_EVIDENCE", "COMPARABILITY", "REBUILD_PEER_SET", "CVM_FILINGS"]
+    ];
+    const history = coreCases.map(([caseId, interpretation, driver, action, source], index) => ({
+      sessionId: "valuation-e3",
+      seed: 19,
+      timestamp: new Date(Date.UTC(2026, 7, 15, 14, index)).toISOString(),
+      caseId,
+      answer: { interpretation, driver, action, source, rationale: "A análise documenta premissas, reconcilia enterprise value com equity value e trata o resultado como faixa sensível, não como preço garantido." }
+    }));
+    localStorage.setItem("suzy-valuation-v1", JSON.stringify({ version: 1, history }));
+  });
+  await page.goto("/alunos.html");
+  await expect(page.locator('#studentModules a[href="valuation.html"]')).toContainText("CONCLUÍDO");
+  await expect(page.locator("#kpiModules")).toHaveText("1/17");
 });

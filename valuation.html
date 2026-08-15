@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trilha educacional Suzy de valuation com DCF, valor terminal, enterprise value, equity value, múltiplos, sensibilidade e limites de inferência." />
+  <title>Valuation — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/estatistica.css" />
+</head>
+<body>
+  <div class="eth-shell">
+    <aside class="eth-sidebar">
+      <a class="eth-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>VALUATION DESK</span></div>
+      </a>
+      <div class="side-label">CICLO 08 • ENTREGA 05</div>
+      <nav aria-label="Seções da trilha de valuation">
+        <a href="#conceptLab"><span>01</span> Fundamentos</a>
+        <a href="#valuationLab"><span>02</span> DCF guiado</a>
+        <a href="#sourceLab"><span>03</span> Fontes</a>
+        <a href="#caseLab"><span>04</span> Avaliação</a>
+        <a href="#rubricLab"><span>05</span> Rubrica</a>
+        <a href="#historyLab"><span>06</span> Histórico</a>
+      </nav>
+      <div class="boundary-card"><strong>REGRA DE VALOR</strong><p>Valuation produz uma faixa dependente de premissas. Não é cotação futura, recomendação de compra/venda ou garantia de retorno.</p></div>
+    </aside>
+
+    <main class="eth-main">
+      <header class="eth-topbar"><div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Premissa antes do preço.</strong></div><a href="programa.html">Voltar ao programa</a></header>
+      <section class="eth-hero">
+        <div><span class="eyebrow">DCF • EV • EQUITY • MÚLTIPLOS • SENSIBILIDADE</span><h1>Valor é uma faixa, não uma profecia.</h1><p>Treine valor presente, valor terminal, reconciliação entre enterprise value e equity value, múltiplos comparáveis, diluição e sensibilidade sem converter modelos educacionais em sinal operacional.</p></div>
+        <aside><strong>O QUE E3 SIGNIFICA AQUI</strong><blockquote>Identificar a premissa dominante, reconciliar unidades e declarar incerteza antes de concluir.</blockquote><small>Aprovação interna não certifica analista, não prevê preços e não recomenda investimento.</small></aside>
+      </section>
+
+      <section class="eth-kpis" aria-label="Resumo da trilha">
+        <article><span>Casos desta sessão</span><strong id="kpiCases">0/6</strong><small>variantes únicas</small></article>
+        <article><span>Média da sessão</span><strong id="kpiAverage">0</strong><small>mínimo 80</small></article>
+        <article><span>Violações duras</span><strong id="kpiViolations">0</strong><small>precisa ser zero</small></article>
+        <article><span>Competência E3</span><strong id="kpiStatus">EM FORMAÇÃO</strong><small id="kpiBest">melhor média: 0</small></article>
+      </section>
+
+      <section id="conceptLab" class="lab-section" aria-labelledby="conceptTitle">
+        <div class="section-heading"><div><span class="eyebrow">01 • MAPA DE RACIOCÍNIO</span><h2 id="conceptTitle">Quatro reconciliações de valuation</h2></div><p>O modelo deve ser auditável desde a demonstração financeira até a faixa de valor.</p></div>
+        <div class="concept-grid">
+          <article><strong>FLUXO × TAXA</strong><p>O valor presente depende tanto do caixa projetado quanto da taxa usada para refletir risco e tempo.</p></article>
+          <article><strong>EXPLÍCITO × TERMINAL</strong><p>Quanto maior o peso do valor terminal, maior a dependência de premissas de longo prazo e a necessidade de sensibilidade.</p></article>
+          <article><strong>EV × EQUITY</strong><p>Enterprise value não é valor do patrimônio. Dívida líquida e ajustes precisam ser reconciliados antes do valor por ação.</p></article>
+          <article><strong>MÚLTIPLO × COMPARABILIDADE</strong><p>P/L, EV/EBITDA e outros múltiplos só são informativos quando lucro, crescimento, risco e estrutura de capital são comparáveis.</p></article>
+        </div>
+      </section>
+
+      <section id="valuationLab" class="lab-section" aria-labelledby="valuationTitle">
+        <div class="section-heading"><div><span class="eyebrow">02 • PRÁTICA GUIADA</span><h2 id="valuationTitle">Monte um DCF simplificado</h2></div><p>O exercício usa três anos de FCFF simplificado (fluxo de caixa livre para a firma) e crescimento de Gordon para estimar enterprise value. É uma prática matemática simplificada, não um preço-alvo.</p></div>
+        <form id="valuationForm" class="sample-form">
+          <label>FCFF simplificado — ano 1<input id="valFcf1" type="number" step="0.01" value="100" required /></label>
+          <label>FCFF simplificado — ano 2<input id="valFcf2" type="number" step="0.01" value="110" required /></label>
+          <label>FCFF simplificado — ano 3<input id="valFcf3" type="number" step="0.01" value="120" required /></label>
+          <label>Taxa de desconto (%)<input id="valDiscountRate" type="number" min="0.01" step="0.01" value="10" required /></label>
+          <label>Crescimento terminal (%)<input id="valTerminalGrowth" type="number" step="0.01" value="3" required /></label>
+          <label>Dívida líquida<input id="valNetDebt" type="number" step="0.01" value="200" required /></label>
+          <label>Ações diluídas<input id="valShares" type="number" min="0.000001" step="any" value="100" required /></label>
+          <button class="primary" type="submit">CALCULAR CENÁRIO</button>
+        </form>
+        <div class="sample-results" aria-label="Resumo do valuation">
+          <article><span>Enterprise value</span><strong id="valEnterprise">—</strong></article>
+          <article><span>Equity value</span><strong id="valEquity">—</strong></article>
+          <article><span>Valor por ação</span><strong id="valPerShare">—</strong></article>
+          <article><span>Peso do terminal</span><strong id="valTerminalWeight">—</strong></article>
+        </div>
+        <p id="valFeedback" class="feedback" aria-live="polite">Calcule para atualizar o cenário.</p>
+      </section>
+
+      <section id="sourceLab" class="lab-section" aria-labelledby="sourceTitle">
+        <div class="section-heading"><div><span class="eyebrow">03 • FONTES PRIMÁRIAS</span><h2 id="sourceTitle">Premissas começam em evidência verificável</h2></div><p>A trilha usa documentos institucionais como base de dados e contexto. Nenhuma fonte valida automaticamente uma estimativa de valor.</p></div>
+        <div class="source-grid statistics-sources">
+          <a href="https://www.gov.br/cvm/pt-br/assuntos/regulados/consultas-por-participante/companhias" target="_blank" rel="noopener noreferrer"><strong>CVM • COMPANHIAS</strong><span>Demonstrações, informações periódicas e estrutura de capital.</span></a>
+          <a href="https://www.cpc.org.br/CPC/Documentos-Emitidos/Pronunciamentos" target="_blank" rel="noopener noreferrer"><strong>CPC • PRONUNCIAMENTOS</strong><span>Base para reconciliar lucro, caixa e itens não recorrentes.</span></a>
+          <a href="https://www.ifrs.org/issued-standards/list-of-standards/" target="_blank" rel="noopener noreferrer"><strong>IFRS • STANDARDS</strong><span>Referências internacionais para demonstrações e divulgação.</span></a>
+          <a href="https://www.bcb.gov.br/controleinflacao/taxaselic" target="_blank" rel="noopener noreferrer"><strong>BCB • SELIC</strong><span>Referência macro para discutir taxa livre de risco no contexto brasileiro.</span></a>
+        </div>
+      </section>
+
+      <section class="lab-section compact" aria-labelledby="sessionTitle">
+        <div class="section-heading"><div><span class="eyebrow">04 • SESSÃO REPRODUZÍVEL</span><h2 id="sessionTitle">Banco de variantes</h2></div><p>A mesma semente gera a mesma ordem de seis casos. Aprovação exige média 80 e nenhuma violação dura.</p></div>
+        <div class="session-controls"><label>Semente da sessão<input id="sessionSeed" type="number" step="1" value="20260815" /></label><button id="startSession" class="primary" type="button">INICIAR / REINICIAR SESSÃO</button><span id="sessionLabel" aria-live="polite">Sessão pronta.</span></div>
+      </section>
+
+      <section id="caseLab" class="lab-section" aria-labelledby="caseTitle">
+        <div class="case-header"><div><span id="caseProgress" class="eyebrow">CASO 1 DE 6</span><h2 id="caseTitle">Carregando caso...</h2></div><span class="locked-answer">GABARITO BLOQUEADO</span></div>
+        <div class="case-grid">
+          <article class="facts-card"><h3>Dados e contexto</h3><ul id="caseFacts"></ul><p class="caution-note">Julgue somente as premissas descritas. Não invente preço futuro, guidance, crescimento, beta, custo de capital ou comparáveis ausentes.</p></article>
+          <form id="caseForm" class="decision-card">
+            <div class="decision-grid">
+              <label>Leitura da faixa de valor<select id="caseInterpretation" required></select></label>
+              <label>Premissa dominante<select id="caseDriver" required></select></label>
+              <label>Próxima verificação<select id="caseAction" required></select></label>
+              <label>Fonte primária<select id="caseSource" required></select></label>
+              <label class="wide">Justificativa auditável<textarea id="caseRationale" maxlength="1200" required placeholder="Explique a premissa, a reconciliação e a limitação. Mínimo útil: 60 caracteres."></textarea></label>
+            </div>
+            <button class="primary" type="submit">TRAVAR RESPOSTA E AVALIAR</button><p id="caseFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+        <section id="caseResult" class="case-result" hidden aria-labelledby="resultTitle">
+          <div class="result-summary"><div><span>NOTA</span><strong id="caseScore">—</strong></div><div><span>ESTADO</span><strong id="caseResultState">—</strong></div></div>
+          <h3 id="resultTitle">Rubrica aplicada</h3><div id="caseChecks" class="checks-grid"></div><div id="hardViolation" class="hard-violation" hidden></div><div class="explanation-card"><strong>LEITURA DO CASO</strong><p id="caseExplanation"></p><small id="caseExpected"></small></div><button id="nextCase" class="primary" type="button">PRÓXIMO CASO</button>
+        </section>
+      </section>
+
+      <section id="rubricLab" class="lab-section" aria-labelledby="rubricTitle">
+        <div class="section-heading"><div><span class="eyebrow">05 • RUBRICA PÚBLICA</span><h2 id="rubricTitle">Premissa, unidade e incerteza</h2></div><p>Confundir EV com equity ou aceitar premissa agressiva sem ajuste limita a 49. Forçar conclusão com evidência insuficiente limita a 69.</p></div>
+        <div class="rubric-grid statistics-rubric"><article><strong>30</strong><span>Leitura da faixa</span></article><article><strong>25</strong><span>Premissa dominante</span></article><article><strong>20</strong><span>Próxima verificação</span></article><article><strong>15</strong><span>Fonte primária</span></article><article><strong>10</strong><span>Justificativa auditável</span></article></div>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading"><div><span class="eyebrow">06 • AUDITORIA LOCAL</span><h2 id="historyTitle">Histórico de respostas</h2></div><button id="clearHistory" class="secondary" type="button">LIMPAR HISTÓRICO</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Seed</th><th>Caso</th><th>Nota</th><th>Violação</th></tr></thead><tbody id="historyBody"><tr><td colspan="5" class="empty">Nenhuma resposta registrada.</td></tr></tbody></table></div>
+        <p class="caution-note">Histórico salvo apenas neste navegador. Não comprova competência em mercado real, certificação ou desempenho financeiro.</p>
+      </section>
+    </main>
+  </div>
+  <script src="js/valuation-core.js"></script>
+  <script src="js/valuation.js"></script>
+</body>
+</html>
