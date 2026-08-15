@@ -32,13 +32,13 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução; a versão 1.29.0 está proposta na PR #48 e ainda não foi mesclada nem publicada.
+Status: em execução; a versão 1.29.0 foi integrada à `main` pela PR #48 e os gates pós-merge de Qualidade e CodeQL concluíram com sucesso. Release/tag 1.29.0 e estado de produção não são considerados confirmados por esse merge.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
 - entrega 3 concluída: economia e macroeconomia aplicada, com snapshot guiado, 12 variantes, fontes primárias e avaliação E3 centrada em mecanismo, surpresa e incerteza;
 - entrega 4 concluída: demonstrações financeiras, com snapshot guiado, 12 variantes, fontes CVM/CPC/IFRS e avaliação E3 centrada em reconciliação entre DRE, balanço, fluxo de caixa e notas;
-- entrega 5 implementada e validada internamente na PR #48, com merge/publicação pendentes: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão;
+- entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão; release/tag e funcionamento em produção permanecem etapas separadas e não confirmadas;
 - renda fixa, derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
 
 Fundamentos do ciclo:
