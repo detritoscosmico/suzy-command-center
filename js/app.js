@@ -56,6 +56,7 @@ const fallbackAssets=[
 
 let assets=SuzyCore.normalizeCatalog(null,fallbackAssets);
 const STORAGE_KEY="suzy-command-center-v2";
+const VOICE_STORAGE_KEY="suzy-voice-profile-v1";
 const defaultState={
  initialBank:10000,riskPct:1,stopLossPct:3,stopGainPct:5,maxOps:5,maxLosses:3,payoutPct:85,
  favorites:["EUR/USD (OTC)","BTC/USD (OTC)","XAU/USD (OTC)","USD/JPY"],operations:[]
@@ -69,6 +70,43 @@ let pendingDrawingPoint=null;
 let chartKeyboardPoint={x:.5,y:.5};
 const chartIndicators={ema:true,sma:false,bollinger:false,rsi:true};
 const $=id=>document.getElementById(id);
+let selectedVoiceProfile=loadVoiceProfile();
+
+function loadVoiceProfile(){
+ try{return SuzyVoiceCore.normalizeProfileId(localStorage.getItem(VOICE_STORAGE_KEY));}
+ catch(error){return "natural";}
+}
+
+function saveVoiceProfile(profileId){
+ selectedVoiceProfile=SuzyVoiceCore.normalizeProfileId(profileId);
+ try{localStorage.setItem(VOICE_STORAGE_KEY,selectedVoiceProfile);}catch(error){}
+ return selectedVoiceProfile;
+}
+
+function setVoiceStatus(message){
+ const status=$("voiceStatus");
+ if(status)status.textContent=message;
+}
+
+function currentSpeechSettings(){
+ const voices=typeof speechSynthesis?.getVoices==="function"?speechSynthesis.getVoices():[];
+ return SuzyVoiceCore.createSpeechSettings(selectedVoiceProfile,voices);
+}
+
+function renderVoiceSelection(message){
+ const profile=SuzyVoiceCore.getProfile(selectedVoiceProfile);
+ $("voiceProfile").value=profile.id;
+ setVoiceStatus(message||`Voz ${profile.label} selecionada: ${profile.description}.`);
+}
+
+function initializeVoiceControl(){
+ const supported="speechSynthesis" in window&&"SpeechSynthesisUtterance" in window;
+ $("voiceProfile").disabled=!supported;
+ $("voiceBtn").disabled=!supported;
+ if(!supported){setVoiceStatus("A voz da Suzy não é suportada neste navegador.");return;}
+ renderVoiceSelection();
+ if(typeof speechSynthesis.addEventListener==="function")speechSynthesis.addEventListener("voiceschanged",()=>renderVoiceSelection());
+}
 
 async function loadAssetCatalog(){
  if(window.location.protocol==="file:")return;
@@ -241,11 +279,11 @@ function fillMissionForm(){$("cfgBank").value=state.initialBank;$("cfgRisk").val
 function saveMission(){const next={initialBank:Number($("cfgBank").value),riskPct:Number($("cfgRisk").value),stopLossPct:Number($("cfgStopLoss").value),stopGainPct:Number($("cfgStopGain").value),maxOps:Number($("cfgMaxOps").value),maxLosses:Number($("cfgMaxLosses").value)};if(next.initialBank<100||next.riskPct<=0||next.riskPct>5||next.stopLossPct<=0||next.stopGainPct<=0||next.maxOps<1||next.maxLosses<1){$("missionFeedback").textContent="Revise os valores. Risco por entrada deve ficar entre 0,1% e 5%.";return;}Object.assign(state,next);saveState();$("missionFeedback").textContent="Missão salva com sucesso.";renderStats();speak("Missão diária atualizada. As novas travas de risco já estão ativas.");}
 const viewMeta={assets:["Painel de Ativos","Cotações e indicadores demonstrativos para treinamento."],operations:["Operações Demo","Registre resultados manuais com travas de gestão de risco."],reports:["Relatórios","Analise o histórico salvo neste navegador."],mission:["Centro de Missão","Defina banca, limites e disciplina operacional."],scanner:["Scanner Demo","Ranking educacional baseado somente em dados simulados."],chart:["Velas Japonesas","Pratique leitura de candles em cenários totalmente simulados."]};
 function navigate(view){document.querySelectorAll(".view").forEach(section=>section.classList.remove("active"));document.querySelectorAll(".nav[data-view]").forEach(button=>button.classList.toggle("active",button.dataset.view===view));$(`${view}View`).classList.add("active");$("pageTitle").textContent=viewMeta[view][0];$("pageSubtitle").textContent=viewMeta[view][1];$("sidebar").classList.remove("open");if(view==="operations")renderStats();if(view==="mission")fillMissionForm();if(view==="scanner")renderScanner();if(view==="chart")renderCandleChart();}
-function speak(text){if(!("speechSynthesis" in window)){alert("A voz não é suportada neste navegador.");return;}speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang="pt-BR";utterance.rate=.95;speechSynthesis.speak(utterance);}
+function speak(text){if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){alert("A voz não é suportada neste navegador.");return;}speechSynthesis.cancel();const settings=currentSpeechSettings();const utterance=new SpeechSynthesisUtterance(text||getSuzyBrief());utterance.lang=settings.lang;utterance.rate=settings.rate;utterance.pitch=settings.pitch;utterance.volume=settings.volume;if(settings.voice)utterance.voice=settings.voice;setVoiceStatus(`Reproduzindo a voz ${settings.profile.label}.`);utterance.onend=()=>renderVoiceSelection(`Voz ${settings.profile.label} pronta.`);utterance.onerror=()=>setVoiceStatus("Não foi possível reproduzir a voz neste navegador.");speechSynthesis.speak(utterance);}
 function getSuzyBrief(){const stats=getStats();const risk=getRiskState(Number($("tradeAmount").value||100));return risk.blocked?`Danilo, operações bloqueadas. ${risk.reason}`:`Danilo, saldo demo em ${money(stats.balance)}. Resultado do dia ${signedMoney(stats.dailyPnl)}. Você realizou ${stats.total} operações com ${stats.winrate} por cento de acerto.`;}
 function updateClock(){const now=new Date();$("today").textContent=now.toLocaleDateString("pt-BR");$("clock").textContent=now.toLocaleTimeString("pt-BR");}
 function simulateQuotes(){assets.forEach(asset=>{const move=(Math.random()-.5)*.08;asset.change=Number(((asset.change||0)*.65+move).toFixed(2));asset.price=Math.max(.00001,asset.price*(1+move/100));});renderAssets();if($("scannerView").classList.contains("active"))renderScanner();}
-function initialize(){populateTradeAssets();populateChartAssets();fillMissionForm();renderAssets();renderStats();renderScanner();generateChartScenario();updateClock();loadAssetCatalog();}
+function initialize(){populateTradeAssets();populateChartAssets();fillMissionForm();renderAssets();renderStats();renderScanner();generateChartScenario();updateClock();initializeVoiceControl();loadAssetCatalog();}
 $("scannerCategory").addEventListener("change",renderScanner);$("scannerMinForce").addEventListener("change",renderScanner);$("scannerLimit").addEventListener("change",renderScanner);$("scanRefresh").onclick=renderScanner;
 $("chartAsset").addEventListener("change",generateChartScenario);$("chartTimeframe").addEventListener("change",generateChartScenario);$("newChartScenario").onclick=generateChartScenario;$("candleChart").addEventListener("click",handleChartDrawing);$("candleChart").addEventListener("keydown",handleChartKeyboard);$("candleChart").addEventListener("focus",renderCandleChart);document.querySelectorAll("[data-indicator]").forEach(button=>button.onclick=()=>{const indicator=button.dataset.indicator;chartIndicators[indicator]=!chartIndicators[indicator];button.classList.toggle("active",chartIndicators[indicator]);button.setAttribute("aria-pressed",String(chartIndicators[indicator]));renderCandleChart();});document.querySelectorAll("[data-drawing-tool]").forEach(button=>button.onclick=()=>setDrawingTool(button.dataset.drawingTool));$("undoDrawing").onclick=()=>{chartDrawings.pop();pendingDrawingPoint=null;renderCandleChart();};$("clearDrawings").onclick=()=>{chartDrawings=[];pendingDrawingPoint=null;renderCandleChart();};window.addEventListener("resize",()=>{if($("chartView").classList.contains("active"))renderCandleChart();});
-$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
+$("searchInput").addEventListener("input",renderAssets);$("categoryFilter").addEventListener("change",renderAssets);$("popularBtn").onclick=()=>{sortMode=sortMode==="popular"?"default":"popular";renderAssets();};$("volBtn").onclick=()=>{sortMode=sortMode==="volatility"?"default":"volatility";renderAssets();};$("tradeAmount").addEventListener("input",renderStats);$("registerWin").onclick=()=>registerOperation("WIN");$("registerLoss").onclick=()=>registerOperation("LOSS");$("exportCsv").onclick=exportCsv;$("resetOps").onclick=resetOperations;$("saveMission").onclick=saveMission;$("voiceProfile").addEventListener("change",event=>{const profile=SuzyVoiceCore.getProfile(saveVoiceProfile(event.target.value));renderVoiceSelection(`Voz ${profile.label} selecionada. Clique em Ouvir Suzy para testar.`);});$("voiceBtn").onclick=()=>speak();$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");document.querySelectorAll(".nav[data-view]").forEach(button=>button.onclick=()=>navigate(button.dataset.view));document.querySelectorAll("[data-go]").forEach(button=>button.onclick=()=>navigate(button.dataset.go));initialize();setInterval(updateClock,1000);setInterval(simulateQuotes,8000);
