@@ -14,7 +14,25 @@ test("calcula DCF educacional e reconcilia enterprise value até equity", () => 
 test("rejeita crescimento terminal igual ou superior à taxa de desconto", () => {
   assert.equal(core.terminalValueGordon(100, 8, 8), null);
   assert.equal(core.terminalValueGordon(100, 8, 9), null);
-  assert.equal(core.summarizeValuationSnapshot({ fcf1:100, fcf2:100, fcf3:100, discountRate:8, terminalGrowth:9, netDebt:0, dilutedShares:10 }).valid, false);
+  const result = core.summarizeValuationSnapshot({ fcf1:100, fcf2:100, fcf3:100, discountRate:8, terminalGrowth:9, netDebt:0, dilutedShares:10 });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, "DISCOUNT_NOT_ABOVE_GROWTH");
+});
+
+test("rejeita ações diluídas ausentes, zero ou negativas", () => {
+  for (const dilutedShares of [undefined, 0, -10]) {
+    const result = core.summarizeValuationSnapshot({ fcf1:100, fcf2:110, fcf3:120, discountRate:10, terminalGrowth:3, netDebt:200, dilutedShares });
+    assert.equal(result.valid, false);
+    assert.equal(result.reason, "INVALID_DILUTED_SHARES");
+  }
+});
+
+test("rejeita taxa de desconto ausente, não numérica ou não positiva", () => {
+  for (const discountRate of [undefined, "abc", 0, -1]) {
+    const result = core.summarizeValuationSnapshot({ fcf1:100, fcf2:110, fcf3:120, discountRate, terminalGrowth:3, netDebt:200, dilutedShares:100 });
+    assert.equal(result.valid, false);
+    assert.equal(result.reason, "INVALID_DISCOUNT_RATE");
+  }
 });
 
 test("possui doze casos e sessão reproduzível de seis variantes", () => {
