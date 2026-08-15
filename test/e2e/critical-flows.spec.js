@@ -149,7 +149,7 @@ test("oferece quatro vozes da Suzy e salva a preferência escolhida", async ({ p
     spoken: window.__suzySpoken[0]
   }));
   expect(result.selected).toBe("deep");
-  expect(result.spoken).toMatchObject({ voice: "Joana", rate: 0.88, pitch: 0.78 });
+  expect(result.spoken).toMatchObject({ voice: "Joana", rate: 0.88, pitch: 0.9 });
   expect(result.spoken.text).toContain("Danilo");
 });
 

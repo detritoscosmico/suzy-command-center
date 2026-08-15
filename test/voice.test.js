@@ -14,6 +14,7 @@ test("expõe exatamente quatro perfis de voz distintos", () => {
   const profiles = VoiceCore.listProfiles();
   assert.deepEqual(profiles.map(profile => profile.id), ["natural", "calm", "energetic", "deep"]);
   assert.equal(new Set(profiles.map(profile => `${profile.rate}:${profile.pitch}`)).size, 4);
+  assert.ok(VoiceCore.getProfile("deep").pitch >= 0.9);
 });
 
 test("normaliza uma preferência desconhecida para a voz Natural", () => {

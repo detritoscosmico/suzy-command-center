@@ -9,7 +9,7 @@
     Object.freeze({ id: "natural", label: "Natural", description: "ritmo equilibrado", rate: 0.95, pitch: 1, voiceOffset: 0 }),
     Object.freeze({ id: "calm", label: "Calma", description: "ritmo mais lento e suave", rate: 0.82, pitch: 0.94, voiceOffset: 1 }),
     Object.freeze({ id: "energetic", label: "Enérgica", description: "ritmo mais rápido e tom elevado", rate: 1.08, pitch: 1.12, voiceOffset: 2 }),
-    Object.freeze({ id: "deep", label: "Grave", description: "ritmo firme e tom mais baixo", rate: 0.88, pitch: 0.78, voiceOffset: 3 })
+    Object.freeze({ id: "deep", label: "Grave", description: "ritmo firme e tom feminino encorpado", rate: 0.88, pitch: 0.9, voiceOffset: 3 })
   ]);
 
   const PROFILE_BY_ID = Object.freeze(Object.fromEntries(PROFILES.map(profile => [profile.id, profile])));
