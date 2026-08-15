@@ -287,7 +287,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - registro manual de WIN e LOSS;
 - gestão de risco com entrada máxima, stop diário e limites operacionais;
 - relatórios e exportação CSV protegida contra fórmulas;
-- voz da Suzy pelo navegador com quatro perfis selecionáveis (Natural, Calma, Enérgica e Grave), preferência local e fallback pt-BR;
+- voz feminina da Suzy pelo navegador com quatro perfis selecionáveis (Natural, Calma, Enérgica e Grave), prioridade para opções femininas pt-BR e fallback compatível;
 - layout responsivo para computador e celular;
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
