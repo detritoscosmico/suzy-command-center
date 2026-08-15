@@ -62,13 +62,20 @@
   }
 
   function summarizeValuationSnapshot(candidate = {}) {
+    const rawDiscountRate = Number(candidate.discountRate);
+    const rawTerminalGrowth = Number(candidate.terminalGrowth);
+    const rawDilutedShares = Number(candidate.dilutedShares);
+    if (!Number.isFinite(rawDiscountRate) || rawDiscountRate <= 0) return { valid:false, reason:"INVALID_DISCOUNT_RATE" };
+    if (!Number.isFinite(rawTerminalGrowth) || rawTerminalGrowth <= -100) return { valid:false, reason:"INVALID_TERMINAL_GROWTH" };
+    if (!Number.isFinite(rawDilutedShares) || rawDilutedShares <= 0) return { valid:false, reason:"INVALID_DILUTED_SHARES" };
+
     const fcf1 = finiteNumber(candidate.fcf1);
     const fcf2 = finiteNumber(candidate.fcf2);
     const fcf3 = finiteNumber(candidate.fcf3);
-    const discountRate = finiteNumber(candidate.discountRate, 0.01, 1000);
-    const terminalGrowth = finiteNumber(candidate.terminalGrowth, -99, 999);
+    const discountRate = finiteNumber(rawDiscountRate, 0.01, 1000);
+    const terminalGrowth = finiteNumber(rawTerminalGrowth, -99, 999);
     const netDebt = finiteNumber(candidate.netDebt);
-    const dilutedShares = finiteNumber(candidate.dilutedShares, 0.000001, 1e12);
+    const dilutedShares = finiteNumber(rawDilutedShares, 0.000001, 1e12);
     const pv1 = presentValue(fcf1, discountRate, 1);
     const pv2 = presentValue(fcf2, discountRate, 2);
     const pv3 = presentValue(fcf3, discountRate, 3);
