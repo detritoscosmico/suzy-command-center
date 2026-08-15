@@ -11,6 +11,7 @@ A trilha é educacional e permanece no escopo aprovado do Suzy Command Center: f
 A entrega trabalha:
 
 - valor presente de fluxos de caixa;
+- FCFF simplificado (fluxo de caixa livre para a firma) como base do DCF guiado que estima enterprise value;
 - taxa de desconto como premissa de risco e tempo;
 - valor terminal por crescimento de Gordon em formato simplificado;
 - enterprise value e reconciliação até equity value;
@@ -26,7 +27,7 @@ A entrega trabalha:
 
 O snapshot local recebe:
 
-- FCF dos anos 1, 2 e 3;
+- FCFF simplificado dos anos 1, 2 e 3;
 - taxa de desconto;
 - crescimento terminal;
 - dívida líquida;
@@ -34,13 +35,15 @@ O snapshot local recebe:
 
 A partir dessas premissas, calcula:
 
-- valor presente dos três fluxos;
+- valor presente dos três FCFFs simplificados;
 - valor terminal simplificado;
 - valor presente do terminal;
 - enterprise value;
 - equity value após dívida líquida;
 - valor por ação;
 - peso percentual do valor terminal no enterprise value.
+
+O uso de FCFF é explícito porque o modelo estima primeiro o valor da firma. Um fluxo destinado diretamente ao acionista exigiria outra reconciliação e não deve ser confundido com este exercício.
 
 O motor rejeita crescimento terminal maior ou igual à taxa de desconto. Essa validação evita produzir um valor terminal matematicamente inválido no modelo de Gordon.
 
@@ -117,4 +120,4 @@ Esta entrega não inclui:
 - integração com corretora;
 - certificação externa E5.
 
-O DCF de três anos é uma prática guiada propositalmente simplificada. Ele ensina relação entre fluxo, taxa, terminal, dívida e diluição; não pretende substituir um modelo completo de valuation profissional.
+O DCF de três anos é uma prática guiada propositalmente simplificada. Ele usa FCFF simplificado para ensinar a relação entre fluxo para a firma, taxa, terminal, dívida e diluição; não pretende substituir um modelo completo de valuation profissional.
