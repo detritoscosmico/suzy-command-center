@@ -39,8 +39,9 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 | Ética e conduta profissional | E1 | E3 | E1 | E1 | E1 | Trilha Brasil com fontes oficiais, 12 variantes e rubrica publicada |
 | Regulação e estrutura institucional | E0 | E3 | E0 | E0 | E0 | Limites da função-alvo avaliados em `etica.html`; demais funções permanecem abertas |
 | Métodos quantitativos e estatística | E2 | E2 | E2 | E3 | E2 | Trilha com resumo amostral, 12 variantes e rubrica em `estatistica.html` |
-| Economia e análise macro | E1 | E1 | E1 | E0 | E1 | Calendário e casos; falta base econômica completa |
-| Demonstrações financeiras e valuation | E0 | E0 | E0 | E0 | E0 | Não implementado |
+| Economia e análise macro | E3 | E2 | E2 | E1 | E2 | Trilha E3 com snapshot macro, 12 variantes, fontes primárias e rubrica em `economia.html` |
+| Demonstrações financeiras | E3 | E1 | E2 | E2 | E2 | Trilha E3 com DRE, balanço, DFC, reconciliação, 12 variantes e rubrica em `financials.html` |
+| Valuation | E3 | E1 | E2 | E2 | E3 | Trilha E3 com DCF simplificado, EV→equity, múltiplos, sensibilidade e 12 variantes em `valuation.html` |
 | Renda fixa, derivativos e alternativos | E0 | E0 | E1 | E0 | E0 | Não implementado como trilha |
 | Construção e atribuição de portfólio | E0 | E0 | E1 | E0 | E0 | Não implementado |
 | Livro de ofertas e roteamento multi-venue | E0 | E1 | E1 | E1 | E0 | Simulação agregada, sem fila ou venues reais |
@@ -55,7 +56,7 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 
 ## Bloqueadores para uma alegação forte de padrão profissional
 
-1. Concluir os fundamentos financeiros, quantitativos, econômicos e de portfólio do Ciclo 8.
+1. Concluir renda fixa, derivativos, alternativos e construção/atribuição de portfólio do Ciclo 8.
 2. Ampliar ética e regulação para as demais funções somente quando seus escopos forem aprovados.
 3. Calibrar simuladores com dados licenciados e documentar erro de modelo.
 4. Medir retenção, generalização e consistência entre avaliadores.
