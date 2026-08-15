@@ -26,13 +26,13 @@ test("presença diária não duplica e calcula sequência", () => {
   assert.equal(core.calculateStreak(state.attendance, "2026-08-12"), 0);
 });
 
-test("monta progresso dos dezesseis módulos com limites conservadores", () => {
+test("monta progresso dos dezessete módulos com limites conservadores", () => {
   const modules = core.buildModuleProgress({
     academy1: { completed: 6, passed: true }, academy2: { completed: 2, passed: false },
     replayTrades: 50, simulatorTrades: 4, journal: { total: 20 },
     psychology: { lessons: 5, assessments: 1, checkIns: 7 }
-  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1 });
-  assert.equal(modules.length, 16);
+  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1, valuation: 1 });
+  assert.equal(modules.length, 17);
   assert.equal(modules.find(module => module.id === "replay").percent, 100);
   assert.equal(modules.find(module => module.id === "psychology").complete, true);
   assert.equal(modules.find(module => module.id === "calendar").complete, false);
@@ -40,6 +40,7 @@ test("monta progresso dos dezesseis módulos com limites conservadores", () => {
   assert.equal(modules.find(module => module.id === "statistics").complete, true);
   assert.equal(modules.find(module => module.id === "economics").complete, true);
   assert.equal(modules.find(module => module.id === "financials").complete, true);
+  assert.equal(modules.find(module => module.id === "valuation").complete, true);
 });
 
 test("exige aprovação das academias mesmo com todas as aulas concluídas", () => {
