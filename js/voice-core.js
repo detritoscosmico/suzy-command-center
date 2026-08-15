@@ -73,10 +73,13 @@
 
   function preferredPortugueseVoices(voices) {
     const candidates = portugueseVoices(voices);
-    const feminine = candidates.filter(voice => feminineVoiceRank(voice) === 0);
+    if (!candidates.length) return candidates;
+    const bestLanguageRank = languageRank(candidates[0]);
+    const bestLanguage = candidates.filter(voice => languageRank(voice) === bestLanguageRank);
+    const feminine = bestLanguage.filter(voice => feminineVoiceRank(voice) === 0);
     if (feminine.length) return feminine;
-    const notMasculine = candidates.filter(voice => feminineVoiceRank(voice) === 1);
-    return notMasculine.length ? notMasculine : candidates;
+    const notMasculine = bestLanguage.filter(voice => feminineVoiceRank(voice) === 1);
+    return notMasculine.length ? notMasculine : bestLanguage;
   }
 
   function resolveVoice(voices, profileId) {

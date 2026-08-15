@@ -26,7 +26,8 @@ test("prioriza vozes pt-BR e distribui as disponíveis entre os perfis", () => {
   const ordered = VoiceCore.portugueseVoices(voices);
   assert.deepEqual(ordered.map(voice => voice.name), ["Brasil principal", "Brasil 2", "Brasil remoto", "Português Portugal"]);
   assert.equal(VoiceCore.resolveVoice(voices, "natural").name, "Brasil principal");
-  assert.equal(VoiceCore.resolveVoice(voices, "deep").name, "Português Portugal");
+  assert.equal(VoiceCore.resolveVoice(voices, "deep").name, "Brasil principal");
+  assert.equal(VoiceCore.resolveVoice(voices, "deep").lang, "pt_BR");
 });
 
 test("prefere voz local a uma voz remota marcada como padrão", () => {
@@ -64,6 +65,20 @@ test("evita voz explicitamente masculina quando o navegador oferece uma alternat
   ];
 
   assert.equal(VoiceCore.resolveVoice(candidates, "natural").name, "Google português do Brasil");
+});
+
+test("preserva pt-BR antes de considerar uma voz feminina de Portugal", () => {
+  const candidates = [
+    { name: "Joana", lang: "pt-PT", default: false, localService: true },
+    { name: "Microsoft Antonio - Portuguese (Brazil)", lang: "pt-BR", default: true, localService: true },
+    { name: "Google português do Brasil", lang: "pt-BR", default: false, localService: false }
+  ];
+
+  assert.deepEqual(
+    VoiceCore.preferredPortugueseVoices(candidates).map(voice => voice.name),
+    ["Google português do Brasil"]
+  );
+  assert.equal(VoiceCore.resolveVoice(candidates, "natural").lang, "pt-BR");
 });
 
 test("mantém uma voz portuguesa como último recurso quando só há vozes masculinas", () => {
