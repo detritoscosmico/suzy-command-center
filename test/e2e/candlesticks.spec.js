@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const AxeBuilder = require("@axe-core/playwright").default;
 
 test.beforeEach(async ({}, testInfo) => {
   test.skip(testInfo.project.name !== "chromium-desktop", "Fluxo completo coberto uma vez no Chromium desktop.");
@@ -37,7 +38,16 @@ test("carrega métricas e filtra os registros importados", async ({ page }) => {
 test("deixa explícito que a base é snapshot e não sinal", async ({ page }) => {
   await page.goto("/candlesticks.html");
   await expect(page.getByText("SNAPSHOT, NÃO FEED AO VIVO", { exact: true })).toBeVisible();
-  await expect(page.locator(".study-note")).toContainText("não um estado de mercado em tempo real").catch(() => {});
   await expect(page.locator(".study-note")).toContainText("Não representam situação atual do mercado");
+  await expect(page.locator(".study-note")).toContainText("recomendação, previsão ou sinal operacional");
   await expect(page.locator(".method-note")).toContainText("foram excluídas desta biblioteca");
+});
+
+test("não possui violações críticas ou sérias de acessibilidade", async ({ page }) => {
+  await page.goto("/candlesticks.html");
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  const blocking = results.violations.filter(violation => ["critical", "serious"].includes(violation.impact));
+  expect(blocking.map(violation => ({ id: violation.id, impact: violation.impact }))).toEqual([]);
 });
