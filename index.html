@@ -46,7 +46,17 @@
       <div class="top-actions">
         <div class="clock"><span id="today"></span><strong id="clock"></strong></div>
         <div class="conn">● <strong>Demo local</strong><span>ONLINE</span></div>
-        <button id="voiceBtn" class="voice-btn">🎙 Ouvir Suzy</button>
+        <div class="voice-control" role="group" aria-label="Controles da voz da Suzy">
+          <label for="voiceProfile">Voz da Suzy</label>
+          <select id="voiceProfile" aria-describedby="voiceStatus">
+            <option value="natural">Natural</option>
+            <option value="calm">Calma</option>
+            <option value="energetic">Enérgica</option>
+            <option value="deep">Grave</option>
+          </select>
+          <button id="voiceBtn" class="voice-btn" type="button">🎙 Ouvir Suzy</button>
+          <span id="voiceStatus" class="voice-status" aria-live="polite">Voz Natural selecionada.</span>
+        </div>
         <div class="user"><div class="avatar">D</div><div><strong>Danilo</strong><span>Conta Demo</span></div></div>
       </div>
     </header>
@@ -260,11 +270,12 @@
       <div>⌁ COTAÇÕES <strong class="orange">SIMULADAS</strong></div>
       <div>▣ ARMAZENAMENTO <strong>LOCAL</strong></div>
       <div>⚠ GESTÃO DE RISCO <strong class="green">ATIVA</strong></div>
-      <div>🎙 VOZ DA SUZY <strong class="purple">DISPONÍVEL</strong></div>
+      <div>🎙 VOZ DA SUZY <strong class="purple">4 OPÇÕES</strong></div>
     </footer>
   </main>
 </div>
 <script src="js/core.js"></script>
+<script src="js/voice-core.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
