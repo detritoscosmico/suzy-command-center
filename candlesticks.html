@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Biblioteca educacional de padrões de candlestick importada de uma captura fornecida pelo mantenedor do Suzy Command Center." />
+  <title>Base de Candlesticks — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/candlesticks.css" />
+</head>
+<body>
+  <main class="study-shell">
+    <header class="study-topbar">
+      <a class="study-brand" href="alunos.html#library" aria-label="Voltar à Área do Aluno">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>BIBLIOTECA DE ESTUDOS</span></div>
+      </a>
+      <nav class="study-links" aria-label="Navegação da biblioteca">
+        <a href="alunos.html#library">Área do Aluno</a>
+        <a href="academia-nivel2.html">Análise técnica</a>
+        <a href="index.html">Painel principal</a>
+      </nav>
+    </header>
+
+    <section class="study-hero" aria-labelledby="studyTitle">
+      <div>
+        <span class="eyebrow">BASE IMPORTADA • CANDLESTICKS</span>
+        <h1 id="studyTitle">Base de Padrões de Candlestick</h1>
+        <p>Índice didático criado a partir da base fornecida pelo mantenedor em 16/08/2026. A interface preserva ativo, período, nome do padrão, indicação, confiabilidade, ocorrência e referência de origem para consulta e revisão.</p>
+      </div>
+      <aside class="study-note" aria-label="Limitações desta base">
+        <strong>SNAPSHOT, NÃO FEED AO VIVO</strong>
+        <p>“Atual”, datas, ocorrências e classificações refletem somente a captura recebida. Não representam situação atual do mercado, validação independente, recomendação, previsão ou sinal operacional.</p>
+      </aside>
+    </section>
+
+    <section class="study-metrics" aria-label="Resumo da base">
+      <article><span>Registros</span><strong id="metricTotal">0</strong><small>ocorrências importadas</small></article>
+      <article><span>Padrões</span><strong id="metricPatterns">0</strong><small>nomes distintos</small></article>
+      <article><span>Ativos</span><strong id="metricAssets">0</strong><small>presentes na captura</small></article>
+      <article><span>Períodos</span><strong id="metricTimeframes">0</strong><small>rótulos preservados</small></article>
+    </section>
+
+    <section class="study-panel" aria-labelledby="libraryTitle">
+      <div class="study-panel-header">
+        <div><span class="eyebrow">CONSULTA E REVISÃO</span><h2 id="libraryTitle">Filtrar a base de estudos</h2></div>
+        <p>Os textos longos de descrição não são republicados nesta biblioteca. Quando existiam na captura, o registro indica sua disponibilidade e mantém o link da referência original.</p>
+      </div>
+
+      <form class="study-filters" onsubmit="return false;" aria-label="Filtros da base de candlesticks">
+        <label>Buscar
+          <input id="studySearch" type="search" autocomplete="off" placeholder="Padrão, ativo, indicação..." />
+        </label>
+        <label>Tipo
+          <select id="studySection">
+            <option value="">Todos</option>
+            <option value="emergente">Emergentes na captura</option>
+            <option value="completo">Completos na captura</option>
+          </select>
+        </label>
+        <label>Ativo
+          <select id="studyAsset"><option value="">Todos</option></select>
+        </label>
+        <label>Período
+          <select id="studyTimeframe"><option value="">Todos</option></select>
+        </label>
+        <label>Indicação
+          <select id="studyIndication"><option value="">Todas</option></select>
+        </label>
+        <label>Confiabilidade
+          <select id="studyReliability"><option value="">Todas</option></select>
+        </label>
+        <button id="clearStudyFilters" type="button">LIMPAR</button>
+      </form>
+
+      <p id="studyResultCount" class="study-result-meta" aria-live="polite">Carregando base...</p>
+      <div id="studyResults" class="study-results"></div>
+
+      <p class="method-note"><strong>Nota metodológica:</strong> a grafia, tradução, nomes de ativos e rótulos de período foram preservados da base recebida sempre que possível. Rótulos como “15” e “30” permanecem sem conversão automática porque a captura não explicita a unidade no próprio campo. As cotações instantâneas exibidas ao final do material original foram excluídas desta biblioteca para não transformar um snapshot temporal em dado de mercado atual.</p>
+    </section>
+  </main>
+
+  <script src="js/candlestick-study-data.js"></script>
+  <script src="js/candlesticks.js"></script>
+</body>
+</html>
