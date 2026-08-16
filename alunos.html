@@ -6,6 +6,7 @@
   <meta name="description" content="Área do Aluno Suzy: progresso, plano semanal, presença, módulos e conquistas educacionais salvos localmente." />
   <title>Área do Aluno — Suzy Command Center</title>
   <link rel="stylesheet" href="css/alunos.css" />
+  <link rel="stylesheet" href="css/alunos-library.css" />
 </head>
 <body>
   <div class="student-shell">
@@ -20,7 +21,8 @@
         <a href="#profile"><span>02</span> Meu perfil</a>
         <a href="#modules"><span>03</span> Módulos</a>
         <a href="#week"><span>04</span> Plano semanal</a>
-        <a href="#achievements"><span>05</span> Conquistas</a>
+        <a href="#library"><span>05</span> Biblioteca</a>
+        <a href="#achievements"><span>06</span> Conquistas</a>
       </nav>
       <div class="privacy-card"><strong>PRIVACIDADE LOCAL</strong><p>Nome, presença e progresso permanecem neste navegador. A página pública não cria cadastro central nem expõe uma lista de alunos.</p></div>
     </aside>
@@ -78,8 +80,23 @@
         </section>
       </div>
 
+      <section id="library" class="section-block" aria-labelledby="libraryTitle">
+        <div class="section-heading"><div><span class="eyebrow">05 • BIBLIOTECA DE ESTUDOS</span><h2 id="libraryTitle">Bases para consulta e revisão</h2></div><p>Materiais de referência ficam separados dos módulos avaliativos. Consultar uma base não altera o passaporte nem cria evidência de competência.</p></div>
+        <div class="library-grid">
+          <a class="library-card" href="candlesticks.html">
+            <div>
+              <span class="library-kicker">ANÁLISE TÉCNICA • SNAPSHOT</span>
+              <strong>Base de Padrões de Candlestick</strong>
+              <p>69 ocorrências, 35 padrões distintos, filtros por ativo, período, indicação e confiabilidade.</p>
+            </div>
+            <span class="library-action">ABRIR BASE →</span>
+          </a>
+        </div>
+        <p class="local-note">A base de candlesticks foi importada de uma captura fornecida pelo mantenedor em 16/08/2026. Rótulos temporais como “Atual” descrevem somente aquela captura e não um estado de mercado em tempo real.</p>
+      </section>
+
       <section id="achievements" class="section-block" aria-labelledby="achievementsTitle">
-        <div class="section-heading"><div><span class="eyebrow">05 • MARCOS</span><h2 id="achievementsTitle">Conquistas de processo</h2></div><p>Conquistas reconhecem consistência educacional. Resultado financeiro e taxa de acerto não entram nessa avaliação.</p></div>
+        <div class="section-heading"><div><span class="eyebrow">06 • MARCOS</span><h2 id="achievementsTitle">Conquistas de processo</h2></div><p>Conquistas reconhecem consistência educacional. Resultado financeiro e taxa de acerto não entram nessa avaliação.</p></div>
         <div id="achievementGrid" class="achievement-grid"></div>
       </section>
 
