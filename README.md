@@ -11,9 +11,17 @@ Por decisão aprovada do mantenedor, o projeto forma um **operador de execução
 
 A decisão limita o projeto a educação, simulação, gestão de risco, registro e avaliação de processo. Ela não autoriza consultoria, análise profissional, gestão de terceiros, assessoria, intermediação, conexão com corretora ou execução automática. Consulte `docs/decisao-funcao-jurisdicao.md`.
 
+## Estado da versão e da publicação
+
+A versão declarada no código é **1.30.0**. Esse número identifica o estado dos arquivos do projeto e não cria, por si só, uma tag, um GitHub Release ou uma garantia de funcionamento em produção.
+
+O GitHub Pages está habilitado no repositório para a demonstração estática. Habilitação do Pages e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional de cada recurso. O modo local seguro continua fora do GitHub Pages porque depende do servidor Node.js e do SQLite local.
+
+A auditoria pós-PR #54 está registrada em `docs/auditoria-main-pos-pr54.md`.
+
 ## Demonstração pública
 
-A versão publicada no GitHub Pages continua funcionando sem backend. Ela não conecta com corretora nem executa ordens. Os painéis próprios da Suzy permanecem simulados; a aba **Mercado ao Vivo** permite carregar, sob demanda, o [widget técnico externo do Investing.com](https://www.investing.com/webmaster-tools/technical-charts), claramente separado dos cenários artificiais.
+A demonstração estática foi projetada para funcionar sem backend. Ela não conecta com corretora nem executa ordens. Os painéis próprios da Suzy permanecem simulados; a aba **Mercado ao Vivo** permite carregar, sob demanda, o [widget técnico externo do Investing.com](https://www.investing.com/webmaster-tools/technical-charts), claramente separado dos cenários artificiais.
 
 O painel de velas inclui um laboratório gráfico artificial com períodos de 5 segundos a 1 mês, EMA 9/21, SMA 50, Bandas de Bollinger, RSI 14, reconhecimento heurístico de padrões de velas e bandeiras, além de linhas manuais de tendência, suporte e resistência. Esses recursos servem apenas para estudo e não produzem sinais operacionais.
 
@@ -73,7 +81,7 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html` e `estatistica.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html` e `valuation.html`.
 
 O programa conecta evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook, proveniência de dados e fundamentos profissionais. A matriz institucional separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
@@ -112,7 +120,7 @@ A metodologia está documentada em `docs/trilha-estatistica-probabilidade.md`.
 
 Arquivo: `alunos.html`
 
-Painel individual que consolida o progresso dos 14 módulos já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
+Painel individual que consolida o progresso dos módulos compatíveis já salvo neste navegador, permite configurar nome de exibição e objetivo, registrar presença, acompanhar sequência de estudo, cumprir um plano semanal e exportar um relatório educacional. Não solicita e-mail, telefone, senha ou documento e não cria uma lista pública de alunos.
 
 A metodologia e as limitações estão documentadas em `docs/area-do-aluno.md`.
 
@@ -286,6 +294,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - restauração direta e resolução explícita de divergências;
 - catálogo estruturado em JSON com fallback local e 24 ações globais para estudo;
 - scanner demonstrativo e gráfico de velas artificiais;
+- área Mercado ao Vivo com carregamento sob demanda do widget técnico externo do Investing.com;
 - registro manual de WIN e LOSS;
 - gestão de risco com entrada máxima, stop diário e limites operacionais;
 - relatórios e exportação CSV protegida contra fórmulas;
@@ -294,10 +303,13 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - testes unitários, testes da API e testes de integração em Chromium, Firefox e WebKit;
 - auditoria automatizada de acessibilidade WCAG com axe-core;
 - validação contínua pelo GitHub Actions;
-- Área do Aluno local com progresso dos 14 módulos, presença, plano semanal e conquistas de processo;
+- Área do Aluno local com progresso compatível, presença, plano semanal e conquistas de processo;
 - matriz de competências E0–E5 e roadmap de prontidão institucional;
 - trilha E3 de ética e limites regulatórios da função-alvo no Brasil;
 - trilha E3 de estatística, probabilidade e leitura crítica de amostras;
+- trilha E3 de economia e macroeconomia aplicada;
+- trilha E3 de demonstrações financeiras;
+- trilha E3 de valuation;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -315,8 +327,10 @@ suzy-command-center/
 ├── calendario.html
 ├── capstone.html
 ├── dados.html
+├── economia.html
 ├── etica.html
 ├── estatistica.html
+├── financials.html
 ├── diario.html
 ├── governanca.html
 ├── index.html
@@ -327,11 +341,13 @@ suzy-command-center/
 ├── replay.html
 ├── risco.html
 ├── simulador.html
+├── valuation.html
 ├── assets/
 ├── css/
 ├── dados/
 ├── docs/
 │   ├── area-do-aluno.md
+│   ├── auditoria-main-pos-pr54.md
 │   ├── matriz-competencias-institucionais.md
 │   ├── roadmap-formacao-institucional.md
 │   ├── roadmap-prontidao-institucional.md
@@ -399,7 +415,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - identificadores, vínculo com usuário, datas técnicas e quantidade de registros permanecem visíveis no SQLite;
 - a chave padrão fica próxima ao banco por conveniência; `SUZY_KEY_PATH` ou `SUZY_DATA_KEY` permitem separação maior;
 - backups JSON e CSV exportados não recebem automaticamente a criptografia do SQLite;
-- não há feed real de preços ou calendário econômico oficial;
+- não há feed próprio de preços nem ingestão de um feed oficial pela Suzy; a aba Mercado ao Vivo apenas incorpora conteúdo externo sob demanda;
 - não há conexão com corretora;
 - não executa ordens reais ou automáticas;
 - a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
@@ -407,15 +423,18 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
 - a trilha regulatória ensina fronteiras do projeto e não substitui parecer jurídico, registro ou orientação profissional para um caso concreto;
 - o projeto ainda não possui uma licença de software escolhida pelo mantenedor;
+- `main` ainda não possui branch protection confirmada como ativa;
 - CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
 - testes automatizados de acessibilidade não substituem revisão manual com teclado, leitor de tela e usuários reais.
 
 ## Próximas etapas recomendadas
 
-1. Concluir as trilhas pendentes do Ciclo 8: estatística, economia, demonstrações financeiras, valuation, renda fixa, derivativos, alternativos e portfólio.
-2. Definir explicitamente a licença do repositório.
-3. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
-4. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+1. Concluir as trilhas pendentes do Ciclo 8: renda fixa, derivativos, alternativos e construção/atribuição de portfólio.
+2. Habilitar proteção/ruleset da branch `main` com checks obrigatórios compatíveis com a política do projeto.
+3. Confirmar deployment do GitHub Pages contra o SHA publicado antes de declarar a demonstração validada em produção.
+4. Definir explicitamente a licença do repositório.
+5. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+6. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 

@@ -4,6 +4,20 @@
 
 Transformar a ambição de “nível profissional” em gates auditáveis. O avanço é medido por evidência educacional, fidelidade declarada, segurança e revisão independente — nunca por aparência da interface ou promessa de retorno.
 
+## Estado auditado após a PR #54
+
+Auditoria iniciada em 21 de agosto de 2026 sobre a `main` no commit `bb49e95ee62037194b3d8220e3a32ff301297c59`.
+
+- GitHub Pages está habilitado no repositório, mas habilitação e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional da demonstração;
+- os workflows versionados são `Qualidade` e `CodeQL`; `Qualidade` está configurado para `push` em `main` e para pull requests;
+- o conector disponível para a auditoria não expõe de forma conclusiva os runs de `push` associados ao commit auditado, portanto o CI pós-merge específico da PR #54 permanece **não confirmado** nesta evidência;
+- `main` está sem branch protection, portanto a exigência de checks antes de alterações diretas ainda não é tecnicamente imposta pelo GitHub;
+- os metadados de versão permaneceram em `1.29.0` após mudanças posteriores à PR #48; esta auditoria prepara `1.30.0` para alinhar `package.json` e `package-lock.json` ao estado atual do código;
+- tag e GitHub Release formais devem ser verificados e publicados separadamente; a versão declarada no pacote não é prova de release;
+- a PR #54 introduziu a área **Mercado ao Vivo** com conteúdo externo do Investing.com. O widget permanece separado dos cenários simulados e não constitui feed próprio, conexão com corretora ou execução de ordens.
+
+Gate desta auditoria: a PR de correção só deve ser mesclada após `Qualidade` e `CodeQL` concluírem sem falhas no HEAD da própria PR. Branch protection, tag/release e verificação operacional do deployment permanecem gates administrativos separados.
+
 ## Decisão-base do mantenedor
 
 Status: aprovada em 9 de agosto de 2026.
@@ -32,7 +46,7 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução; a versão 1.29.0 foi integrada à `main` pela PR #48 e os gates pós-merge de Qualidade e CodeQL concluíram com sucesso. Release/tag 1.29.0 e estado de produção não são considerados confirmados por esse merge.
+Status: em execução. A versão 1.29.0 foi integrada à `main` pela PR #48 para a entrega de valuation. Mudanças posteriores exigiram nova sincronização de versão; esta auditoria prepara 1.30.0, sem considerar isso uma tag, release ou prova de produção.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
