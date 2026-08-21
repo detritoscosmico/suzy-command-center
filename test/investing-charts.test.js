@@ -1,5 +1,9 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { createApplication } = require("../server/server.js");
 const {
   WIDGET_ORIGIN,
   DEFAULT_CONFIG,
@@ -64,7 +68,7 @@ test("monta um único iframe restrito somente após chamada explícita", t => {
     hidden: true,
     children: [],
     querySelector(selector) { return selector === "iframe" ? this.children.find(child => child.tagName === "IFRAME") : null; },
-    getBoundingClientRect() { return { width: 960 }; },
+    getBoundingClientRect() { return { width: this.hidden ? 0 : 960 }; },
     appendChild(child) { this.children.push(child); }
   };
   const button = { disabled: false, textContent: "CARREGAR GRÁFICO" };
@@ -79,4 +83,27 @@ test("monta um único iframe restrito somente após chamada explícita", t => {
   assert.match(status.textContent, /Conteúdo externo carregado/);
   assert.equal(mountInvestingChart({ mount, button, status }), false);
   assert.equal(mount.children.length, 1);
+});
+
+test("servidor seguro permite somente a origem do iframe do Investing.com", async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "suzy-investing-csp-"));
+  const app = createApplication({
+    rootDir: path.resolve(__dirname, ".."),
+    dbPath: path.join(tempDir, "suzy.sqlite3"),
+    port: 0
+  });
+  const address = await app.start();
+
+  t.after(async () => {
+    if (app.server.listening) await app.close();
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  const response = await fetch(`${address.url}/index.html`);
+  const csp = response.headers.get("content-security-policy") || "";
+  await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(csp, /frame-src https:\/\/ssltvc\.investing\.com(?:;|$)/);
+  assert.doesNotMatch(csp, /frame-src \*/);
 });
