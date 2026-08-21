@@ -48,7 +48,7 @@ function sendJson(response, status, payload, headers = {}) {
 }
 
 function applySecurityHeaders(response) {
-  response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+  response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'; frame-src https://ssltvc.investing.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
   response.setHeader("Cross-Origin-Opener-Policy", "same-origin");
   response.setHeader("Referrer-Policy", "no-referrer");
   response.setHeader("X-Content-Type-Options", "nosniff");
