@@ -22,6 +22,7 @@
       <button class="nav" data-view="mission">◎ Centro de Missão</button>
       <button class="nav" data-view="scanner">⌕ Scanner Demo</button>
       <button class="nav" data-view="chart">▥ Velas de Estudo</button>
+      <button class="nav" data-view="investing">◫ Mercado ao Vivo</button>
       <a class="nav nav-link" href="alunos.html">◉ Área do Aluno</a>
       <a class="nav nav-link" href="programa.html">◇ Programa Profissional</a>
       <a class="nav nav-link" href="risco.html">◈ Laboratório de Risco</a>
@@ -265,9 +266,42 @@
       </div>
     </section>
 
+    <section id="investingView" class="view">
+      <div class="panel investing-panel">
+        <div class="panel-head investing-head">
+          <div>
+            <span class="external-source-badge">FONTE EXTERNA • INVESTING.COM</span>
+            <h3>◫ Gráficos de mercado em tempo real</h3>
+            <small>Widget técnico oficial do Investing.com, separado dos cenários artificiais da Suzy.</small>
+          </div>
+          <a class="investing-external-link" href="https://br.investing.com/charts/live-charts" target="_blank" rel="noopener noreferrer">ABRIR NO INVESTING.COM ↗</a>
+        </div>
+
+        <div id="investingChartConsent" class="investing-consent">
+          <div>
+            <strong>Carregamento sob demanda</strong>
+            <p>Ao carregar, seu navegador se conecta diretamente ao Investing.com. O provedor pode processar dados de rede e usar cookies conforme seus <a href="https://br.investing.com/about-us/terms-and-conditions" target="_blank" rel="noopener noreferrer">termos</a> e sua <a href="https://br.investing.com/about-us/privacy-policy" target="_blank" rel="noopener noreferrer">política de privacidade</a>.</p>
+          </div>
+          <button id="loadInvestingChart" class="primary-btn" type="button">CARREGAR GRÁFICO</button>
+        </div>
+
+        <div id="investingChartFrame" class="investing-chart-frame" hidden></div>
+        <p id="investingChartStatus" class="scanner-updated" aria-live="polite">Nenhum conteúdo externo foi carregado.</p>
+
+        <nav class="investing-shortcuts" aria-label="Atalhos para gráficos do Investing.com">
+          <a href="https://br.investing.com/indices/bovespa-chart" target="_blank" rel="noopener noreferrer"><strong>IBOVESPA</strong><span>Índice B3 ↗</span></a>
+          <a href="https://br.investing.com/currencies/eur-usd-chart" target="_blank" rel="noopener noreferrer"><strong>EUR/USD</strong><span>Forex ↗</span></a>
+          <a href="https://br.investing.com/commodities/gold-streaming-chart" target="_blank" rel="noopener noreferrer"><strong>OURO</strong><span>Futuros ↗</span></a>
+          <a href="https://br.investing.com/crypto/bitcoin/btc-usd-chart" target="_blank" rel="noopener noreferrer"><strong>BTC/USD</strong><span>Cripto ↗</span></a>
+        </nav>
+
+        <p class="notice scanner-warning"><strong>Dados externos:</strong> preços podem ser indicativos, atrasados, inexatos ou indisponíveis. O conteúdo não é sinal operacional, recomendação ou conexão com corretora; confirme informações em fontes oficiais antes de qualquer decisão.</p>
+      </div>
+    </section>
+
     <footer class="statusbar">
       <div>🛡 MODO <strong class="green">DEMO</strong></div>
-      <div>⌁ COTAÇÕES <strong class="orange">SIMULADAS</strong></div>
+      <div>⌁ PAINEL PRÓPRIO <strong class="orange">SIMULADO</strong></div>
       <div>▣ ARMAZENAMENTO <strong>LOCAL</strong></div>
       <div>⚠ GESTÃO DE RISCO <strong class="green">ATIVA</strong></div>
       <div>🎙 VOZ DA SUZY <strong class="purple">4 OPÇÕES</strong></div>
@@ -276,6 +310,7 @@
 </div>
 <script src="js/core.js"></script>
 <script src="js/voice-core.js"></script>
+<script src="js/investing-charts.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

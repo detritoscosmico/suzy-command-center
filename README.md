@@ -13,9 +13,11 @@ A decisão limita o projeto a educação, simulação, gestão de risco, registr
 
 ## Demonstração pública
 
-A versão publicada no GitHub Pages continua funcionando sem backend. Ela não conecta com corretora, não executa ordens e não utiliza cotações reais.
+A versão publicada no GitHub Pages continua funcionando sem backend. Ela não conecta com corretora nem executa ordens. Os painéis próprios da Suzy permanecem simulados; a aba **Mercado ao Vivo** permite carregar, sob demanda, o [widget técnico externo do Investing.com](https://www.investing.com/webmaster-tools/technical-charts), claramente separado dos cenários artificiais.
 
 O painel de velas inclui um laboratório gráfico artificial com períodos de 5 segundos a 1 mês, EMA 9/21, SMA 50, Bandas de Bollinger, RSI 14, reconhecimento heurístico de padrões de velas e bandeiras, além de linhas manuais de tendência, suporte e resistência. Esses recursos servem apenas para estudo e não produzem sinais operacionais.
+
+O widget do Investing.com não é carregado automaticamente. O navegador só se conecta ao provedor depois que o usuário abre a aba e confirma o carregamento. Preços externos podem ser indicativos, atrasados, inexatos ou indisponíveis e não são armazenados, processados nem transformados em sinais pela Suzy.
 
 ## Executar a versão estática
 
