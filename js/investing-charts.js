@@ -51,13 +51,14 @@
   const iframe=document.createElement("iframe");
   iframe.className="investing-chart-iframe";
   iframe.title="Gráfico técnico externo fornecido pelo Investing.com";
-  iframe.src=buildWidgetUrl({width:Math.round(mount.getBoundingClientRect().width||DEFAULT_CONFIG.width)});
+  mount.hidden=false;
+  const width=Math.round(mount.getBoundingClientRect().width||DEFAULT_CONFIG.width);
+  iframe.src=buildWidgetUrl({width});
   iframe.loading="lazy";
   iframe.referrerPolicy="strict-origin-when-cross-origin";
   iframe.setAttribute("allow","fullscreen");
   iframe.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox");
   mount.appendChild(iframe);
-  mount.hidden=false;
   if(button){button.disabled=true;button.textContent="GRÁFICO CARREGADO";}
   if(status)status.textContent="Conteúdo externo carregado. Use a busca do gráfico para trocar o instrumento.";
   return true;
