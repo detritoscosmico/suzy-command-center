@@ -191,6 +191,35 @@ test("alterna entre períodos de segundos e longo prazo", async ({ page }, testI
   await expect(page.locator("#chartUpdated")).toContainText("1 mês");
 });
 
+test("carrega o gráfico do Investing.com somente após consentimento", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const externalRequests = [];
+  await page.route("https://ssltvc.investing.com/**", async route => {
+    externalRequests.push(route.request().url());
+    await route.fulfill({
+      contentType: "text/html",
+      body: "<!doctype html><html lang='pt-BR'><body>Widget Investing.com</body></html>"
+    });
+  });
+  await page.goto("/index.html");
+
+  await page.locator('button[data-view="investing"]').click();
+  await expect(page.locator("#investingView")).toBeVisible();
+  await expect(page.locator("#investingChartStatus")).toHaveText("Nenhum conteúdo externo foi carregado.");
+  expect(externalRequests).toEqual([]);
+
+  await page.locator("#loadInvestingChart").click();
+  await expect(page.locator("#investingChartFrame iframe")).toBeVisible();
+  await expect(page.locator("#investingChartStatus")).toContainText("Conteúdo externo carregado");
+  await expect.poll(() => externalRequests.length).toBe(1);
+
+  const widgetUrl = new URL(externalRequests[0]);
+  expect(widgetUrl.origin).toBe("https://ssltvc.investing.com");
+  expect(widgetUrl.searchParams.get("domain_ID")).toBe("30");
+  expect(widgetUrl.searchParams.get("lang_ID")).toBe("12");
+  expect(widgetUrl.searchParams.get("plotStyle")).toBe("candles");
+});
+
 test("conclui a primeira aula e libera a segunda", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   await page.goto("/academia.html");
