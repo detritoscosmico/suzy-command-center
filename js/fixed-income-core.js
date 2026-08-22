@@ -63,16 +63,24 @@
     return { valid:true, face, couponRate, yieldRate, years, paymentsPerYear, shockBp, periods, periodicYield };
   }
 
-  function priceFixedCouponBond(candidate = {}) {
-    const input = validateBondInputs({ ...candidate, shockBp: candidate.shockBp ?? 0 });
-    if (!input.valid) return null;
+  function calculatePrice(input) {
     const coupon = input.face * (input.couponRate / 100) / input.paymentsPerYear;
     let price = 0;
     for (let period = 1; period <= input.periods; period += 1) {
       const cashFlow = coupon + (period === input.periods ? input.face : 0);
       price += cashFlow / ((1 + input.periodicYield) ** period);
     }
-    return round(price, 6);
+    return price;
+  }
+
+  function rawPriceFixedCouponBond(candidate = {}) {
+    const input = validateBondInputs({ ...candidate, shockBp: candidate.shockBp ?? 0 });
+    return input.valid ? calculatePrice(input) : null;
+  }
+
+  function priceFixedCouponBond(candidate = {}) {
+    const price = rawPriceFixedCouponBond(candidate);
+    return price === null ? null : round(price, 6);
   }
 
   function bondRiskMetrics(candidate = {}) {
@@ -96,9 +104,9 @@
     const approximateChangePercent = (-modifiedDuration * deltaYield + 0.5 * convexity * (deltaYield ** 2)) * 100;
     const shockedYieldRate = input.yieldRate + (input.shockBp / 100);
     if (shockedYieldRate < -99.999 || shockedYieldRate > 1000) return { valid:false, reason:"INVALID_SHOCKED_YIELD" };
-    const shockedPrice = priceFixedCouponBond({ face:input.face, couponRate:input.couponRate, yieldRate:shockedYieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear });
-    const exactChangePercent = shockedPrice === null ? null : ((shockedPrice / price) - 1) * 100;
-    return { valid:true, face:input.face, couponRate:input.couponRate, yieldRate:input.yieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear, shockBp:input.shockBp, price:round(price,2), macaulayDuration:round(macaulayDuration,4), modifiedDuration:round(modifiedDuration,4), convexity:round(convexity,4), approximateChangePercent:round(approximateChangePercent,4), shockedYieldRate:round(shockedYieldRate,4), shockedPrice:shockedPrice===null?null:round(shockedPrice,2), exactChangePercent:exactChangePercent===null?null:round(exactChangePercent,4) };
+    const shockedPriceRaw = rawPriceFixedCouponBond({ face:input.face, couponRate:input.couponRate, yieldRate:shockedYieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear });
+    const exactChangePercent = shockedPriceRaw === null ? null : ((shockedPriceRaw / price) - 1) * 100;
+    return { valid:true, face:input.face, couponRate:input.couponRate, yieldRate:input.yieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear, shockBp:input.shockBp, price:round(price,2), macaulayDuration:round(macaulayDuration,4), modifiedDuration:round(modifiedDuration,4), convexity:round(convexity,4), approximateChangePercent:round(approximateChangePercent,4), shockedYieldRate:round(shockedYieldRate,4), shockedPrice:shockedPriceRaw===null?null:round(shockedPriceRaw,2), exactChangePercent:exactChangePercent===null?null:round(exactChangePercent,4) };
   }
 
   function classifyCurve(shortYield, mediumYield, longYield) {
@@ -133,32 +141,39 @@
     return sessions;
   }
 
+  function selectSessionEvidence(entries) {
+    const selected = [];
+    const seenCases = new Set();
+    for (const entry of entries) {
+      if (seenCases.has(entry.attempt.caseId)) continue;
+      seenCases.add(entry.attempt.caseId);
+      selected.push(entry);
+      if (selected.length === REQUIRED_CASES) break;
+    }
+    return selected;
+  }
+
   function pruneHistory(history) {
     if (history.length <= MAX_HISTORY) return history;
-    const recent = history.slice(-MAX_HISTORY);
-    const recentSessions = groupSessions(recent);
-    if ([...recentSessions.values()].some(entries => evaluateSession(entries.map(entry => entry.attempt)).passed)) return recent;
+    const sessions = [...groupSessions(history).values()];
+    let bestSession = null;
+    let latestPassingSession = null;
 
-    const allSessions = [...groupSessions(history).values()];
-    let passingEvidence = [];
-    for (let index = allSessions.length - 1; index >= 0; index -= 1) {
-      const entries = allSessions[index];
-      if (!evaluateSession(entries.map(entry => entry.attempt)).passed) continue;
-      const selected = [];
-      const seenCases = new Set();
-      for (const entry of entries) {
-        if (seenCases.has(entry.attempt.caseId)) continue;
-        seenCases.add(entry.attempt.caseId);
-        selected.push(entry);
-        if (selected.length === REQUIRED_CASES) break;
+    for (const entries of sessions) {
+      const evidence = selectSessionEvidence(entries);
+      const evaluation = evaluateSession(evidence.map(entry => entry.attempt));
+      if (evaluation.completed >= REQUIRED_CASES && (!bestSession || evaluation.average > bestSession.evaluation.average)) {
+        bestSession = { evidence, evaluation };
       }
-      passingEvidence = selected;
-      break;
+      if (evaluation.passed) latestPassingSession = { evidence, evaluation };
     }
-    if (!passingEvidence.length) return recent;
 
-    const preserveIndexes = new Set(passingEvidence.map(entry => entry.index));
-    const remainingSlots = MAX_HISTORY - passingEvidence.length;
+    const preserveIndexes = new Set();
+    for (const candidate of [bestSession, latestPassingSession]) {
+      for (const entry of candidate?.evidence || []) preserveIndexes.add(entry.index);
+    }
+
+    const remainingSlots = MAX_HISTORY - preserveIndexes.size;
     const recentIndexes = [];
     for (let index = history.length - 1; index >= 0 && recentIndexes.length < remainingSlots; index -= 1) {
       if (!preserveIndexes.has(index)) recentIndexes.push(index);
