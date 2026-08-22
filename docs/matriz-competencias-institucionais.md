@@ -42,7 +42,8 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 | Economia e análise macro | E3 | E2 | E2 | E1 | E2 | Trilha E3 com snapshot macro, 12 variantes, fontes primárias e rubrica em `economia.html` |
 | Demonstrações financeiras | E3 | E1 | E2 | E2 | E2 | Trilha E3 com DRE, balanço, DFC, reconciliação, 12 variantes e rubrica em `financials.html` |
 | Valuation | E3 | E1 | E2 | E2 | E3 | Trilha E3 com DCF simplificado, EV→equity, múltiplos, sensibilidade e 12 variantes em `valuation.html` |
-| Renda fixa, derivativos e alternativos | E0 | E0 | E1 | E0 | E0 | Não implementado como trilha |
+| Renda fixa | E3 | E1 | E2 | E2 | E2 | Trilha E3 com preço × yield, curva, duration, convexidade, crédito, inflação, marcação a mercado, 13 variantes e rubrica em `renda-fixa.html` |
+| Derivativos e alternativos | E0 | E0 | E1 | E0 | E0 | Não implementados como trilha |
 | Construção e atribuição de portfólio | E0 | E0 | E1 | E0 | E0 | Não implementado |
 | Livro de ofertas e roteamento multi-venue | E0 | E1 | E1 | E1 | E0 | Simulação agregada, sem fila ou venues reais |
 | Segurança e privacidade da plataforma | E1 | E1 | E1 | E2 | E1 | Backend local, testes, política e automação de segurança |
@@ -56,13 +57,12 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 
 ## Bloqueadores para uma alegação forte de padrão profissional
 
-1. Concluir renda fixa, derivativos, alternativos e construção/atribuição de portfólio do Ciclo 8.
+1. Concluir derivativos, alternativos e construção/atribuição de portfólio do Ciclo 8.
 2. Ampliar ética e regulação para as demais funções somente quando seus escopos forem aprovados.
 3. Calibrar simuladores com dados licenciados e documentar erro de modelo.
 4. Medir retenção, generalização e consistência entre avaliadores.
 5. Conduzir piloto externo com participantes e revisores independentes.
 6. Hospedar um backend seguro com backup, recuperação, observabilidade e resposta a incidentes.
-7. Escolher e publicar uma licença de software; esta decisão pertence ao mantenedor.
 
 ## Regra de atualização
 
