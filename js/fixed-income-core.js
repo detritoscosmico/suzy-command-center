@@ -7,41 +7,9 @@
   const REQUIRED_CASES = 6;
   const MAX_HISTORY = 60;
 
-  const INTERPRETATIONS = Object.freeze([
-    "CONSISTENT_MECHANISM",
-    "RISK_OR_PREMISE_UNDERSTATED",
-    "INSUFFICIENT_EVIDENCE"
-  ]);
-
-  const DRIVERS = Object.freeze([
-    "PRICE_YIELD",
-    "TERM_STRUCTURE",
-    "DURATION",
-    "CONVEXITY",
-    "CREDIT_SPREAD",
-    "CREDIT_QUALITY",
-    "INFLATION_INDEXATION",
-    "REAL_NOMINAL",
-    "MARK_TO_MARKET",
-    "FLOATING_RATE",
-    "LIQUIDITY",
-    "CASH_FLOW_STRUCTURE"
-  ]);
-
-  const ACTIONS = Object.freeze([
-    "REPRICE_CASH_FLOWS",
-    "SEPARATE_CURVE_FROM_FORECAST",
-    "COMPARE_DURATION",
-    "ADD_CONVEXITY",
-    "CHECK_SPREAD_AND_ISSUER",
-    "CHECK_CREDIT_RISK",
-    "SEPARATE_REAL_NOMINAL",
-    "CHECK_INDEXER_PATH",
-    "CHECK_HOLDING_HORIZON",
-    "IDENTIFY_INDEXER",
-    "CHECK_LIQUIDITY",
-    "MAP_CASH_FLOWS"
-  ]);
+  const INTERPRETATIONS = Object.freeze(["CONSISTENT_MECHANISM", "RISK_OR_PREMISE_UNDERSTATED", "INSUFFICIENT_EVIDENCE"]);
+  const DRIVERS = Object.freeze(["PRICE_YIELD", "TERM_STRUCTURE", "DURATION", "CONVEXITY", "CREDIT_SPREAD", "CREDIT_QUALITY", "INFLATION_INDEXATION", "REAL_NOMINAL", "MARK_TO_MARKET", "FLOATING_RATE", "LIQUIDITY", "CASH_FLOW_STRUCTURE"]);
+  const ACTIONS = Object.freeze(["REPRICE_CASH_FLOWS", "SEPARATE_CURVE_FROM_FORECAST", "COMPARE_DURATION", "ADD_CONVEXITY", "CHECK_SPREAD_AND_ISSUER", "CHECK_CREDIT_RISK", "SEPARATE_REAL_NOMINAL", "CHECK_INDEXER_PATH", "CHECK_HOLDING_HORIZON", "IDENTIFY_INDEXER", "CHECK_LIQUIDITY", "MAP_CASH_FLOWS"]);
 
   const SOURCES = Object.freeze([
     { id: "BCB_SELIC", title: "Banco Central do Brasil — Taxa Selic", url: "https://www.bcb.gov.br/controleinflacao/taxaselic" },
@@ -70,21 +38,21 @@
   ]);
 
   function cleanText(value, maximum = 1000) { return String(value ?? "").trim().replace(/\s+/g, " ").slice(0, maximum); }
-  function finiteNumber(value, minimum = -1e15, maximum = 1e15) { const n = Number(value); return Number.isFinite(n) ? Math.min(maximum, Math.max(minimum, n)) : null; }
+  function boundedNumber(value, minimum, maximum) { const number = Number(value); return Number.isFinite(number) && number >= minimum && number <= maximum ? number : null; }
   function round(value, decimals = 4) { if (!Number.isFinite(value)) return null; const factor = 10 ** decimals; return Math.round((value + Number.EPSILON) * factor) / factor; }
 
   function validateBondInputs(candidate = {}) {
-    const face = finiteNumber(candidate.face, 0.000001, 1e12);
-    const couponRate = finiteNumber(candidate.couponRate, 0, 1000);
-    const yieldRate = finiteNumber(candidate.yieldRate, -99.999, 1000);
-    const years = finiteNumber(candidate.years, 0.000001, 100);
+    const face = boundedNumber(candidate.face, 0.000001, 1e12);
+    const couponRate = boundedNumber(candidate.couponRate, 0, 1000);
+    const yieldRate = boundedNumber(candidate.yieldRate, -99.999, 1000);
+    const years = boundedNumber(candidate.years, 0.000001, 100);
     const paymentsPerYearRaw = Number(candidate.paymentsPerYear);
     const paymentsPerYear = [1, 2, 4, 12].includes(paymentsPerYearRaw) ? paymentsPerYearRaw : null;
-    const shockBp = finiteNumber(candidate.shockBp, -5000, 5000);
-    if (face === null || face <= 0) return { valid:false, reason:"INVALID_FACE" };
-    if (couponRate === null || couponRate < 0) return { valid:false, reason:"INVALID_COUPON" };
-    if (yieldRate === null || yieldRate <= -100) return { valid:false, reason:"INVALID_YIELD" };
-    if (years === null || years <= 0) return { valid:false, reason:"INVALID_YEARS" };
+    const shockBp = boundedNumber(candidate.shockBp, -5000, 5000);
+    if (face === null) return { valid:false, reason:"INVALID_FACE" };
+    if (couponRate === null) return { valid:false, reason:"INVALID_COUPON" };
+    if (yieldRate === null) return { valid:false, reason:"INVALID_YIELD" };
+    if (years === null) return { valid:false, reason:"INVALID_YEARS" };
     if (paymentsPerYear === null) return { valid:false, reason:"INVALID_FREQUENCY" };
     if (shockBp === null) return { valid:false, reason:"INVALID_SHOCK" };
     const periodsRaw = years * paymentsPerYear;
@@ -111,9 +79,7 @@
     const input = validateBondInputs(candidate);
     if (!input.valid) return input;
     const coupon = input.face * (input.couponRate / 100) / input.paymentsPerYear;
-    let price = 0;
-    let weightedTime = 0;
-    let convexityNumerator = 0;
+    let price = 0, weightedTime = 0, convexityNumerator = 0;
     for (let period = 1; period <= input.periods; period += 1) {
       const cashFlow = coupon + (period === input.periods ? input.face : 0);
       const discount = (1 + input.periodicYield) ** period;
@@ -129,13 +95,14 @@
     const deltaYield = input.shockBp / 10000;
     const approximateChangePercent = (-modifiedDuration * deltaYield + 0.5 * convexity * (deltaYield ** 2)) * 100;
     const shockedYieldRate = input.yieldRate + (input.shockBp / 100);
+    if (shockedYieldRate < -99.999 || shockedYieldRate > 1000) return { valid:false, reason:"INVALID_SHOCKED_YIELD" };
     const shockedPrice = priceFixedCouponBond({ face:input.face, couponRate:input.couponRate, yieldRate:shockedYieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear });
     const exactChangePercent = shockedPrice === null ? null : ((shockedPrice / price) - 1) * 100;
     return { valid:true, face:input.face, couponRate:input.couponRate, yieldRate:input.yieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear, shockBp:input.shockBp, price:round(price,2), macaulayDuration:round(macaulayDuration,4), modifiedDuration:round(modifiedDuration,4), convexity:round(convexity,4), approximateChangePercent:round(approximateChangePercent,4), shockedYieldRate:round(shockedYieldRate,4), shockedPrice:shockedPrice===null?null:round(shockedPrice,2), exactChangePercent:exactChangePercent===null?null:round(exactChangePercent,4) };
   }
 
   function classifyCurve(shortYield, mediumYield, longYield) {
-    const short = finiteNumber(shortYield, -100, 1000), medium = finiteNumber(mediumYield, -100, 1000), long = finiteNumber(longYield, -100, 1000);
+    const short = boundedNumber(shortYield, -100, 1000), medium = boundedNumber(mediumYield, -100, 1000), long = boundedNumber(longYield, -100, 1000);
     if ([short, medium, long].some(value => value === null)) return { valid:false, reason:"INVALID_CURVE" };
     const range = Math.max(short, medium, long) - Math.min(short, medium, long);
     const longShortSpread = long - short;
@@ -146,7 +113,7 @@
     return { valid:true, shortYield:short, mediumYield:medium, longYield:long, longShortSpread:round(longShortSpread,2), shape };
   }
 
-  function normalizeSeed(value) { const n = Number(value); return Number.isFinite(n) ? Math.abs(Math.trunc(n)) || 1 : 1; }
+  function normalizeSeed(value) { const number = Number(value); return Number.isFinite(number) ? Math.abs(Math.trunc(number)) || 1 : 1; }
   function randomFactory(seed) { let state = normalizeSeed(seed) >>> 0; return function random(){ state += 0x6d2b79f5; let value=state; value=Math.imul(value ^ value >>> 15, value | 1); value ^= value + Math.imul(value ^ value >>> 7, value | 61); return ((value ^ value >>> 14) >>> 0) / 4294967296; }; }
   function createSession(seed=1,count=REQUIRED_CASES){ const normalizedSeed=normalizeSeed(seed); const random=randomFactory(normalizedSeed); const cases=[...CASES]; for(let index=cases.length-1;index>0;index-=1){const swapIndex=Math.floor(random()*(index+1));[cases[index],cases[swapIndex]]=[cases[swapIndex],cases[index]];} const size=Math.min(CASES.length,Math.max(1,Math.trunc(Number(count)||REQUIRED_CASES))); return {seed:normalizedSeed,cases:cases.slice(0,size)}; }
   function findCase(caseId){ return CASES.find(item=>item.id===caseId)||null; }
@@ -155,8 +122,65 @@
   function gradeCase(caseId,candidateAnswer={}){ const item=findCase(caseId); if(!item)throw new Error("Caso de renda fixa desconhecido."); const answer=normalizeAnswer(candidateAnswer); const checks=[{id:"interpretation",label:"Leitura do mecanismo/limite",points:30,passed:answer.interpretation===item.expectedInterpretation},{id:"driver",label:"Fator dominante",points:25,passed:answer.driver===item.expectedDriver},{id:"action",label:"Próxima verificação",points:20,passed:answer.action===item.expectedAction},{id:"source",label:"Fonte primária/institucional",points:15,passed:answer.source===item.expectedSource},{id:"rationale",label:"Justificativa auditável",points:10,passed:answer.rationale.length>=60}]; let score=checks.reduce((total,check)=>total+(check.passed?check.points:0),0); const violation=hardViolationFor(item,answer); score=Math.min(score,violation.cap); return {caseId:item.id,score,passed:score>=PASS_SCORE&&!violation.code,hardViolation:violation.code,checks,explanation:item.explanation,expectedInterpretation:item.expectedInterpretation,expectedDriver:item.expectedDriver,expectedAction:item.expectedAction,expectedSource:item.expectedSource,answer}; }
   function normalizeAttempt(candidate={}){ const item=findCase(candidate.caseId); if(!item)return null; const grade=gradeCase(item.id,candidate.answer||{}); return {sessionId:cleanText(candidate.sessionId,120),seed:normalizeSeed(candidate.seed),caseId:item.id,timestamp:cleanText(candidate.timestamp,80)||new Date().toISOString(),answer:grade.answer,score:grade.score,passed:grade.passed,hardViolation:grade.hardViolation}; }
   function evaluateSession(attempts=[]){ const unique=[]; const seen=new Set(); for(const candidate of Array.isArray(attempts)?attempts:[]){const normalized=normalizeAttempt(candidate);if(!normalized||seen.has(normalized.caseId))continue;seen.add(normalized.caseId);unique.push(normalized);if(unique.length>=REQUIRED_CASES)break;} const completed=unique.length; const average=completed?round(unique.reduce((sum,attempt)=>sum+attempt.score,0)/completed,1):0; const hardViolations=unique.filter(attempt=>Boolean(attempt.hardViolation)).length; return {completed,required:REQUIRED_CASES,average,hardViolations,passed:completed>=REQUIRED_CASES&&average>=PASS_SCORE&&hardViolations===0}; }
-  function normalizeState(candidate={}){ const history=Array.isArray(candidate.history)?candidate.history.map(normalizeAttempt).filter(Boolean).slice(-MAX_HISTORY):[]; const sessions=new Map(); for(const attempt of history){if(!attempt.sessionId)continue;if(!sessions.has(attempt.sessionId))sessions.set(attempt.sessionId,[]);sessions.get(attempt.sessionId).push(attempt);} let bestAverage=0,passed=false; for(const attempts of sessions.values()){const evaluation=evaluateSession(attempts);if(evaluation.completed>=REQUIRED_CASES)bestAverage=Math.max(bestAverage,evaluation.average);if(evaluation.passed)passed=true;} return {version:1,lastSeed:normalizeSeed(candidate.lastSeed||20260822),history,bestAverage:round(bestAverage,1),passed}; }
-  function recordAttempt(stateCandidate={},attemptCandidate={}){ const state=normalizeState(stateCandidate); const attempt=normalizeAttempt(attemptCandidate); if(!attempt)return state; return normalizeState({...state,lastSeed:attempt.seed,history:[...state.history,attempt].slice(-MAX_HISTORY)}); }
+
+  function groupSessions(history) {
+    const sessions = new Map();
+    history.forEach((attempt, index) => {
+      if (!attempt.sessionId) return;
+      if (!sessions.has(attempt.sessionId)) sessions.set(attempt.sessionId, []);
+      sessions.get(attempt.sessionId).push({ attempt, index });
+    });
+    return sessions;
+  }
+
+  function pruneHistory(history) {
+    if (history.length <= MAX_HISTORY) return history;
+    const recent = history.slice(-MAX_HISTORY);
+    const recentSessions = groupSessions(recent);
+    if ([...recentSessions.values()].some(entries => evaluateSession(entries.map(entry => entry.attempt)).passed)) return recent;
+
+    const allSessions = [...groupSessions(history).values()];
+    let passingEvidence = [];
+    for (let index = allSessions.length - 1; index >= 0; index -= 1) {
+      const entries = allSessions[index];
+      if (!evaluateSession(entries.map(entry => entry.attempt)).passed) continue;
+      const selected = [];
+      const seenCases = new Set();
+      for (const entry of entries) {
+        if (seenCases.has(entry.attempt.caseId)) continue;
+        seenCases.add(entry.attempt.caseId);
+        selected.push(entry);
+        if (selected.length === REQUIRED_CASES) break;
+      }
+      passingEvidence = selected;
+      break;
+    }
+    if (!passingEvidence.length) return recent;
+
+    const preserveIndexes = new Set(passingEvidence.map(entry => entry.index));
+    const remainingSlots = MAX_HISTORY - passingEvidence.length;
+    const recentIndexes = [];
+    for (let index = history.length - 1; index >= 0 && recentIndexes.length < remainingSlots; index -= 1) {
+      if (!preserveIndexes.has(index)) recentIndexes.push(index);
+    }
+    const keepIndexes = [...preserveIndexes, ...recentIndexes].sort((a,b)=>a-b);
+    return keepIndexes.map(index => history[index]);
+  }
+
+  function normalizeState(candidate={}){
+    const normalizedHistory = Array.isArray(candidate.history) ? candidate.history.map(normalizeAttempt).filter(Boolean) : [];
+    const history = pruneHistory(normalizedHistory);
+    const sessions = groupSessions(history);
+    let bestAverage=0,passed=false;
+    for(const entries of sessions.values()){
+      const evaluation=evaluateSession(entries.map(entry=>entry.attempt));
+      if(evaluation.completed>=REQUIRED_CASES)bestAverage=Math.max(bestAverage,evaluation.average);
+      if(evaluation.passed)passed=true;
+    }
+    return {version:1,lastSeed:normalizeSeed(candidate.lastSeed||20260822),history,bestAverage:round(bestAverage,1),passed};
+  }
+
+  function recordAttempt(stateCandidate={},attemptCandidate={}){ const state=normalizeState(stateCandidate); const attempt=normalizeAttempt(attemptCandidate); if(!attempt)return state; return normalizeState({...state,lastSeed:attempt.seed,history:[...state.history,attempt]}); }
 
   return Object.freeze({ PASS_SCORE,REQUIRED_CASES,MAX_HISTORY,INTERPRETATIONS,DRIVERS,ACTIONS,SOURCES,CASES,priceFixedCouponBond,bondRiskMetrics,classifyCurve,createSession,findCase,gradeCase,evaluateSession,normalizeState,recordAttempt });
 });
