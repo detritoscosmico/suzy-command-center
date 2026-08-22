@@ -35,6 +35,12 @@ test("rejeita entradas fora dos limites em vez de truncá-las", () => {
   assert.equal(core.classifyCurve(0, 0, 1000.01).valid, false);
 });
 
+test("reprecificação exata usa precisão integral antes de arredondar a exibição", () => {
+  const result = core.bondRiskMetrics({ face:1000, couponRate:0, yieldRate:1000, years:10.25, paymentsPerYear:4, shockBp:0 });
+  assert.equal(result.valid, true);
+  assert.equal(result.exactChangePercent, 0);
+});
+
 test("classifica formas básicas da curva sem tratá-las como previsão", () => {
   assert.equal(core.classifyCurve(10,11,12).shape, "UPWARD");
   assert.equal(core.classifyCurve(12,11,10).shape, "INVERTED");
@@ -104,4 +110,27 @@ test("preserva evidência de uma sessão E3 aprovada ao podar histórico", () =>
   assert.equal(state.passed, true);
   assert.equal(state.bestAverage, 100);
   assert.equal(state.history.filter(attempt => attempt.sessionId === "approved-old-session").length, 6);
+});
+
+test("preserva a maior média histórica mesmo quando uma aprovação mais recente já está nas últimas sessenta tentativas", () => {
+  const bestSession = core.createSession(77).cases.map((item,index) => ({
+    sessionId:"best-old-session", seed:77, timestamp:new Date(Date.UTC(2026,5,1,10,index)).toISOString(), caseId:item.id,
+    answer:{ interpretation:item.expectedInterpretation, driver:item.expectedDriver, action:item.expectedAction, source:item.expectedSource, rationale:"Sessão histórica de melhor média com resposta completa, auditável e sem violação dura para preservar a evidência da melhor pontuação." }
+  }));
+  const failing = Array.from({ length: 54 }, (_, index) => {
+    const item = core.CASES[index % core.CASES.length];
+    return { sessionId:`middle-${Math.floor(index/6)}`, seed:200+index, timestamp:new Date(Date.UTC(2026,6,1,10,index)).toISOString(), caseId:item.id, answer:{ interpretation:"", driver:"", action:"", source:"", rationale:"tentativa intermediária incompleta" } };
+  });
+  const recentPassing = core.createSession(88).cases.map((item,index) => ({
+    sessionId:"recent-pass-80", seed:88, timestamp:new Date(Date.UTC(2026,7,1,10,index)).toISOString(), caseId:item.id,
+    answer:{ interpretation:item.expectedInterpretation, driver:item.expectedDriver, action:"", source:item.expectedSource, rationale:"Sessão recente aprovada com oitenta pontos que deve coexistir com a evidência histórica da maior média anterior." }
+  }));
+  assert.equal(core.evaluateSession(recentPassing).average, 80);
+  assert.equal(core.evaluateSession(recentPassing).passed, true);
+  const state = core.normalizeState({ history:[...bestSession, ...failing, ...recentPassing] });
+  assert.equal(state.history.length, core.MAX_HISTORY);
+  assert.equal(state.passed, true);
+  assert.equal(state.bestAverage, 100);
+  assert.equal(state.history.filter(attempt => attempt.sessionId === "best-old-session").length, 6);
+  assert.equal(state.history.filter(attempt => attempt.sessionId === "recent-pass-80").length, 6);
 });
