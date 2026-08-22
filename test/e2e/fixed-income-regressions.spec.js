@@ -29,6 +29,20 @@ test("rejeita yield fora do intervalo sem calcular com valor truncado", async ({
   await expect(page.locator("#fiFeedback")).toContainText("Entradas inválidas");
 });
 
+test("rejeita cenário extremo com underflow em vez de exibir métricas não finitas", async ({ page }) => {
+  await page.goto("/renda-fixa.html");
+  await page.locator("#fiFace").fill("1000");
+  await page.locator("#fiCoupon").fill("0");
+  await page.locator("#fiYield").fill("1000");
+  await page.locator("#fiYears").fill("100");
+  await page.locator("#fiFrequency").selectOption("12");
+  await page.locator("#fiShock").fill("0");
+  await page.locator("#fixedIncomeForm button[type=submit]").click();
+  await expect(page.locator("#fiPrice")).toHaveText("N/A");
+  await expect(page.locator("#fiMacaulay")).toHaveText("N/A");
+  await expect(page.locator("#fiFeedback")).toContainText("Entradas inválidas");
+});
+
 test("preserva aprovação E3 antiga depois de mais de sessenta tentativas", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const approved = passingHistory();
