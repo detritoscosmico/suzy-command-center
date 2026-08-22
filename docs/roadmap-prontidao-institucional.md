@@ -46,15 +46,16 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução. A Release 1.30.0 permanece baseline formal separada do roadmap de desenvolvimento. A PR #60 implementou a Entrega 6 e foi mesclada na `main` em 22 de agosto de 2026, alinhando a versão de código para 1.31.0. Esse merge não cria tag ou GitHub Release e não deve ser tratado como publicação ou funcionamento em produção até os gates pós-merge aplicáveis.
+Status: em execução. A Release 1.31.0 é a baseline publicada antes da Entrega 7. A PR #62 implementa Derivativos em branch separada e alinha a versão de código da proposta para 1.32.0; isso não cria tag, GitHub Release nem comprova funcionamento em produção.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
 - entrega 3 concluída: economia e macroeconomia aplicada, com snapshot guiado, 12 variantes, fontes primárias e avaliação E3 centrada em mecanismo, surpresa e incerteza;
 - entrega 4 concluída: demonstrações financeiras, com snapshot guiado, 12 variantes, fontes CVM/CPC/IFRS e avaliação E3 centrada em reconciliação entre DRE, balanço, fluxo de caixa e notas;
-- entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão; release/tag e funcionamento em produção permanecem etapas separadas;
-- entrega 6 implementada, testada, validada na PR #60 e mesclada na `main`: renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3; CI de `push` pós-merge, deployment Pages, tag/release e funcionamento em produção permanecem gates separados;
-- derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
+- entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão;
+- entrega 6 implementada, testada, validada na PR #60, mesclada na `main` e publicada na baseline 1.31.0: renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3;
+- entrega 7 **implementada na branch e em validação na PR #62, ainda não concluída na `main`**: derivativos, com futuros, opções, swaps, payoff, ajuste diário, margem, basis, vencimento, DI/índice/dólar no contexto B3, valor intrínseco/temporal, volatilidade, delta, gamma, theta, vega, exercício, risco não linear, 18 variantes e rubrica E3;
+- alternativos e construção/atribuição de portfólio permanecem pendentes.
 
 Fundamentos do ciclo:
 
