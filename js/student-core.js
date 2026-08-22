@@ -61,10 +61,7 @@
   }
 
   function createTasks(completed = {}) {
-    return TASK_DEFINITIONS.map(definition => ({
-      ...definition,
-      completed: completed[definition.id] === true
-    }));
+    return TASK_DEFINITIONS.map(definition => ({ ...definition, completed: completed[definition.id] === true }));
   }
 
   function normalizeState(candidate = {}, today = new Date()) {
@@ -76,14 +73,7 @@
     const attendance = Array.isArray(candidate.attendance)
       ? [...new Set(candidate.attendance.map(dateKey).filter(Boolean))].sort().slice(-365)
       : [];
-    return {
-      version: 1,
-      profile: normalizeProfile(candidate.profile),
-      attendance,
-      weekKey: currentWeek,
-      tasks: createTasks(completed),
-      updatedAt: cleanText(candidate.updatedAt, 40)
-    };
+    return { version: 1, profile: normalizeProfile(candidate.profile), attendance, weekKey: currentWeek, tasks: createTasks(completed), updatedAt: cleanText(candidate.updatedAt, 40) };
   }
 
   function markAttendance(candidate, today = new Date()) {
@@ -109,10 +99,7 @@
     const set = new Set(keys);
     let streak = 0;
     let cursor = latest;
-    while (set.has(cursor)) {
-      streak += 1;
-      cursor = shiftDate(cursor, -1);
-    }
+    while (set.has(cursor)) { streak += 1; cursor = shiftDate(cursor, -1); }
     return streak;
   }
 
@@ -159,13 +146,14 @@
       moduleItem("statistics", "Estatística e amostras", "estatistica.html", additional.statistics || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("economics", "Economia e macro", "economia.html", additional.economics || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("financials", "Demonstrações financeiras", "financials.html", additional.financials || 0, 1, "Avaliação E3 aprovada"),
-      moduleItem("valuation", "Valuation", "valuation.html", additional.valuation || 0, 1, "Avaliação E3 aprovada")
+      moduleItem("valuation", "Valuation", "valuation.html", additional.valuation || 0, 1, "Avaliação E3 aprovada"),
+      moduleItem("fixedIncome", "Renda fixa", "renda-fixa.html", additional.fixedIncome || 0, 1, "Avaliação E3 aprovada")
     ];
   }
 
   function deriveAchievements(program = {}, state = {}, modules = []) {
     const completedTasks = (state.tasks || []).filter(task => task.completed).length;
-    const definitions = [
+    return [
       { id: "first-day", title: "Primeiro passo", description: "Registrou o primeiro dia de estudo.", unlocked: (state.attendance || []).length >= 1 },
       { id: "week-plan", title: "Semana organizada", description: "Concluiu todo o plano semanal.", unlocked: completedTasks === TASK_DEFINITIONS.length },
       { id: "foundation", title: "Base comprovada", description: "Concluiu o gate de fundamentos.", unlocked: (program.completedStages || 0) >= 1 },
@@ -173,7 +161,6 @@
       { id: "documented", title: "Processo documentado", description: "Completou o módulo do diário.", unlocked: modules.some(module => module.id === "journal" && module.complete) },
       { id: "passport", title: "Passaporte concluído", description: "Completou todos os gates profissionais.", unlocked: program.qualified === true }
     ];
-    return definitions;
   }
 
   function summarize(program = {}, state = {}, modules = [], today = new Date()) {
@@ -181,38 +168,13 @@
     const nextAction = program.qualified === true
       ? { label: "Revisar passaporte concluído", href: "programa.html#gatesTitle" }
       : (program.nextAction || { label: "Começar pelos fundamentos", href: "academia.html" });
-    const normalizedNextAction = {
-      ...nextAction,
-      href: String(nextAction.href || "academia.html").startsWith("#")
-        ? `programa.html${nextAction.href}`
-        : String(nextAction.href || "academia.html")
-    };
+    const normalizedNextAction = { ...nextAction, href: String(nextAction.href || "academia.html").startsWith("#") ? `programa.html${nextAction.href}` : String(nextAction.href || "academia.html") };
     return {
-      programPercent: Math.round(clamp(program.percent, 0, 100)),
-      completedStages: Number(program.completedStages) || 0,
-      totalStages: Number(program.totalStages) || 5,
-      completedModules: modules.filter(module => module.complete).length,
-      totalModules: modules.length,
-      weeklyCompleted: completedTasks,
-      weeklyTotal: TASK_DEFINITIONS.length,
-      attendanceTotal: (state.attendance || []).length,
-      streak: calculateStreak(state.attendance, today),
-      nextAction: normalizedNextAction
+      programPercent: Math.round(clamp(program.percent, 0, 100)), completedStages: Number(program.completedStages) || 0, totalStages: Number(program.totalStages) || 5,
+      completedModules: modules.filter(module => module.complete).length, totalModules: modules.length, weeklyCompleted: completedTasks, weeklyTotal: TASK_DEFINITIONS.length,
+      attendanceTotal: (state.attendance || []).length, streak: calculateStreak(state.attendance, today), nextAction: normalizedNextAction
     };
   }
 
-  return {
-    TASK_DEFINITIONS,
-    dateKey,
-    weekKey,
-    normalizeProfile,
-    normalizeState,
-    markAttendance,
-    toggleTask,
-    calculateStreak,
-    countAuthorizedCalendarEvents,
-    buildModuleProgress,
-    deriveAchievements,
-    summarize
-  };
+  return { TASK_DEFINITIONS, dateKey, weekKey, normalizeProfile, normalizeState, markAttendance, toggleTask, calculateStreak, countAuthorizedCalendarEvents, buildModuleProgress, deriveAchievements, summarize };
 });

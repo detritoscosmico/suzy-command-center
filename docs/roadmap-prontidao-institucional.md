@@ -11,8 +11,8 @@ Auditoria iniciada em 21 de agosto de 2026 sobre a `main` no commit `bb49e95ee62
 - GitHub Pages está habilitado no repositório, mas habilitação e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional da demonstração;
 - os workflows versionados são `Qualidade` e `CodeQL`; `Qualidade` está configurado para `push` em `main` e para pull requests;
 - o conector disponível para a auditoria não expõe de forma conclusiva os runs de `push` associados ao commit auditado, portanto o CI pós-merge específico da PR #54 permanece **não confirmado** nesta evidência;
-- `main` está sem branch protection, portanto a exigência de checks antes de alterações diretas ainda não é tecnicamente imposta pelo GitHub;
-- os metadados de versão permaneceram em `1.29.0` após mudanças posteriores à PR #48; esta auditoria prepara `1.30.0` para alinhar `package.json` e `package-lock.json` ao estado atual do código;
+- `main` estava sem branch protection naquele momento; proteção/ruleset foi tratada posteriormente em auditoria separada;
+- os metadados de versão permaneceram em `1.29.0` após mudanças posteriores à PR #48; a auditoria seguinte alinhou o código para 1.30.0;
 - tag e GitHub Release formais devem ser verificados e publicados separadamente; a versão declarada no pacote não é prova de release;
 - a PR #54 introduziu a área **Mercado ao Vivo** com conteúdo externo do Investing.com. O widget permanece separado dos cenários simulados e não constitui feed próprio, conexão com corretora ou execução de ordens.
 
@@ -46,14 +46,15 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução. A versão 1.29.0 foi integrada à `main` pela PR #48 para a entrega de valuation. Mudanças posteriores exigiram nova sincronização de versão; esta auditoria prepara 1.30.0, sem considerar isso uma tag, release ou prova de produção.
+Status: em execução. A Release 1.30.0 foi tratada como baseline formal separada do roadmap de desenvolvimento. A PR #60 propõe a Entrega 6 e alinha a versão de código para 1.31.0; isso não cria tag ou GitHub Release e não deve ser tratado como publicação até os gates pós-merge aplicáveis.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
 - entrega 3 concluída: economia e macroeconomia aplicada, com snapshot guiado, 12 variantes, fontes primárias e avaliação E3 centrada em mecanismo, surpresa e incerteza;
 - entrega 4 concluída: demonstrações financeiras, com snapshot guiado, 12 variantes, fontes CVM/CPC/IFRS e avaliação E3 centrada em reconciliação entre DRE, balanço, fluxo de caixa e notas;
-- entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão; release/tag e funcionamento em produção permanecem etapas separadas e não confirmadas;
-- renda fixa, derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
+- entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão; release/tag e funcionamento em produção permanecem etapas separadas;
+- entrega 6 **implementada na branch e em validação na PR #60, ainda não concluída na `main`**: renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3;
+- derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
 
 Fundamentos do ciclo:
 
@@ -63,9 +64,12 @@ Fundamentos do ciclo:
 - economia e macroeconomia;
 - demonstrações financeiras;
 - valuation;
-- renda fixa, derivativos, alternativos e portfólio.
+- renda fixa;
+- derivativos;
+- investimentos alternativos;
+- construção e atribuição de portfólio.
 
-Gate: cada trilha alcança E3 com fonte primária, banco de variantes e rubrica publicada.
+Gate: cada trilha alcança E3 com fonte primária/institucional apropriada, banco de variantes, rubrica publicada, testes e limites de inferência explícitos.
 
 ## Ciclo 9 — Fidelidade de mercado
 
@@ -110,9 +114,10 @@ Gate: evidência E5 em competências selecionadas. Mesmo após o gate, certifica
 
 A função-alvo e a jurisdição prioritária foram aprovadas em 9 de agosto de 2026 e registradas em `docs/decisao-funcao-jurisdicao.md`.
 
+A política de licenciamento proprietário / todos os direitos reservados foi aprovada e está registrada em `LICENSE` e `docs/licenciamento-proprietario.md`.
+
 As escolhas restantes não devem ser automatizadas sem aprovação explícita:
 
-- licença de software;
 - política de coleta e retenção para um futuro serviço hospedado;
 - uso de provedores ou dados pagos;
 - qualquer integração com corretora ou execução real;
