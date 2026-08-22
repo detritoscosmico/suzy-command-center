@@ -41,6 +41,12 @@ test("reprecificação exata usa precisão integral antes de arredondar a exibi�
   assert.equal(result.exactChangePercent, 0);
 });
 
+test("rejeita métricas não finitas causadas por underflow numérico", () => {
+  const result = core.bondRiskMetrics({ face:1000, couponRate:0, yieldRate:1000, years:100, paymentsPerYear:12, shockBp:0 });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, "NUMERIC_RANGE");
+});
+
 test("classifica formas básicas da curva sem tratá-las como previsão", () => {
   assert.equal(core.classifyCurve(10,11,12).shape, "UPWARD");
   assert.equal(core.classifyCurve(12,11,10).shape, "INVERTED");
