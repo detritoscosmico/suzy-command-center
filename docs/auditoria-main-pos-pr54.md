@@ -51,6 +51,23 @@ Estes itens não são resolvidos por alterações de arquivos nesta PR:
 3. decidir e publicar tag/release formal da versão 1.30.0 somente após os gates de merge e deployment;
 4. escolher explicitamente a licença de software antes de tratar o repositório como pacote distribuível maduro.
 
+## Evidência manual pós-merge da PR #55
+
+Em 21 de agosto de 2026, o mantenedor confirmou manualmente na interface do GitHub que:
+
+- a branch `main` exibe o indicador visual de ruleset/proteção;
+- o ruleset `main-professional-protection-v1` está com enforcement `Active` e aplicado à `main`;
+- pull request é obrigatória antes de merge;
+- o número de aprovações obrigatórias está configurado em `0` nesta fase;
+- resolução de conversas é obrigatória;
+- os checks `test` e `Analisar JavaScript` são obrigatórios;
+- a branch da PR precisa estar atualizada antes do merge;
+- histórico linear é obrigatório;
+- force push está bloqueado;
+- exclusão da branch está bloqueada.
+
+Essa evidência é classificada como **verificação manual do mantenedor**. Ela não substitui leitura automatizada do endpoint de rulesets, que não está exposto pelo conector disponível nesta sessão. A leitura automatizada do endpoint de branch continuou retornando `protected: false`, portanto a divergência entre essa resposta da API da branch e a interface do ruleset permanece registrada como limitação de observabilidade da integração usada nesta auditoria.
+
 ## Limites
 
 - `has_pages: true` comprova que GitHub Pages está habilitado, não que cada funcionalidade está operacional no ambiente publicado;
