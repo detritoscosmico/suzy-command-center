@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Trilha educacional Suzy de derivativos com futuros, opções, swaps, payoff, margem, basis, Greeks, exercício e limitações de modelos." />
+  <title>Derivativos — Suzy Command Center</title>
+  <link rel="stylesheet" href="css/estatistica.css" />
+</head>
+<body>
+  <div class="eth-shell">
+    <aside class="eth-sidebar">
+      <a class="eth-brand" href="programa.html" aria-label="Voltar ao Programa Profissional">
+        <img src="assets/suzy-avatar.webp" alt="Retrato da Suzy" />
+        <div><strong>SUZY</strong><span>DERIVATIVES DESK</span></div>
+      </a>
+      <div class="side-label">CICLO 08 • ENTREGA 07</div>
+      <nav aria-label="Seções da trilha de derivativos">
+        <a href="#conceptLab"><span>01</span> Fundamentos</a>
+        <a href="#instrumentLab"><span>02</span> Contexto B3</a>
+        <a href="#derivativesLab"><span>03</span> Prática guiada</a>
+        <a href="#sourceLab"><span>04</span> Fontes</a>
+        <a href="#caseLab"><span>05</span> Avaliação</a>
+        <a href="#rubricLab"><span>06</span> Rubrica</a>
+        <a href="#historyLab"><span>07</span> Histórico</a>
+      </nav>
+      <div class="boundary-card"><strong>REGRA DE DERIVATIVOS</strong><p>Margem não é perda máxima, hedge não é lucro garantido e Greek não é previsão. Primeiro mapeie payoff, vencimento, fluxo de caixa e premissas.</p></div>
+    </aside>
+
+    <main class="eth-main">
+      <header class="eth-topbar"><div><span>SUZY PROFESSIONAL PROGRAM</span><strong>Payoff, risco e premissas antes da conclusão.</strong></div><a href="programa.html">Voltar ao programa</a></header>
+
+      <section class="eth-hero">
+        <div><span class="eyebrow">FUTUROS • OPÇÕES • SWAPS • GREEKS • RISCO NÃO LINEAR</span><h1>Derivativos transferem risco — não eliminam incerteza.</h1><p>Treine contratos futuros, opções e swaps no contexto educacional brasileiro, distinguindo preço, payoff, ajuste diário, margem, basis, volatilidade, exercício e limitações de modelo sem gerar recomendação ou sinal operacional.</p></div>
+        <aside><strong>O QUE E3 SIGNIFICA AQUI</strong><blockquote>Identificar a estrutura econômica do contrato, o risco dominante, a próxima verificação e a fonte institucional antes de interpretar um resultado.</blockquote><small>Aprovação interna não é certificação, suitability, recomendação, autorização para alavancar ou evidência de lucro futuro.</small></aside>
+      </section>
+
+      <section class="eth-kpis" aria-label="Resumo da trilha">
+        <article><span>Casos desta sessão</span><strong id="kpiCases">0/6</strong><small>variantes únicas</small></article>
+        <article><span>Média da sessão</span><strong id="kpiAverage">0</strong><small>mínimo 80</small></article>
+        <article><span>Violações duras</span><strong id="kpiViolations">0</strong><small>precisa ser zero</small></article>
+        <article><span>Competência E3</span><strong id="kpiStatus">EM FORMAÇÃO</strong><small id="kpiBest">melhor média: 0</small></article>
+      </section>
+
+      <section id="conceptLab" class="lab-section" aria-labelledby="conceptTitle">
+        <div class="section-heading"><div><span class="eyebrow">01 • MAPA DE RACIOCÍNIO</span><h2 id="conceptTitle">Estruturas que não podem ser confundidas</h2></div><p>O primeiro passo é identificar obrigação, direito, fluxo intermediário, vencimento e não linearidade.</p></div>
+        <div class="concept-grid">
+          <article><strong>FUTURO × À VISTA</strong><p>O futuro é um contrato com vencimento e ajuste. Spot e futuro podem divergir; a diferença precisa ser analisada como basis, não como erro automático.</p></article>
+          <article><strong>MARGEM × EXPOSIÇÃO</strong><p>Margem de garantia é um mecanismo de risco. Ela pode ser muito menor que o valor nocional e não define, sozinha, a perda máxima.</p></article>
+          <article><strong>CALL × PUT</strong><p>O titular compra um direito mediante prêmio; o lançador assume obrigação se houver exercício conforme as regras do produto.</p></article>
+          <article><strong>INTRÍNSECO × TEMPORAL</strong><p>Antes do vencimento, o prêmio pode exceder o valor intrínseco por causa de tempo, volatilidade e demais parâmetros.</p></article>
+          <article><strong>GREEKS × PREVISÃO</strong><p>Delta, gamma, theta e vega são sensibilidades locais dentro de um estado/modelo. Não são probabilidades ou trajetórias garantidas.</p></article>
+          <article><strong>SWAP × POSIÇÃO ÚNICA</strong><p>Swap compara duas pontas econômicas. O resultado depende do diferencial entre indexadores, base contratual, prazo e forma de liquidação.</p></article>
+        </div>
+      </section>
+
+      <section id="instrumentLab" class="lab-section" aria-labelledby="instrumentTitle">
+        <div class="section-heading"><div><span class="eyebrow">02 • CONTEXTO B3</span><h2 id="instrumentTitle">Futuros, opções e swaps no mercado brasileiro</h2></div><p>Os exemplos identificam mecanismos e especificações para estudo; não indicam qual contrato deve ser negociado.</p></div>
+        <div class="concept-grid">
+          <article><strong>DI1 • FUTURO DE DI</strong><p>Contrato padronizado de taxa DI. A leitura educacional deve separar taxa cotada, PU, dias úteis, ajuste e vencimento.</p></article>
+          <article><strong>IND / WIN • ÍNDICE</strong><p>Futuros de Ibovespa possuem multiplicador e ajuste diário. Variação de pontos precisa ser convertida em exposição financeira.</p></article>
+          <article><strong>DOL / WDO • DÓLAR</strong><p>Futuros de câmbio possuem tamanho, cotação e vencimento próprios; não são equivalentes ao dólar à vista.</p></article>
+          <article><strong>OPÇÕES SOBRE AÇÕES</strong><p>Calls e puts possuem strike, prêmio, vencimento e regras de exercício. Titular e lançador têm direitos e obrigações diferentes.</p></article>
+          <article><strong>OPÇÕES SOBRE DI</strong><p>Opções sobre futuro de DI adicionam optionalidade à exposição de taxa e possuem especificações próprias de vencimento e exercício.</p></article>
+          <article><strong>SWAPS</strong><p>Contratos de balcão podem trocar rentabilidades entre juros, inflação, índices e moedas. Garantia e liquidação dependem da modalidade.</p></article>
+        </div>
+      </section>
+
+      <section id="derivativesLab" class="lab-section" aria-labelledby="derivativesTitle">
+        <div class="section-heading"><div><span class="eyebrow">03 • PRÁTICA GUIADA</span><h2 id="derivativesTitle">Payoff linear, options Greeks e duas pontas de swap</h2></div><p>Use parâmetros simplificados para entender mecanismo. O laboratório não reproduz book, margem real, volatilidade de superfície, dividendos, exercício antecipado, custos ou regras completas de cada contrato.</p></div>
+        <form id="derivativesForm" class="sample-form">
+          <label>Futuro • entrada<input id="futEntry" type="number" step="0.01" value="100000" required /></label>
+          <label>Futuro • saída/ajuste<input id="futExit" type="number" step="0.01" value="100500" required /></label>
+          <label>Multiplicador por ponto<input id="futMultiplier" type="number" min="0.000001" max="1000000000" step="0.01" value="0.20" required /></label>
+          <label>Contratos<input id="futContracts" type="number" min="1" max="1000000" step="1" value="1" required /></label>
+          <label>Direção<select id="futSide"><option value="LONG" selected>Comprado</option><option value="SHORT">Vendido</option></select></label>
+          <label>Spot para basis<input id="basisSpot" type="number" min="0.000001" step="0.01" value="100000" required /></label>
+          <label>Futuro para basis<input id="basisFuture" type="number" min="0.000001" step="0.01" value="100500" required /></label>
+          <label>DI • taxa anual (%)<input id="diRate" type="number" min="-99.999" max="1000" step="0.001" value="12" required /></label>
+          <label>DI • dias úteis<input id="diDays" type="number" min="1" max="5000" step="1" value="252" required /></label>
+          <label>Opção • spot<input id="optionSpot" type="number" min="0.000001" step="0.01" value="100" required /></label>
+          <label>Opção • strike<input id="optionStrike" type="number" min="0.000001" step="0.01" value="100" required /></label>
+          <label>Prêmio pago/recebido<input id="optionPremium" type="number" min="0" step="0.01" value="5" required /></label>
+          <label>Tipo<select id="optionType"><option value="CALL" selected>Call</option><option value="PUT">Put</option></select></label>
+          <label>Posição<select id="optionPosition"><option value="LONG" selected>Titular / Long</option><option value="SHORT">Lançador / Short</option></select></label>
+          <label>Volatilidade anual (%)<input id="optionVol" type="number" min="0.01" max="500" step="0.01" value="25" required /></label>
+          <label>Taxa anual do modelo (%)<input id="optionRate" type="number" min="-100" max="100" step="0.01" value="10" required /></label>
+          <label>Dias até vencimento<input id="optionDays" type="number" min="1" max="3650" step="1" value="30" required /></label>
+          <label>Swap • notional<input id="swapNotional" type="number" min="0.01" step="0.01" value="1000000" required /></label>
+          <label>Swap • taxa recebida (%)<input id="swapReceive" type="number" min="-100" max="1000" step="0.01" value="13" required /></label>
+          <label>Swap • taxa paga (%)<input id="swapPay" type="number" min="-100" max="1000" step="0.01" value="12" required /></label>
+          <label>Swap • prazo (anos)<input id="swapYears" type="number" min="0.000001" max="100" step="0.25" value="1" required /></label>
+          <button class="primary" type="submit">CALCULAR SNAPSHOT</button>
+        </form>
+        <div class="sample-results" aria-label="Resumo do cenário de derivativos">
+          <article><span>P&amp;L futuro</span><strong id="futPnl">—</strong></article>
+          <article><span>Basis</span><strong id="basisValue">—</strong></article>
+          <article><span>DI • PU simplificado</span><strong id="diPu">—</strong></article>
+          <article><span>Opção • payoff líquido no vencimento</span><strong id="optionExpiry">—</strong></article>
+          <article><span>Opção • preço modelo</span><strong id="optionModelPrice">—</strong></article>
+          <article><span>Valor intrínseco</span><strong id="optionIntrinsic">—</strong></article>
+          <article><span>Valor temporal</span><strong id="optionTime">—</strong></article>
+          <article><span>Delta</span><strong id="optionDelta">—</strong></article>
+          <article><span>Gamma</span><strong id="optionGamma">—</strong></article>
+          <article><span>Theta/dia</span><strong id="optionTheta">—</strong></article>
+          <article><span>Vega por 1 p.p. vol</span><strong id="optionVega">—</strong></article>
+          <article><span>Swap • diferencial simples</span><strong id="swapNet">—</strong></article>
+        </div>
+        <p id="derivativesFeedback" class="feedback" aria-live="polite">Calcule para atualizar o cenário.</p>
+        <p class="caution-note">O preço de opção usa uma aproximação Black–Scholes europeia sem dividendos, superfície de volatilidade, custos, bid/ask, exercício antecipado ou convenções específicas da B3. O PU de DI e o swap são exercícios simplificados. Nenhuma saída é preço justo operacional, recomendação, margem exigida ou previsão.</p>
+      </section>
+
+      <section id="sourceLab" class="lab-section" aria-labelledby="sourceTitle">
+        <div class="section-heading"><div><span class="eyebrow">04 • FONTES PRIMÁRIAS E INSTITUCIONAIS</span><h2 id="sourceTitle">Especificação antes da estratégia</h2></div><p>Os casos usam fontes B3 e Portal do Investidor/CVM. A fonte sustenta o conceito ou a especificação; não transforma o exercício em indicação operacional.</p></div>
+        <div class="source-grid statistics-sources">
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/s_di_train_prog/05-especificacoes-tecnicas.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • FUTURO DE DI</strong><span>PU, taxa, ajuste e especificações técnicas.</span></a>
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/futuro-de-ibovespa.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • FUTURO DE IBOVESPA</strong><span>Multiplicador, vencimento, margem e ajuste diário.</span></a>
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/moedas/futuro-de-taxa-de-cambio-de-reais-por-dolar-comercial.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • FUTURO DE DÓLAR</strong><span>Tamanho, cotação, vencimento e liquidação.</span></a>
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/opcoes-sobre-acoes.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • OPÇÕES SOBRE AÇÕES</strong><span>Prêmio, estilo, vencimento e exercício.</span></a>
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/opcoes-sobre-futuro-de-di.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • OPÇÕES SOBRE DI</strong><span>Objeto, estilo europeu e liquidação/exercício.</span></a>
+          <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/registro/derivativos-de-balcao/swap.htm" target="_blank" rel="noopener noreferrer"><strong>B3 • SWAP</strong><span>Duas pontas, indexadores, garantia e liquidação.</span></a>
+          <a href="https://www.gov.br/investidor/pt-br/investir/tipos-de-investimentos/derivativos" target="_blank" rel="noopener noreferrer"><strong>PORTAL DO INVESTIDOR • DERIVATIVOS</strong><span>Conceito, ativo subjacente, hedge, arbitragem e especulação.</span></a>
+          <a href="https://www.gov.br/investidor/pt-br/investir/tipos-de-investimentos/derivativos/mercado-futuro" target="_blank" rel="noopener noreferrer"><strong>PORTAL DO INVESTIDOR • FUTUROS</strong><span>Ajuste diário, padronização e margens.</span></a>
+          <a href="https://www.gov.br/investidor/pt-br/investir/tipos-de-investimentos/derivativos/mercado-de-opcoes" target="_blank" rel="noopener noreferrer"><strong>PORTAL DO INVESTIDOR • OPÇÕES</strong><span>Direitos, obrigações, prêmio, calls e puts.</span></a>
+          <a href="https://www.gov.br/investidor/pt-br/investir/tipos-de-investimentos/derivativos/riscos" target="_blank" rel="noopener noreferrer"><strong>PORTAL DO INVESTIDOR • RISCOS</strong><span>Alavancagem, margem, liquidez, crédito e risco operacional.</span></a>
+        </div>
+      </section>
+
+      <section class="lab-section compact" aria-labelledby="sessionTitle">
+        <div class="section-heading"><div><span class="eyebrow">05 • SESSÃO REPRODUZÍVEL</span><h2 id="sessionTitle">Banco de variantes</h2></div><p>A mesma semente gera a mesma ordem de seis casos. Aprovação exige média 80 e nenhuma violação dura.</p></div>
+        <div class="session-controls"><label>Semente da sessão<input id="sessionSeed" type="number" step="1" value="20260822" /></label><button id="startSession" class="primary" type="button">INICIAR / REINICIAR SESSÃO</button><span id="sessionLabel" aria-live="polite">Sessão pronta.</span></div>
+      </section>
+
+      <section id="caseLab" class="lab-section" aria-labelledby="caseTitle">
+        <div class="case-header"><div><span id="caseProgress" class="eyebrow">CASO 1 DE 6</span><h2 id="caseTitle">Carregando caso...</h2></div><span class="locked-answer">GABARITO BLOQUEADO</span></div>
+        <div class="case-grid">
+          <article class="facts-card"><h3>Dados e contexto</h3><ul id="caseFacts"></ul><p class="caution-note">Julgue somente os fatos descritos. Não invente volatilidade, margem, liquidez, exercício, preço futuro, hedge ou resultado ausente.</p></article>
+          <form id="caseForm" class="decision-card">
+            <div class="decision-grid">
+              <label>Leitura do mecanismo/limite<select id="caseInterpretation" required></select></label>
+              <label>Fator dominante<select id="caseDriver" required></select></label>
+              <label>Próxima verificação<select id="caseAction" required></select></label>
+              <label>Fonte institucional<select id="caseSource" required></select></label>
+              <label class="wide">Justificativa auditável<textarea id="caseRationale" maxlength="1200" required placeholder="Explique payoff, fluxo, risco, fonte e limite de modelo. Mínimo útil: 60 caracteres."></textarea></label>
+            </div>
+            <button class="primary" type="submit">AVALIAR RESPOSTA</button>
+            <p id="caseFeedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+        <div id="caseResult" class="case-result" hidden>
+          <div class="score-panel"><span>NOTA DO CASO</span><strong id="caseScore">0</strong><b id="caseResultState">REVISAR</b></div>
+          <div><div id="caseChecks" class="checks-grid"></div><p id="hardViolation" class="hard-violation" hidden></p><p id="caseExplanation"></p><p id="caseExpected" class="expected-answer"></p></div>
+        </div>
+        <button id="nextCase" type="button">PRÓXIMO CASO</button>
+      </section>
+
+      <section id="rubricLab" class="lab-section" aria-labelledby="rubricTitle">
+        <div class="section-heading"><div><span class="eyebrow">06 • RUBRICA PÚBLICA</span><h2 id="rubricTitle">100 pontos, sem premiar resultado financeiro</h2></div><p>A nota mede processo de interpretação. P&amp;L, taxa de acerto ou direção do mercado não entram na rubrica.</p></div>
+        <div class="rubric-grid">
+          <article><strong>30</strong><span>Mecanismo / limite</span></article>
+          <article><strong>25</strong><span>Fator dominante</span></article>
+          <article><strong>20</strong><span>Próxima verificação</span></article>
+          <article><strong>15</strong><span>Fonte institucional</span></article>
+          <article><strong>10</strong><span>Justificativa auditável</span></article>
+        </div>
+        <p class="caution-note">Violações duras incluem tratar margem como teto de perda, limitar uma call descoberta ao prêmio recebido, transformar volatilidade/delta/modelo em certeza e ignorar direitos ou fluxos essenciais do contrato.</p>
+      </section>
+
+      <section id="historyLab" class="lab-section" aria-labelledby="historyTitle">
+        <div class="section-heading compact"><div><span class="eyebrow">07 • EVIDÊNCIA LOCAL</span><h2 id="historyTitle">Histórico de respostas</h2></div><button id="clearHistory" type="button">LIMPAR HISTÓRICO</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Semente</th><th>Caso</th><th>Nota</th><th>Violação dura</th></tr></thead><tbody id="historyBody"><tr><td colspan="5" class="empty">Nenhuma resposta registrada.</td></tr></tbody></table></div>
+        <p class="local-note">Histórico limitado a 60 respostas, preservando evidência da melhor sessão e de uma sessão aprovada quando necessário. Tudo permanece somente neste navegador.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/derivatives-core.js"></script>
+  <script src="js/derivativos.js"></script>
+</body>
+</html>
