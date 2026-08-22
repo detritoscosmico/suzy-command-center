@@ -15,6 +15,7 @@ const publicPages = [
   "/economia.html",
   "/financials.html",
   "/valuation.html",
+  "/renda-fixa.html",
   "/academia.html",
   "/academia-nivel2.html",
   "/replay.html",
