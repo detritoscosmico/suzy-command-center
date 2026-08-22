@@ -108,7 +108,7 @@ Status: primeira entrega implementada na versão 1.23.0.
 - instalação reprodutível com lockfile e `npm ci`;
 - atualização assistida de dependências com Dependabot;
 - análise estática de JavaScript com CodeQL;
-- decisão de licença registrada como pendência do mantenedor, sem presumir autorização.
+- política de licenciamento proprietário / todos os direitos reservados registrada no repositório.
 
 Os critérios, os bloqueadores e a ordem de evolução estão documentados em `docs/matriz-competencias-institucionais.md` e `docs/roadmap-prontidao-institucional.md`.
 
@@ -116,17 +116,18 @@ Os critérios, os bloqueadores e a ordem de evolução estão documentados em `d
 
 Objetivo: construir fundamentos que permitam avaliar conduta, evidência e instrumentos sem confundir conteúdo interno com habilitação ou validação de mercado.
 
-Status: em execução. Cinco entregas alcançaram E3 interno em competências selecionadas:
+Status: em execução. Seis entregas alcançaram E3 interno em competências selecionadas:
 
 - ética e limites regulatórios no Brasil para a função-alvo de execução;
 - estatística, probabilidade e leitura crítica de amostras para Quant/Dados;
 - economia e macroeconomia aplicada, com leitura de inflação, juros, atividade, trabalho, fiscal, câmbio, expectativas e curva;
 - demonstrações financeiras, com reconciliação de DRE, balanço, fluxo de caixa, capital de giro, alavancagem, recorrência e notas explicativas;
-- valuation, com DCF simplificado, valor terminal, reconciliação entre enterprise value e equity value, múltiplos, diluição e sensibilidade.
+- valuation, com DCF simplificado, valor terminal, reconciliação entre enterprise value e equity value, múltiplos, diluição e sensibilidade;
+- renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3.
 
-A quinta entrega inclui snapshot guiado, 12 variantes, sessões reproduzíveis, fontes institucionais e uma rubrica que penaliza falsa precisão, confusão entre unidades de valor e conclusões determinísticas quando a evidência é insuficiente.
+As entregas de valuation e renda fixa incluem prática guiada, sessões reproduzíveis, fontes institucionais e rubricas que penalizam falsa precisão, confusão de mecanismos e conclusões determinísticas quando a evidência é insuficiente.
 
-Renda fixa, derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
+Derivativos, alternativos e construção/atribuição de portfólio permanecem pendentes.
 
 ## Critério de conclusão
 
