@@ -25,6 +25,16 @@ test("rejeita grade temporal incompatível com frequência de cupons", () => {
   assert.equal(result.reason, "NON_INTEGER_PERIOD_GRID");
 });
 
+test("rejeita entradas fora dos limites em vez de truncá-las", () => {
+  const base = { face:1000, couponRate:10, yieldRate:12, years:5, paymentsPerYear:2, shockBp:100 };
+  assert.equal(core.bondRiskMetrics({ ...base, yieldRate:-100 }).reason, "INVALID_YIELD");
+  assert.equal(core.bondRiskMetrics({ ...base, yieldRate:1000.01 }).reason, "INVALID_YIELD");
+  assert.equal(core.bondRiskMetrics({ ...base, couponRate:1000.01 }).reason, "INVALID_COUPON");
+  assert.equal(core.bondRiskMetrics({ ...base, years:100.01 }).reason, "INVALID_YEARS");
+  assert.equal(core.bondRiskMetrics({ ...base, shockBp:5000.01 }).reason, "INVALID_SHOCK");
+  assert.equal(core.classifyCurve(0, 0, 1000.01).valid, false);
+});
+
 test("classifica formas básicas da curva sem tratá-las como previsão", () => {
   assert.equal(core.classifyCurve(10,11,12).shape, "UPWARD");
   assert.equal(core.classifyCurve(12,11,10).shape, "INVERTED");
@@ -78,4 +88,20 @@ test("estado recalcula aprovação E3 a partir das respostas", () => {
   assert.equal(core.evaluateSession(state.history).passed, true);
   assert.equal(state.passed, true);
   assert.equal(state.bestAverage, 100);
+});
+
+test("preserva evidência de uma sessão E3 aprovada ao podar histórico", () => {
+  const passingSession = core.createSession(77).cases.map((item,index) => ({
+    sessionId:"approved-old-session", seed:77, timestamp:new Date(Date.UTC(2026,6,1,10,index)).toISOString(), caseId:item.id,
+    answer:{ interpretation:item.expectedInterpretation, driver:item.expectedDriver, action:item.expectedAction, source:item.expectedSource, rationale:"Resposta antiga aprovada que precisa permanecer auditável mesmo após muitas tentativas posteriores e poda de histórico." }
+  }));
+  const failing = Array.from({ length: 60 }, (_, index) => {
+    const item = core.CASES[index % core.CASES.length];
+    return { sessionId:`later-${Math.floor(index/6)}`, seed:100+index, timestamp:new Date(Date.UTC(2026,7,1,10,index)).toISOString(), caseId:item.id, answer:{ interpretation:"", driver:"", action:"", source:"", rationale:"tentativa posterior incompleta" } };
+  });
+  const state = core.normalizeState({ history:[...passingSession, ...failing] });
+  assert.equal(state.history.length, core.MAX_HISTORY);
+  assert.equal(state.passed, true);
+  assert.equal(state.bestAverage, 100);
+  assert.equal(state.history.filter(attempt => attempt.sessionId === "approved-old-session").length, 6);
 });
