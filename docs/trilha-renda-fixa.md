@@ -150,7 +150,7 @@ Integrações desta PR:
 - trilha no menu e roadmap visual de `programa.html`;
 - novos JavaScript e testes no `npm run check`;
 - `renda-fixa.html` na auditoria automatizada de acessibilidade;
-- versão do pacote mantida em 1.30.0 durante a PR; versionamento/release permanecem gates separados.
+- versão de código alinhada para `1.31.0` em `package.json` e `package-lock.json`; tag/release permanecem gates separados e não são criados nesta PR.
 
 ## Persistência e privacidade
 
