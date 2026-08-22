@@ -6,7 +6,7 @@ test.beforeEach(async ({}, testInfo) => {
 
 test("salva perfil, presença e plano semanal somente no navegador", async ({ page }) => {
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/17");
+  await expect(page.locator("#kpiModules")).toHaveText("0/18");
   await page.locator("#studentName").fill("Danilo Alves");
   await page.locator("#studentGoal").selectOption("Gestão de risco");
   await page.locator("#studentWeeklyHours").fill("7");
@@ -50,7 +50,7 @@ test("não aceita avaliação pendente nem calendário demo como conclusão", as
     }));
   });
   await page.goto("/alunos.html");
-  await expect(page.locator("#kpiModules")).toHaveText("0/17");
+  await expect(page.locator("#kpiModules")).toHaveText("0/18");
   await expect(page.locator('#studentModules a[href="academia.html"]')).toContainText("Avaliação pendente");
   await expect(page.locator('#studentModules a[href="calendario.html"]')).not.toContainText("CONCLUÍDO");
 });
@@ -76,7 +76,7 @@ test("reconhece a aprovação E3 de ética como evidência local", async ({ page
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="etica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+  await expect(page.locator("#kpiModules")).toHaveText("1/18");
 });
 
 test("reconhece a aprovação E3 de estatística como evidência local", async ({ page }) => {
@@ -100,7 +100,7 @@ test("reconhece a aprovação E3 de estatística como evidência local", async (
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="estatistica.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+  await expect(page.locator("#kpiModules")).toHaveText("1/18");
 });
 
 test("reconhece a aprovação E3 de economia como evidência local", async ({ page }) => {
@@ -124,7 +124,7 @@ test("reconhece a aprovação E3 de economia como evidência local", async ({ pa
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="economia.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+  await expect(page.locator("#kpiModules")).toHaveText("1/18");
 });
 
 test("reconhece a aprovação E3 de demonstrações financeiras como evidência local", async ({ page }) => {
@@ -148,7 +148,7 @@ test("reconhece a aprovação E3 de demonstrações financeiras como evidência 
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="financials.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+  await expect(page.locator("#kpiModules")).toHaveText("1/18");
 });
 
 test("reconhece a aprovação E3 de valuation como evidência local", async ({ page }) => {
@@ -172,5 +172,5 @@ test("reconhece a aprovação E3 de valuation como evidência local", async ({ p
   });
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="valuation.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/17");
+  await expect(page.locator("#kpiModules")).toHaveText("1/18");
 });
