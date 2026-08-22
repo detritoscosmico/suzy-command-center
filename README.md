@@ -13,11 +13,11 @@ A decisão limita o projeto a educação, simulação, gestão de risco, registr
 
 ## Estado da versão e da publicação
 
-A versão declarada no código é **1.30.0**. Esse número identifica o estado dos arquivos do projeto e não cria, por si só, uma tag, um GitHub Release ou uma garantia de funcionamento em produção.
+A versão declarada no código é **1.31.0**. Esse número identifica o estado dos arquivos do projeto e não cria, por si só, uma tag, um GitHub Release ou uma garantia de funcionamento em produção.
 
 O GitHub Pages está habilitado no repositório para a demonstração estática. Habilitação do Pages e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional de cada recurso. O modo local seguro continua fora do GitHub Pages porque depende do servidor Node.js e do SQLite local.
 
-A auditoria pós-PR #54 está registrada em `docs/auditoria-main-pos-pr54.md`.
+A auditoria pré-release 1.31.0 está registrada em `docs/auditoria-pre-release-1.31.0.md`. O histórico da auditoria pós-PR #54 permanece em `docs/auditoria-main-pos-pr54.md`.
 
 ## Demonstração pública
 
@@ -81,7 +81,7 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html` e `valuation.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html`, `valuation.html` e `renda-fixa.html`.
 
 O programa conecta evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook, proveniência de dados e fundamentos profissionais. A matriz institucional separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
@@ -115,6 +115,25 @@ Arquivo: `estatistica.html`
 - aviso explícito de que a trilha não valida estratégia, retorno ou taxa de acerto futura.
 
 A metodologia está documentada em `docs/trilha-estatistica-probabilidade.md`.
+
+### Renda Fixa — E3
+
+Arquivo: `renda-fixa.html`
+
+- preço × yield e valor presente de fluxos;
+- estrutura a termo e separação entre curva observada e previsão;
+- duration Macaulay e modificada;
+- convexidade e limites da aproximação linear;
+- risco e spread de crédito;
+- inflação e separação real × nominal;
+- marcação a mercado, liquidez e horizonte de carregamento;
+- instrumentos brasileiros, incluindo LTN, NTN-F, LFT, NTN-B e debêntures;
+- prática guiada com 13 variantes e rubrica pública de 100 pontos;
+- aprovação E3 interna com média mínima de 80 e nenhuma violação dura;
+- rejeição explícita de entradas e métricas numericamente inválidas;
+- aviso de que a trilha não recomenda títulos, não prevê taxas e não garante retorno.
+
+A metodologia está documentada em `docs/trilha-renda-fixa.md`.
 
 ### Área do Aluno
 
@@ -310,6 +329,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - trilha E3 de economia e macroeconomia aplicada;
 - trilha E3 de demonstrações financeiras;
 - trilha E3 de valuation;
+- trilha E3 de renda fixa;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -339,6 +359,7 @@ suzy-command-center/
 ├── programa.html
 ├── psicologia.html
 ├── replay.html
+├── renda-fixa.html
 ├── risco.html
 ├── simulador.html
 ├── valuation.html
@@ -348,6 +369,7 @@ suzy-command-center/
 ├── docs/
 │   ├── area-do-aluno.md
 │   ├── auditoria-main-pos-pr54.md
+│   ├── auditoria-pre-release-1.31.0.md
 │   ├── matriz-competencias-institucionais.md
 │   ├── roadmap-formacao-institucional.md
 │   ├── roadmap-prontidao-institucional.md
@@ -422,19 +444,15 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
 - a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
 - a trilha regulatória ensina fronteiras do projeto e não substitui parecer jurídico, registro ou orientação profissional para um caso concreto;
-- o projeto ainda não possui uma licença de software escolhida pelo mantenedor;
-- `main` ainda não possui branch protection confirmada como ativa;
 - CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
 - testes automatizados de acessibilidade não substituem revisão manual com teclado, leitor de tela e usuários reais.
 
 ## Próximas etapas recomendadas
 
-1. Concluir as trilhas pendentes do Ciclo 8: renda fixa, derivativos, alternativos e construção/atribuição de portfólio.
-2. Habilitar proteção/ruleset da branch `main` com checks obrigatórios compatíveis com a política do projeto.
-3. Confirmar deployment do GitHub Pages contra o SHA publicado antes de declarar a demonstração validada em produção.
-4. Definir explicitamente a licença do repositório.
-5. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
-6. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+1. Concluir as trilhas pendentes do Ciclo 8: derivativos, alternativos e construção/atribuição de portfólio.
+2. Concluir o gate pré-release 1.31.0 com CI de `push` da `main`, GitHub Pages no SHA final e decisão GO/NO-GO antes de tag ou Release.
+3. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+4. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
