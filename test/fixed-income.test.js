@@ -39,12 +39,12 @@ test("possui pelo menos doze casos e sessão reproduzível de seis variantes", (
 });
 
 test("fontes cobrem Tesouro, BCB, IBGE e Portal do Investidor/CVM", () => {
-  const urls = core.SOURCES.map(source => source.url).join("\n");
-  assert.match(urls, /bcb\.gov\.br/);
-  assert.match(urls, /tesouronacional/);
-  assert.match(urls, /tesourodireto\.com\.br/);
-  assert.match(urls, /ibge\.gov\.br/);
-  assert.match(urls, /gov\.br\/investidor/);
+  const sources = core.SOURCES.map(source => new URL(source.url));
+  assert.ok(sources.some(url => url.hostname === "www.bcb.gov.br"));
+  assert.ok(sources.some(url => url.hostname === "www.gov.br" && url.pathname.startsWith("/tesouronacional/")));
+  assert.ok(sources.some(url => url.hostname === "tesourodireto.com.br"));
+  assert.ok(sources.some(url => url.hostname === "www.ibge.gov.br"));
+  assert.ok(sources.some(url => url.hostname === "www.gov.br" && url.pathname.startsWith("/investidor/")));
 });
 
 test("gabarito completo recebe 100 pontos", () => {
