@@ -12,122 +12,24 @@
     { id: "review", label: "Fazer revisão semanal", day: "Sábado", minutes: 30, href: "governanca.html" }
   ]);
 
-  function clamp(value, minimum, maximum) {
-    const number = Number(value);
-    if (!Number.isFinite(number)) return minimum;
-    return Math.min(maximum, Math.max(minimum, number));
-  }
-
-  function cleanText(value, maximum) {
-    return String(value ?? "").trim().replace(/\s+/g, " ").slice(0, maximum);
-  }
-
-  function dateKey(value = new Date()) {
-    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-      const candidate = value.slice(0, 10);
-      const parsed = new Date(`${candidate}T12:00:00Z`);
-      return Number.isFinite(parsed.getTime()) ? candidate : "";
-    }
-    const date = value instanceof Date ? value : new Date(value);
-    if (!Number.isFinite(date.getTime())) return "";
-    const pad = number => String(number).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-  }
-
-  function shiftDate(key, days) {
-    const date = new Date(`${key}T12:00:00Z`);
-    date.setUTCDate(date.getUTCDate() + days);
-    return date.toISOString().slice(0, 10);
-  }
-
-  function weekKey(value = new Date()) {
-    const key = dateKey(value);
-    if (!key) return "";
-    const date = new Date(`${key}T12:00:00Z`);
-    const weekday = date.getUTCDay();
-    const distanceToMonday = weekday === 0 ? -6 : 1 - weekday;
-    return shiftDate(key, distanceToMonday);
-  }
-
-  function normalizeProfile(candidate = {}) {
-    const goals = ["Formação completa", "Análise técnica", "Execução", "Gestão de risco", "Disciplina"];
-    const goal = cleanText(candidate.goal, 40);
-    return {
-      name: cleanText(candidate.name, 60),
-      goal: goals.includes(goal) ? goal : "Formação completa",
-      weeklyHours: Math.round(clamp(candidate.weeklyHours ?? 5, 1, 40)),
-      startDate: dateKey(candidate.startDate) || ""
-    };
-  }
-
-  function createTasks(completed = {}) {
-    return TASK_DEFINITIONS.map(definition => ({ ...definition, completed: completed[definition.id] === true }));
-  }
-
-  function normalizeState(candidate = {}, today = new Date()) {
-    const currentWeek = weekKey(today);
-    const candidateTasks = Array.isArray(candidate.tasks) ? candidate.tasks : [];
-    const completed = candidate.weekKey === currentWeek
-      ? Object.fromEntries(candidateTasks.map(task => [String(task?.id || ""), task?.completed === true]))
-      : {};
-    const attendance = Array.isArray(candidate.attendance)
-      ? [...new Set(candidate.attendance.map(dateKey).filter(Boolean))].sort().slice(-365)
-      : [];
-    return { version: 1, profile: normalizeProfile(candidate.profile), attendance, weekKey: currentWeek, tasks: createTasks(completed), updatedAt: cleanText(candidate.updatedAt, 40) };
-  }
-
-  function markAttendance(candidate, today = new Date()) {
-    const state = normalizeState(candidate, today);
-    const key = dateKey(today);
-    if (key && !state.attendance.includes(key)) state.attendance.push(key);
-    state.attendance = state.attendance.sort().slice(-365);
-    return state;
-  }
-
-  function toggleTask(candidate, taskId, completed, today = new Date()) {
-    const state = normalizeState(candidate, today);
-    state.tasks = state.tasks.map(task => task.id === taskId ? { ...task, completed: completed === true } : task);
-    return state;
-  }
-
-  function calculateStreak(attendance = [], today = new Date()) {
-    const keys = [...new Set(attendance.map(dateKey).filter(Boolean))].sort();
-    if (!keys.length) return 0;
-    const reference = dateKey(today);
-    const latest = keys[keys.length - 1];
-    if (latest !== reference && latest !== shiftDate(reference, -1)) return 0;
-    const set = new Set(keys);
-    let streak = 0;
-    let cursor = latest;
-    while (set.has(cursor)) { streak += 1; cursor = shiftDate(cursor, -1); }
-    return streak;
-  }
-
-  function progress(current, target) {
-    return Math.round(clamp((Number(current) || 0) / Math.max(1, target), 0, 1) * 100);
-  }
-
-  function moduleItem(id, title, href, current, target, detail, completeOverride) {
-    const percent = progress(current, target);
-    const complete = typeof completeOverride === "boolean" ? completeOverride : percent === 100;
-    return { id, title, href, current: Number(current) || 0, target, percent, complete, detail };
-  }
-
-  function academyDetail(academy, target) {
-    if (academy.passed === true) return "Avaliação aprovada";
-    return (Number(academy.completed) || 0) >= target ? "Avaliação pendente" : "Aulas concluídas";
-  }
-
-  function countAuthorizedCalendarEvents(snapshot = {}) {
-    if (snapshot?.authorized !== true || snapshot?.mode !== "authorized") return 0;
-    return Array.isArray(snapshot.events) ? snapshot.events.length : 0;
-  }
+  function clamp(value, minimum, maximum) { const number = Number(value); if (!Number.isFinite(number)) return minimum; return Math.min(maximum, Math.max(minimum, number)); }
+  function cleanText(value, maximum) { return String(value ?? "").trim().replace(/\s+/g, " ").slice(0, maximum); }
+  function dateKey(value = new Date()) { if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) { const candidate = value.slice(0, 10); const parsed = new Date(`${candidate}T12:00:00Z`); return Number.isFinite(parsed.getTime()) ? candidate : ""; } const date = value instanceof Date ? value : new Date(value); if (!Number.isFinite(date.getTime())) return ""; const pad = number => String(number).padStart(2, "0"); return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`; }
+  function shiftDate(key, days) { const date = new Date(`${key}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10); }
+  function weekKey(value = new Date()) { const key = dateKey(value); if (!key) return ""; const date = new Date(`${key}T12:00:00Z`); const weekday = date.getUTCDay(); const distanceToMonday = weekday === 0 ? -6 : 1 - weekday; return shiftDate(key, distanceToMonday); }
+  function normalizeProfile(candidate = {}) { const goals = ["Formação completa", "Análise técnica", "Execução", "Gestão de risco", "Disciplina"]; const goal = cleanText(candidate.goal, 40); return { name: cleanText(candidate.name, 60), goal: goals.includes(goal) ? goal : "Formação completa", weeklyHours: Math.round(clamp(candidate.weeklyHours ?? 5, 1, 40)), startDate: dateKey(candidate.startDate) || "" }; }
+  function createTasks(completed = {}) { return TASK_DEFINITIONS.map(definition => ({ ...definition, completed: completed[definition.id] === true })); }
+  function normalizeState(candidate = {}, today = new Date()) { const currentWeek = weekKey(today); const candidateTasks = Array.isArray(candidate.tasks) ? candidate.tasks : []; const completed = candidate.weekKey === currentWeek ? Object.fromEntries(candidateTasks.map(task => [String(task?.id || ""), task?.completed === true])) : {}; const attendance = Array.isArray(candidate.attendance) ? [...new Set(candidate.attendance.map(dateKey).filter(Boolean))].sort().slice(-365) : []; return { version: 1, profile: normalizeProfile(candidate.profile), attendance, weekKey: currentWeek, tasks: createTasks(completed), updatedAt: cleanText(candidate.updatedAt, 40) }; }
+  function markAttendance(candidate, today = new Date()) { const state = normalizeState(candidate, today); const key = dateKey(today); if (key && !state.attendance.includes(key)) state.attendance.push(key); state.attendance = state.attendance.sort().slice(-365); return state; }
+  function toggleTask(candidate, taskId, completed, today = new Date()) { const state = normalizeState(candidate, today); state.tasks = state.tasks.map(task => task.id === taskId ? { ...task, completed: completed === true } : task); return state; }
+  function calculateStreak(attendance = [], today = new Date()) { const keys = [...new Set(attendance.map(dateKey).filter(Boolean))].sort(); if (!keys.length) return 0; const reference = dateKey(today); const latest = keys[keys.length - 1]; if (latest !== reference && latest !== shiftDate(reference, -1)) return 0; const set = new Set(keys); let streak = 0; let cursor = latest; while (set.has(cursor)) { streak += 1; cursor = shiftDate(cursor, -1); } return streak; }
+  function progress(current, target) { return Math.round(clamp((Number(current) || 0) / Math.max(1, target), 0, 1) * 100); }
+  function moduleItem(id, title, href, current, target, detail, completeOverride) { const percent = progress(current, target); const complete = typeof completeOverride === "boolean" ? completeOverride : percent === 100; return { id, title, href, current: Number(current) || 0, target, percent, complete, detail }; }
+  function academyDetail(academy, target) { if (academy.passed === true) return "Avaliação aprovada"; return (Number(academy.completed) || 0) >= target ? "Avaliação pendente" : "Aulas concluídas"; }
+  function countAuthorizedCalendarEvents(snapshot = {}) { if (snapshot?.authorized !== true || snapshot?.mode !== "authorized") return 0; return Array.isArray(snapshot.events) ? snapshot.events.length : 0; }
 
   function buildModuleProgress(evidence = {}, additional = {}) {
-    const academy1 = evidence.academy1 || {};
-    const academy2 = evidence.academy2 || {};
-    const journal = evidence.journal || {};
-    const psychology = evidence.psychology || {};
+    const academy1 = evidence.academy1 || {}, academy2 = evidence.academy2 || {}, journal = evidence.journal || {}, psychology = evidence.psychology || {};
     const psychologyCurrent = (Number(psychology.lessons) || 0) + (Number(psychology.assessments) || 0) + Math.min(7, Number(psychology.checkIns) || 0);
     return [
       moduleItem("academy1", "Fundamentos", "academia.html", academy1.passed ? 6 : academy1.completed, 6, academyDetail(academy1, 6), academy1.passed === true),
@@ -147,34 +49,21 @@
       moduleItem("economics", "Economia e macro", "economia.html", additional.economics || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("financials", "Demonstrações financeiras", "financials.html", additional.financials || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("valuation", "Valuation", "valuation.html", additional.valuation || 0, 1, "Avaliação E3 aprovada"),
-      moduleItem("fixedIncome", "Renda fixa", "renda-fixa.html", additional.fixedIncome || 0, 1, "Avaliação E3 aprovada")
+      moduleItem("fixedIncome", "Renda fixa", "renda-fixa.html", additional.fixedIncome || 0, 1, "Avaliação E3 aprovada"),
+      moduleItem("derivatives", "Derivativos", "derivativos.html", additional.derivatives || 0, 1, "Avaliação E3 aprovada")
     ];
   }
 
-  function deriveAchievements(program = {}, state = {}, modules = []) {
-    const completedTasks = (state.tasks || []).filter(task => task.completed).length;
-    return [
-      { id: "first-day", title: "Primeiro passo", description: "Registrou o primeiro dia de estudo.", unlocked: (state.attendance || []).length >= 1 },
-      { id: "week-plan", title: "Semana organizada", description: "Concluiu todo o plano semanal.", unlocked: completedTasks === TASK_DEFINITIONS.length },
-      { id: "foundation", title: "Base comprovada", description: "Concluiu o gate de fundamentos.", unlocked: (program.completedStages || 0) >= 1 },
-      { id: "practice", title: "Prática deliberada", description: "Concluiu o gate de prática.", unlocked: (program.completedStages || 0) >= 2 },
-      { id: "documented", title: "Processo documentado", description: "Completou o módulo do diário.", unlocked: modules.some(module => module.id === "journal" && module.complete) },
-      { id: "passport", title: "Passaporte concluído", description: "Completou todos os gates profissionais.", unlocked: program.qualified === true }
-    ];
-  }
+  function deriveAchievements(program = {}, state = {}, modules = []) { const completedTasks = (state.tasks || []).filter(task => task.completed).length; return [
+    { id: "first-day", title: "Primeiro passo", description: "Registrou o primeiro dia de estudo.", unlocked: (state.attendance || []).length >= 1 },
+    { id: "week-plan", title: "Semana organizada", description: "Concluiu todo o plano semanal.", unlocked: completedTasks === TASK_DEFINITIONS.length },
+    { id: "foundation", title: "Base comprovada", description: "Concluiu o gate de fundamentos.", unlocked: (program.completedStages || 0) >= 1 },
+    { id: "practice", title: "Prática deliberada", description: "Concluiu o gate de prática.", unlocked: (program.completedStages || 0) >= 2 },
+    { id: "documented", title: "Processo documentado", description: "Completou o módulo do diário.", unlocked: modules.some(module => module.id === "journal" && module.complete) },
+    { id: "passport", title: "Passaporte concluído", description: "Completou todos os gates profissionais.", unlocked: program.qualified === true }
+  ]; }
 
-  function summarize(program = {}, state = {}, modules = [], today = new Date()) {
-    const completedTasks = (state.tasks || []).filter(task => task.completed).length;
-    const nextAction = program.qualified === true
-      ? { label: "Revisar passaporte concluído", href: "programa.html#gatesTitle" }
-      : (program.nextAction || { label: "Começar pelos fundamentos", href: "academia.html" });
-    const normalizedNextAction = { ...nextAction, href: String(nextAction.href || "academia.html").startsWith("#") ? `programa.html${nextAction.href}` : String(nextAction.href || "academia.html") };
-    return {
-      programPercent: Math.round(clamp(program.percent, 0, 100)), completedStages: Number(program.completedStages) || 0, totalStages: Number(program.totalStages) || 5,
-      completedModules: modules.filter(module => module.complete).length, totalModules: modules.length, weeklyCompleted: completedTasks, weeklyTotal: TASK_DEFINITIONS.length,
-      attendanceTotal: (state.attendance || []).length, streak: calculateStreak(state.attendance, today), nextAction: normalizedNextAction
-    };
-  }
+  function summarize(program = {}, state = {}, modules = [], today = new Date()) { const completedTasks = (state.tasks || []).filter(task => task.completed).length; const nextAction = program.qualified === true ? { label: "Revisar passaporte concluído", href: "programa.html#gatesTitle" } : (program.nextAction || { label: "Começar pelos fundamentos", href: "academia.html" }); const normalizedNextAction = { ...nextAction, href: String(nextAction.href || "academia.html").startsWith("#") ? `programa.html${nextAction.href}` : String(nextAction.href || "academia.html") }; return { programPercent: Math.round(clamp(program.percent, 0, 100)), completedStages: Number(program.completedStages) || 0, totalStages: Number(program.totalStages) || 5, completedModules: modules.filter(module => module.complete).length, totalModules: modules.length, weeklyCompleted: completedTasks, weeklyTotal: TASK_DEFINITIONS.length, attendanceTotal: (state.attendance || []).length, streak: calculateStreak(state.attendance, today), nextAction: normalizedNextAction }; }
 
   return { TASK_DEFINITIONS, dateKey, weekKey, normalizeProfile, normalizeState, markAttendance, toggleTask, calculateStreak, countAuthorizedCalendarEvents, buildModuleProgress, deriveAchievements, summarize };
 });
