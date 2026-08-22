@@ -26,13 +26,13 @@ test("presença diária não duplica e calcula sequência", () => {
   assert.equal(core.calculateStreak(state.attendance, "2026-08-12"), 0);
 });
 
-test("monta progresso dos dezessete módulos com limites conservadores", () => {
+test("monta progresso dos dezoito módulos com limites conservadores", () => {
   const modules = core.buildModuleProgress({
     academy1: { completed: 6, passed: true }, academy2: { completed: 2, passed: false },
     replayTrades: 50, simulatorTrades: 4, journal: { total: 20 },
     psychology: { lessons: 5, assessments: 1, checkIns: 7 }
-  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1, valuation: 1 });
-  assert.equal(modules.length, 17);
+  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1, valuation: 1, fixedIncome: 1 });
+  assert.equal(modules.length, 18);
   assert.equal(modules.find(module => module.id === "replay").percent, 100);
   assert.equal(modules.find(module => module.id === "psychology").complete, true);
   assert.equal(modules.find(module => module.id === "calendar").complete, false);
@@ -41,13 +41,12 @@ test("monta progresso dos dezessete módulos com limites conservadores", () => {
   assert.equal(modules.find(module => module.id === "economics").complete, true);
   assert.equal(modules.find(module => module.id === "financials").complete, true);
   assert.equal(modules.find(module => module.id === "valuation").complete, true);
+  assert.equal(modules.find(module => module.id === "fixedIncome").complete, true);
+  assert.equal(modules.find(module => module.id === "fixedIncome").href, "renda-fixa.html");
 });
 
 test("exige aprovação das academias mesmo com todas as aulas concluídas", () => {
-  const modules = core.buildModuleProgress({
-    academy1: { completed: 6, passed: false },
-    academy2: { completed: 8, passed: false }
-  });
+  const modules = core.buildModuleProgress({ academy1: { completed: 6, passed: false }, academy2: { completed: 8, passed: false } });
   const academy1 = modules.find(module => module.id === "academy1");
   const academy2 = modules.find(module => module.id === "academy2");
   assert.equal(academy1.percent, 100);
@@ -64,18 +63,13 @@ test("aceita somente calendário autorizado como evidência", () => {
 });
 
 test("leva ações do playbook para a página do programa", () => {
-  const summary = core.summarize({
-    nextAction: { label: "Plano operacional auditável", href: "#playbookTitle" }
-  }, core.normalizeState({}, "2026-08-09"), [], "2026-08-09");
+  const summary = core.summarize({ nextAction: { label: "Plano operacional auditável", href: "#playbookTitle" } }, core.normalizeState({}, "2026-08-09"), [], "2026-08-09");
   assert.equal(summary.nextAction.href, "programa.html#playbookTitle");
 });
 
 test("mantém ação de revisão quando o passaporte está concluído", () => {
   const summary = core.summarize({ qualified: true, nextAction: null }, core.normalizeState({}, "2026-08-09"), [], "2026-08-09");
-  assert.deepEqual(summary.nextAction, {
-    label: "Revisar passaporte concluído",
-    href: "programa.html#gatesTitle"
-  });
+  assert.deepEqual(summary.nextAction, { label: "Revisar passaporte concluído", href: "programa.html#gatesTitle" });
 });
 
 test("resume rotina sem usar lucro ou taxa de acerto", () => {
