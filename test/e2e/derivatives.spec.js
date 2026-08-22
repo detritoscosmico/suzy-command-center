@@ -1,7 +1,18 @@
 const { test, expect } = require("@playwright/test");
+const derivativesCore = require("../../js/derivatives-core.js");
 
 function desktopOnly(testInfo) {
   test.skip(testInfo.project.name !== "chromium-desktop", "Fluxo completo coberto uma vez no Chromium desktop.");
+}
+
+function passingHistory() {
+  return derivativesCore.createSession(77).cases.map((item, index) => ({
+    sessionId:"derivatives-approved",
+    seed:77,
+    timestamp:new Date(Date.UTC(2026,7,22,16,index)).toISOString(),
+    caseId:item.id,
+    answer:{ interpretation:item.expectedInterpretation, driver:item.expectedDriver, action:item.expectedAction, source:item.expectedSource, rationale:"A resposta mapeia payoff, fluxo, risco, fonte institucional e limite de modelo antes de qualquer conclusão operacional ou financeira." }
+  }));
 }
 
 async function fillExpectedAnswer(page) {
@@ -101,4 +112,14 @@ test("fontes institucionais abrem em nova aba com proteção de opener", async (
     await expect(links.nth(index)).toHaveAttribute("target", "_blank");
     await expect(links.nth(index)).toHaveAttribute("rel", /noopener/);
   }
+});
+
+test("Área do Aluno reconhece Derivativos E3 e totaliza dezenove módulos", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  const approved = passingHistory();
+  expect(derivativesCore.evaluateSession(approved).passed).toBe(true);
+  await page.addInitScript(history => localStorage.setItem("suzy-derivatives-v1", JSON.stringify({ version:1, history })), approved);
+  await page.goto("/alunos.html");
+  await expect(page.locator('#studentModules a[href="derivativos.html"]')).toContainText("CONCLUÍDO");
+  await expect(page.locator("#kpiModules")).toHaveText("1/19");
 });
