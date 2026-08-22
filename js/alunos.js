@@ -6,7 +6,7 @@
     academy1:"suzy-academia-nivel1-v1", academy2:"suzy-academia-nivel2-v1", replay:"suzy-replay-lab-v2", replayLegacy:"suzy-replay-lab-v1", simulator:"suzy-order-simulator-v1",
     journal:"suzy-professional-journal-v1", psychology:"suzy_psychology_v1", risk:"suzy-risk-lab-v1", microstructure:"suzy-microstructure-lab-v1", capstone:"suzy-capstone-v1",
     governance:"suzy-governance-v1", data:"suzy-data-provenance-v1", calendar:"suzy.calendar.educational.v1", ethics:"suzy-ethics-regulation-v1", statistics:"suzy-statistics-probability-v1",
-    economics:"suzy-economics-macro-v1", financials:"suzy-financial-statements-v1", valuation:"suzy-valuation-v1", fixedIncome:"suzy-fixed-income-v1"
+    economics:"suzy-economics-macro-v1", financials:"suzy-financial-statements-v1", valuation:"suzy-valuation-v1", fixedIncome:"suzy-fixed-income-v1", derivatives:"suzy-derivatives-v1"
   });
   const $ = id => document.getElementById(id);
   let state = loadState();
@@ -33,11 +33,11 @@
   function collectAdditional(){
     const governance=readJson(KEYS.governance,{}), data=readJson(KEYS.data,{}), calendar=readJson(KEYS.calendar,{});
     const ethics=SuzyEthicsCore.normalizeState(readJson(KEYS.ethics,{})), statistics=SuzyStatisticsCore.normalizeState(readJson(KEYS.statistics,{})), economics=SuzyEconomicsCore.normalizeState(readJson(KEYS.economics,{}));
-    const financials=SuzyFinancialsCore.normalizeState(readJson(KEYS.financials,{})), valuation=SuzyValuationCore.normalizeState(readJson(KEYS.valuation,{})), fixedIncome=SuzyFixedIncomeCore.normalizeState(readJson(KEYS.fixedIncome,{}));
+    const financials=SuzyFinancialsCore.normalizeState(readJson(KEYS.financials,{})), valuation=SuzyValuationCore.normalizeState(readJson(KEYS.valuation,{})), fixedIncome=SuzyFixedIncomeCore.normalizeState(readJson(KEYS.fixedIncome,{})), derivatives=SuzyDerivativesCore.normalizeState(readJson(KEYS.derivatives,{}));
     return {
       risk:countArray(readJson(KEYS.risk,[])), microstructure:countArray(readJson(KEYS.microstructure,[])), capstone:countArray(readJson(KEYS.capstone,[])), governance:countArray(governance?.history),
       data:countArray(data?.manifests), calendar:SuzyStudentCore.countAuthorizedCalendarEvents(calendar), ethics:ethics.passed?1:0, statistics:statistics.passed?1:0, economics:economics.passed?1:0,
-      financials:financials.passed?1:0, valuation:valuation.passed?1:0, fixedIncome:fixedIncome.passed?1:0
+      financials:financials.passed?1:0, valuation:valuation.passed?1:0, fixedIncome:fixedIncome.passed?1:0, derivatives:derivatives.passed?1:0
     };
   }
 
