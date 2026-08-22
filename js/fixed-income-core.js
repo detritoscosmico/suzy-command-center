@@ -97,16 +97,20 @@
       weightedTime += timeYears * presentValue;
       convexityNumerator += (cashFlow * period * (period + 1)) / ((input.paymentsPerYear ** 2) * ((1 + input.periodicYield) ** (period + 2)));
     }
+    if (![price, weightedTime, convexityNumerator].every(Number.isFinite) || price <= 0) return { valid:false, reason:"NUMERIC_RANGE" };
     const macaulayDuration = weightedTime / price;
     const modifiedDuration = macaulayDuration / (1 + input.periodicYield);
     const convexity = convexityNumerator / price;
     const deltaYield = input.shockBp / 10000;
     const approximateChangePercent = (-modifiedDuration * deltaYield + 0.5 * convexity * (deltaYield ** 2)) * 100;
+    if (![macaulayDuration, modifiedDuration, convexity, approximateChangePercent].every(Number.isFinite)) return { valid:false, reason:"NUMERIC_RANGE" };
     const shockedYieldRate = input.yieldRate + (input.shockBp / 100);
     if (shockedYieldRate < -99.999 || shockedYieldRate > 1000) return { valid:false, reason:"INVALID_SHOCKED_YIELD" };
     const shockedPriceRaw = rawPriceFixedCouponBond({ face:input.face, couponRate:input.couponRate, yieldRate:shockedYieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear });
-    const exactChangePercent = shockedPriceRaw === null ? null : ((shockedPriceRaw / price) - 1) * 100;
-    return { valid:true, face:input.face, couponRate:input.couponRate, yieldRate:input.yieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear, shockBp:input.shockBp, price:round(price,2), macaulayDuration:round(macaulayDuration,4), modifiedDuration:round(modifiedDuration,4), convexity:round(convexity,4), approximateChangePercent:round(approximateChangePercent,4), shockedYieldRate:round(shockedYieldRate,4), shockedPrice:shockedPriceRaw===null?null:round(shockedPriceRaw,2), exactChangePercent:exactChangePercent===null?null:round(exactChangePercent,4) };
+    if (!Number.isFinite(shockedPriceRaw) || shockedPriceRaw <= 0) return { valid:false, reason:"NUMERIC_RANGE" };
+    const exactChangePercent = ((shockedPriceRaw / price) - 1) * 100;
+    if (!Number.isFinite(exactChangePercent)) return { valid:false, reason:"NUMERIC_RANGE" };
+    return { valid:true, face:input.face, couponRate:input.couponRate, yieldRate:input.yieldRate, years:input.years, paymentsPerYear:input.paymentsPerYear, shockBp:input.shockBp, price:round(price,2), macaulayDuration:round(macaulayDuration,4), modifiedDuration:round(modifiedDuration,4), convexity:round(convexity,4), approximateChangePercent:round(approximateChangePercent,4), shockedYieldRate:round(shockedYieldRate,4), shockedPrice:round(shockedPriceRaw,2), exactChangePercent:round(exactChangePercent,4) };
   }
 
   function classifyCurve(shortYield, mediumYield, longYield) {
