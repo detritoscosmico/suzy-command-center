@@ -17,6 +17,16 @@ async function fillExpectedAnswer(page) {
   await page.locator("#caseRationale").fill("A análise identifica fluxo, taxa, risco, fonte institucional e limite de inferência sem converter o caso em recomendação financeira.");
 }
 
+test("Programa Profissional expõe a Entrega 06 e navega para renda fixa", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/programa.html");
+  const link = page.locator('a[href="renda-fixa.html"]');
+  await expect(link).toHaveCount(2);
+  await link.first().click();
+  await expect(page).toHaveURL(/\/renda-fixa\.html$/);
+  await expect(page.locator("h1")).toContainText("Renda fixa");
+});
+
 test("calcula preço, duration, convexidade e curva em todos os projetos", async ({ page }) => {
   await page.goto("/renda-fixa.html");
   await page.locator("#fixedIncomeForm button[type=submit]").click();
