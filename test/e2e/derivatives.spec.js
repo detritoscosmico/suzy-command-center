@@ -40,6 +40,7 @@ test("Programa Profissional expõe a Entrega 07 e navega para derivativos", asyn
 
 test("calcula snapshot educacional de futuros, DI, opções e swap", async ({ page }) => {
   await page.goto("/derivativos.html");
+  expect(await page.locator("#derivativesForm").evaluate(form => form.checkValidity())).toBe(true);
   await page.locator("#derivativesForm button[type=submit]").click();
   await expect(page.locator("#futPnl")).toHaveText("100.00");
   await expect(page.locator("#basisValue")).toHaveText("500.00 (0.5000%)");
