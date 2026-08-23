@@ -13,11 +13,11 @@ A decisão limita o projeto a educação, simulação, gestão de risco, registr
 
 ## Estado da versão e da publicação
 
-A versão declarada no código é **1.31.0**. Esse número identifica o estado dos arquivos do projeto e não cria, por si só, uma tag, um GitHub Release ou uma garantia de funcionamento em produção.
+A versão declarada no código desta branch é **1.32.0**. A baseline publicada anterior permanece **1.31.0**. A Entrega 7 — Derivativos — está implementada na branch `feat/ciclo8-derivativos-e3` e em validação na PR #62; ainda não está concluída na `main`, não possui tag 1.32.0 e não constitui uma nova GitHub Release ou garantia de funcionamento em produção.
 
 O GitHub Pages está habilitado no repositório para a demonstração estática. Habilitação do Pages e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional de cada recurso. O modo local seguro continua fora do GitHub Pages porque depende do servidor Node.js e do SQLite local.
 
-A auditoria pré-release 1.31.0 está registrada em `docs/auditoria-pre-release-1.31.0.md`. O histórico da auditoria pós-PR #54 permanece em `docs/auditoria-main-pos-pr54.md`.
+A auditoria pré-release 1.31.0 permanece registrada historicamente em `docs/auditoria-pre-release-1.31.0.md`. O histórico da auditoria pós-PR #54 permanece em `docs/auditoria-main-pos-pr54.md`.
 
 ## Demonstração pública
 
@@ -81,7 +81,7 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html`, `valuation.html` e `renda-fixa.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html`, `valuation.html`, `renda-fixa.html` e, nesta branch em validação, `derivativos.html`.
 
 O programa conecta evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook, proveniência de dados e fundamentos profissionais. A matriz institucional separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
@@ -134,6 +134,25 @@ Arquivo: `renda-fixa.html`
 - aviso de que a trilha não recomenda títulos, não prevê taxas e não garante retorno.
 
 A metodologia está documentada em `docs/trilha-renda-fixa.md`.
+
+### Derivativos — E3 candidata na PR #62
+
+Arquivo: `derivativos.html`
+
+- futuros, opções e swaps;
+- payoff linear e não linear;
+- Futuro de DI, Futuro de Ibovespa e Futuro de Dólar no contexto B3;
+- ajuste diário, margem, alavancagem, basis, vencimento e rolagem;
+- calls, puts, titular, lançador, strike, prêmio, valor intrínseco e temporal;
+- volatilidade, delta, gamma, theta e vega tratados como sensibilidades e não previsões;
+- exercício, expiração e risco não linear;
+- prática guiada com 18 variantes e rubrica pública de 100 pontos;
+- aprovação E3 candidata com média mínima de 80 e nenhuma violação dura;
+- hard caps para confusões graves sobre margem, risco de short call, direitos do titular, ajuste diário e certeza de modelo;
+- limitações explícitas para Black–Scholes, PU de DI e swap simplificado;
+- nenhuma saída é recomendação, sinal operacional, preço justo garantido ou promessa de resultado.
+
+A metodologia está documentada em `docs/trilha-derivativos.md`. Esta trilha permanece **implementada na branch e em validação na PR #62**, ainda não concluída na `main`.
 
 ### Área do Aluno
 
@@ -330,6 +349,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - trilha E3 de demonstrações financeiras;
 - trilha E3 de valuation;
 - trilha E3 de renda fixa;
+- trilha E3 candidata de derivativos implementada na branch e em validação na PR #62;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -347,6 +367,7 @@ suzy-command-center/
 ├── calendario.html
 ├── capstone.html
 ├── dados.html
+├── derivativos.html
 ├── economia.html
 ├── etica.html
 ├── estatistica.html
@@ -373,6 +394,7 @@ suzy-command-center/
 │   ├── matriz-competencias-institucionais.md
 │   ├── roadmap-formacao-institucional.md
 │   ├── roadmap-prontidao-institucional.md
+│   ├── trilha-derivativos.md
 │   └── documentação dos módulos
 ├── js/
 ├── server/
@@ -442,6 +464,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - não executa ordens reais ou automáticas;
 - a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
+- os laboratórios de derivativos da PR #62 usam modelos e fórmulas simplificadas; não reproduzem superfície de volatilidade, margem real, book, bid/ask, exercício antecipado, custos, calibração profissional ou todas as convenções dos contratos B3;
 - a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
 - a trilha regulatória ensina fronteiras do projeto e não substitui parecer jurídico, registro ou orientação profissional para um caso concreto;
 - CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
@@ -449,10 +472,11 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Concluir as trilhas pendentes do Ciclo 8: derivativos, alternativos e construção/atribuição de portfólio.
-2. Concluir o gate pré-release 1.31.0 com CI de `push` da `main`, GitHub Pages no SHA final e decisão GO/NO-GO antes de tag ou Release.
-3. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
-4. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+1. Concluir a validação da PR #62 e, somente após os gates, decidir o merge da Entrega 7 — Derivativos.
+2. Depois de Derivativos, concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
+3. Tratar eventual Release 1.32.0 como gate separado após merge, CI pós-merge e validação de deployment; a versão de código na branch não cria tag ou Release.
+4. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+5. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
