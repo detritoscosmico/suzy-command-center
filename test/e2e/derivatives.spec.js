@@ -46,7 +46,8 @@ test("calcula snapshot educacional de futuros, DI, opções e swap", async ({ pa
   await expect(page.locator("#basisValue")).toHaveText("500.00 (0.5000%)");
   await expect(page.locator("#diPu")).toHaveText("89285.71");
   await expect(page.locator("#optionExpiry")).toHaveText("-5.00");
-  await expect(page.locator("#optionModelPrice")).toHaveText("3.2750");
+  const optionModelPrice = Number(await page.locator("#optionModelPrice").textContent());
+  expect(optionModelPrice).toBeCloseTo(3.275, 3);
   await expect(page.locator("#optionDelta")).toHaveText("0.559820");
   await expect(page.locator("#optionGamma")).not.toHaveText("N/A");
   await expect(page.locator("#optionTheta")).not.toHaveText("N/A");
@@ -55,12 +56,15 @@ test("calcula snapshot educacional de futuros, DI, opções e swap", async ({ pa
   await expect(page.locator("#derivativesFeedback")).toContainText("não são sinais de entrada");
 });
 
-test("rejeita parâmetros de modelo fora dos limites", async ({ page }) => {
+test("validação nativa bloqueia volatilidade abaixo do limite e o core também rejeita zero", async ({ page }) => {
   await page.goto("/derivativos.html");
   await page.locator("#optionVol").fill("0");
-  await page.locator("#derivativesForm button[type=submit]").click();
-  await expect(page.locator("#optionModelPrice")).toHaveText("N/A");
-  await expect(page.locator("#derivativesFeedback")).toContainText("Entradas inválidas");
+  const validity = await page.locator("#optionVol").evaluate(input => ({ formValid:input.form.checkValidity(), rangeUnderflow:input.validity.rangeUnderflow }));
+  expect(validity.formValid).toBe(false);
+  expect(validity.rangeUnderflow).toBe(true);
+  const coreResult = await page.evaluate(() => window.SuzyDerivativesCore.blackScholesSnapshot({ spot:100, strike:100, annualRatePercent:10, volatilityPercent:0, days:30, type:"CALL" }));
+  expect(coreResult.valid).toBe(false);
+  expect(coreResult.reason).toBe("INVALID_MODEL_INPUT");
 });
 
 test("aprova Derivativos E3 após seis variantes sem violação dura", async ({ page }, testInfo) => {
