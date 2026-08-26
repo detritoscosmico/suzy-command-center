@@ -48,7 +48,7 @@
           <article><strong>FUTURO × À VISTA</strong><p>O futuro é um contrato com vencimento e ajuste. Spot e futuro podem divergir; a diferença precisa ser analisada como basis, não como erro automático.</p></article>
           <article><strong>MARGEM × EXPOSIÇÃO</strong><p>Margem de garantia é um mecanismo de risco. Ela pode ser muito menor que o valor nocional e não define, sozinha, a perda máxima.</p></article>
           <article><strong>CALL × PUT</strong><p>O titular compra um direito mediante prêmio; o lançador assume obrigação se houver exercício conforme as regras do produto.</p></article>
-          <article><strong>INTRÍNSECO × TEMPORAL</strong><p>Antes do vencimento, o prêmio pode exceder o valor intrínseco por causa de tempo, volatilidade e demais parâmetros.</p></article>
+          <article><strong>INTRÍNSECO × COMPONENTE TEMPORAL</strong><p>Antes do vencimento, preço e valor intrínseco podem divergir. Neste laboratório, o componente temporal é calculado como preço do modelo menos valor intrínseco à vista e pode ser negativo em cenários com taxa de juros negativa.</p></article>
           <article><strong>GREEKS × PREVISÃO</strong><p>Delta, gamma, theta e vega são sensibilidades locais dentro de um estado/modelo. Não são probabilidades ou trajetórias garantidas.</p></article>
           <article><strong>SWAP × POSIÇÃO ÚNICA</strong><p>Swap compara duas pontas econômicas. O resultado depende do diferencial entre indexadores, base contratual, prazo e forma de liquidação.</p></article>
         </div>
@@ -99,7 +99,7 @@
           <article><span>Opção • payoff líquido no vencimento</span><strong id="optionExpiry">—</strong></article>
           <article><span>Opção • preço modelo</span><strong id="optionModelPrice">—</strong></article>
           <article><span>Valor intrínseco</span><strong id="optionIntrinsic">—</strong></article>
-          <article><span>Valor temporal</span><strong id="optionTime">—</strong></article>
+          <article><span>Componente temporal (preço − intrínseco)</span><strong id="optionTime">—</strong></article>
           <article><span>Delta</span><strong id="optionDelta">—</strong></article>
           <article><span>Gamma</span><strong id="optionGamma">—</strong></article>
           <article><span>Theta/dia</span><strong id="optionTheta">—</strong></article>
@@ -107,7 +107,7 @@
           <article><span>Swap • diferencial simples</span><strong id="swapNet">—</strong></article>
         </div>
         <p id="derivativesFeedback" class="feedback" aria-live="polite">Calcule para atualizar o cenário.</p>
-        <p class="caution-note">O preço de opção usa uma aproximação Black–Scholes europeia sem dividendos, superfície de volatilidade, custos, bid/ask, exercício antecipado ou convenções específicas da B3. O PU de DI e o swap são exercícios simplificados. Nenhuma saída é preço justo operacional, recomendação, margem exigida ou previsão.</p>
+        <p class="caution-note">O preço de opção usa uma aproximação Black–Scholes europeia sem dividendos, superfície de volatilidade, custos, bid/ask, exercício antecipado ou convenções específicas da B3. Sob taxas negativas, a decomposição simplificada preço do modelo menos valor intrínseco à vista pode gerar componente temporal negativo. O PU de DI e o swap são exercícios simplificados. Nenhuma saída é preço justo operacional, recomendação, margem exigida ou previsão.</p>
       </section>
 
       <section id="sourceLab" class="lab-section" aria-labelledby="sourceTitle">
@@ -147,7 +147,7 @@
             <p id="caseFeedback" class="feedback" aria-live="polite"></p>
           </form>
         </div>
-        <div id="caseResult" class="case-result" hidden>
+        <div id="caseResult" class="case-result" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
           <div class="score-panel"><span>NOTA DO CASO</span><strong id="caseScore">0</strong><b id="caseResultState">REVISAR</b></div>
           <div><div id="caseChecks" class="checks-grid"></div><p id="hardViolation" class="hard-violation" hidden></p><p id="caseExplanation"></p><p id="caseExpected" class="expected-answer"></p></div>
         </div>
