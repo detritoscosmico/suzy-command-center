@@ -56,6 +56,33 @@ test("calcula snapshot educacional de futuros, DI, opções e swap", async ({ pa
   await expect(page.locator("#derivativesFeedback")).toContainText("não são sinais de entrada");
 });
 
+test("normaliza cancelamento numérico sem invalidar o snapshot completo", async ({ page }) => {
+  await page.goto("/derivativos.html");
+  await page.locator("#optionSpot").fill("1");
+  await page.locator("#optionStrike").fill("10");
+  await page.locator("#optionRate").fill("0");
+  await page.locator("#optionVol").fill("100");
+  await page.locator("#optionDays").fill("30");
+  await page.locator("#derivativesForm button[type=submit]").click();
+  await expect(page.locator("#optionModelPrice")).toHaveText("0.0000");
+  await expect(page.locator("#optionTime")).toHaveText("0.0000");
+  await expect(page.locator("#swapNet")).toHaveText("10000.00");
+  await expect(page.locator("#derivativesFeedback")).toContainText("Snapshot educacional calculado");
+});
+
+test("preserva componente temporal negativo em cenário europeu com taxa negativa", async ({ page }) => {
+  await page.goto("/derivativos.html");
+  await page.locator("#optionSpot").fill("100");
+  await page.locator("#optionStrike").fill("50");
+  await page.locator("#optionRate").fill("-100");
+  await page.locator("#optionVol").fill("1");
+  await page.locator("#optionDays").fill("365");
+  await page.locator("#derivativesForm button[type=submit]").click();
+  await expect(page.locator("#optionModelPrice")).toHaveText("0.0000");
+  await expect(page.locator("#optionIntrinsic")).toHaveText("50.0000");
+  await expect(page.locator("#optionTime")).toHaveText("-50.0000");
+});
+
 test("validação nativa bloqueia volatilidade abaixo do limite e o core também rejeita zero", async ({ page }) => {
   await page.goto("/derivativos.html");
   await page.locator("#optionVol").fill("0");
@@ -65,6 +92,22 @@ test("validação nativa bloqueia volatilidade abaixo do limite e o core também
   const coreResult = await page.evaluate(() => window.SuzyDerivativesCore.blackScholesSnapshot({ spot:100, strike:100, annualRatePercent:10, volatilityPercent:0, days:30, type:"CALL" }));
   expect(coreResult.valid).toBe(false);
   expect(coreResult.reason).toBe("INVALID_MODEL_INPUT");
+});
+
+test("resultado da avaliação é anunciado e recebe foco programático", async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await page.goto("/derivativos.html");
+  await fillExpectedAnswer(page);
+  await page.locator("#caseForm button[type=submit]").click();
+  const result = page.locator("#caseResult");
+  await expect(result).toBeVisible();
+  await expect(result).toHaveAttribute("role", "status");
+  await expect(result).toHaveAttribute("aria-live", "polite");
+  await expect(result).toHaveAttribute("aria-atomic", "true");
+  await expect(result).toContainText("100");
+  await expect(result).toContainText("APROVADO");
+  await expect(result).toContainText("Resposta esperada:");
+  expect(await page.evaluate(() => document.activeElement?.id)).toBe("caseResult");
 });
 
 test("aprova Derivativos E3 após seis variantes sem violação dura", async ({ page }, testInfo) => {
