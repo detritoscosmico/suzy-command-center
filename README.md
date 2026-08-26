@@ -81,7 +81,7 @@ Oito aulas de análise técnica aplicada, cinco exercícios práticos e avaliaç
 
 ### Programa de Formação por Competências
 
-Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html`, `valuation.html`, `renda-fixa.html` e, nesta branch em validação, `derivativos.html`.
+Arquivos: `programa.html`, `risco.html`, `microestrutura.html`, `capstone.html`, `governanca.html`, `dados.html`, `etica.html`, `estatistica.html`, `economia.html`, `financials.html`, `valuation.html`, `renda-fixa.html` e `derivativos.html`.
 
 O programa conecta evidências do estudo a gates de processo: passaporte de competências, dimensionamento de risco, qualidade de execução, decisão sob incerteza, governança do playbook, proveniência de dados e fundamentos profissionais. A matriz institucional separa conteúdo, prática, avaliação, retenção e validação externa, mantendo visíveis as competências ainda não cobertas.
 
@@ -135,7 +135,7 @@ Arquivo: `renda-fixa.html`
 
 A metodologia está documentada em `docs/trilha-renda-fixa.md`.
 
-### Derivativos — E3 candidata na PR #62
+### Derivativos — E3 integrado
 
 Arquivo: `derivativos.html`
 
@@ -143,16 +143,16 @@ Arquivo: `derivativos.html`
 - payoff linear e não linear;
 - Futuro de DI, Futuro de Ibovespa e Futuro de Dólar no contexto B3;
 - ajuste diário, margem, alavancagem, basis, vencimento e rolagem;
-- calls, puts, titular, lançador, strike, prêmio, valor intrínseco e temporal;
+- calls, puts, titular, lançador, strike, prêmio, valor intrínseco e componente temporal;
 - volatilidade, delta, gamma, theta e vega tratados como sensibilidades e não previsões;
 - exercício, expiração e risco não linear;
 - prática guiada com 18 variantes e rubrica pública de 100 pontos;
-- aprovação E3 candidata com média mínima de 80 e nenhuma violação dura;
+- aprovação E3 interna com média mínima de 80 e nenhuma violação dura;
 - hard caps para confusões graves sobre margem, risco de short call, direitos do titular, ajuste diário e certeza de modelo;
 - limitações explícitas para Black–Scholes, PU de DI e swap simplificado;
 - nenhuma saída é recomendação, sinal operacional, preço justo garantido ou promessa de resultado.
 
-A metodologia está documentada em `docs/trilha-derivativos.md`. Esta trilha permanece **implementada na branch e em validação na PR #62**, ainda não concluída na `main`.
+A metodologia está documentada em `docs/trilha-derivativos.md`. A trilha foi implementada, testada, revisada e mesclada na `main` pela PR #62; os gates pós-merge Qualidade #210, CodeQL #128 e Pages #57 concluíram com sucesso no merge commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`.
 
 ### Área do Aluno
 
@@ -349,7 +349,7 @@ Quando o SQLite antigo contém somente registros ativos e eles coincidem com o n
 - trilha E3 de demonstrações financeiras;
 - trilha E3 de valuation;
 - trilha E3 de renda fixa;
-- trilha E3 candidata de derivativos implementada na branch e em validação na PR #62;
+- trilha E3 de derivativos integrada na `main` via PR #62, com validação pós-merge registrada;
 - instalação reprodutível com lockfile, análise CodeQL e atualizações assistidas pelo Dependabot.
 
 ## Estrutura
@@ -464,7 +464,7 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 - não executa ordens reais ou automáticas;
 - a origem e a licença dos históricos e calendários importados são responsabilidade do usuário;
 - o simulador não reproduz livro de ofertas, liquidez parcial, latência, swap, margem ou impostos;
-- os laboratórios de derivativos da PR #62 usam modelos e fórmulas simplificadas; não reproduzem superfície de volatilidade, margem real, book, bid/ask, exercício antecipado, custos, calibração profissional ou todas as convenções dos contratos B3;
+- os laboratórios de derivativos integrados via PR #62 usam modelos e fórmulas simplificadas; não reproduzem superfície de volatilidade, margem real, book, bid/ask, exercício antecipado, custos, calibração profissional ou todas as convenções dos contratos B3;
 - a matriz de competências é uma autoavaliação rastreável do projeto, não validação externa;
 - a trilha regulatória ensina fronteiras do projeto e não substitui parecer jurídico, registro ou orientação profissional para um caso concreto;
 - CodeQL, Dependabot e testes automatizados reduzem risco, mas não substituem revisão humana ou resposta a incidentes;
@@ -472,9 +472,9 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Concluir a validação da PR #62 e, somente após os gates, decidir o merge da Entrega 7 — Derivativos.
-2. Depois de Derivativos, concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
-3. Tratar eventual Release 1.32.0 como gate separado após merge, CI pós-merge e validação de deployment; a versão de código na branch não cria tag ou Release.
+1. Concluir e mesclar a PR de reconciliação pré-release 1.32.0; depois revalidar Qualidade, CodeQL e Pages no novo SHA da `main`.
+2. Somente após esses gates, decidir explicitamente a criação da tag/GitHub Release 1.32.0; versão de código e deployment estático não criam uma Release formal.
+3. Concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
 4. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
 5. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
