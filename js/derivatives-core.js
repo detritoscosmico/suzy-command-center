@@ -193,7 +193,7 @@
     const discount = Math.exp(-r * t);
     const callPrice = spot * normalCdf(d1) - strike * discount * normalCdf(d2);
     const putPrice = strike * discount * normalCdf(-d2) - spot * normalCdf(-d1);
-    const price = type === "CALL" ? callPrice : putPrice;
+    const rawPrice = type === "CALL" ? callPrice : putPrice;
     const delta = type === "CALL" ? normalCdf(d1) : normalCdf(d1) - 1;
     const gamma = normalPdf(d1) / (spot * sigma * sqrtT);
     const callThetaAnnual = -(spot * normalPdf(d1) * sigma) / (2 * sqrtT) - r * strike * discount * normalCdf(d2);
@@ -201,12 +201,15 @@
     const thetaPerDay = (type === "CALL" ? callThetaAnnual : putThetaAnnual) / 365;
     const vegaPerVolPoint = (spot * normalPdf(d1) * sqrtT) / 100;
     const intrinsic = type === "CALL" ? Math.max(spot - strike, 0) : Math.max(strike - spot, 0);
+    const priceTolerance = Math.max(1, Math.abs(spot), Math.abs(strike * discount)) * 1e-12;
+    if (!Number.isFinite(rawPrice) || rawPrice < -priceTolerance) return { valid:false, reason:"NUMERIC_RANGE" };
+    const price = rawPrice < 0 ? 0 : rawPrice;
     const timeValue = price - intrinsic;
     const values = [price, delta, gamma, thetaPerDay, vegaPerVolPoint, intrinsic, timeValue, d1, d2];
-    if (!values.every(Number.isFinite) || price < 0) return { valid:false, reason:"NUMERIC_RANGE" };
+    if (!values.every(Number.isFinite)) return { valid:false, reason:"NUMERIC_RANGE" };
     return {
       valid:true, type, spot, strike, annualRatePercent, volatilityPercent, days,
-      price:round(price, 4), intrinsic:round(intrinsic, 4), timeValue:round(Math.max(0, timeValue), 4),
+      price:round(price, 4), intrinsic:round(intrinsic, 4), timeValue:round(timeValue, 4),
       delta:round(delta, 6), gamma:round(gamma, 6), thetaPerDay:round(thetaPerDay, 6), vegaPerVolPoint:round(vegaPerVolPoint, 6), d1:round(d1, 6), d2:round(d2, 6)
     };
   }
