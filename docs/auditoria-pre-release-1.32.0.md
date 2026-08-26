@@ -48,6 +48,12 @@ O merge da PR #62 deixou documentação com estado pré-merge. Esta preparação
 - roadmap de formação: Ciclo 8 passa de 6 para 7 entregas concluídas na `main`;
 - matriz de competências: a evidência de Derivativos passa a integrada, sem promoção automática de níveis por função.
 
+## Risco de governança registrado
+
+A leitura atual da branch `main` pelo endpoint de branches do GitHub reporta `protected:false` e proteção desabilitada. Isso não invalida os checks já concluídos, mas reduz a garantia de que mudanças futuras passarão obrigatoriamente pelos mesmos gates.
+
+Este risco deve permanecer explícito no painel do projeto e ser tratado separadamente; não deve ser mascarado por CI verde ou deployment bem-sucedido.
+
 ## Gate desta PR de preparação
 
 O merge desta reconciliação produzirá um novo SHA da `main`. Portanto, a tag/Release 1.32.0 **não deve ser criada antes** de validar novamente no SHA resultante:
