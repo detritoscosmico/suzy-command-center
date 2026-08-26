@@ -147,7 +147,8 @@
       moduleItem("economics", "Economia e macro", "economia.html", additional.economics || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("financials", "Demonstrações financeiras", "financials.html", additional.financials || 0, 1, "Avaliação E3 aprovada"),
       moduleItem("valuation", "Valuation", "valuation.html", additional.valuation || 0, 1, "Avaliação E3 aprovada"),
-      moduleItem("fixedIncome", "Renda fixa", "renda-fixa.html", additional.fixedIncome || 0, 1, "Avaliação E3 aprovada")
+      moduleItem("fixedIncome", "Renda fixa", "renda-fixa.html", additional.fixedIncome || 0, 1, "Avaliação E3 aprovada"),
+      moduleItem("derivatives", "Derivativos", "derivativos.html", additional.derivatives || 0, 1, "Avaliação E3 aprovada")
     ];
   }
 

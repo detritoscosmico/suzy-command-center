@@ -26,33 +26,24 @@ test("presença diária não duplica e calcula sequência", () => {
   assert.equal(core.calculateStreak(state.attendance, "2026-08-12"), 0);
 });
 
-test("monta progresso dos dezoito módulos com limites conservadores", () => {
+test("monta progresso dos dezenove módulos com limites conservadores", () => {
   const modules = core.buildModuleProgress({
     academy1: { completed: 6, passed: true }, academy2: { completed: 2, passed: false },
-    replayTrades: 50, simulatorTrades: 4, journal: { total: 20 },
-    psychology: { lessons: 5, assessments: 1, checkIns: 7 }
-  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1, valuation: 1, fixedIncome: 1 });
-  assert.equal(modules.length, 18);
+    replayTrades: 50, simulatorTrades: 4, journal: { total: 20 }, psychology: { lessons: 5, assessments: 1, checkIns: 7 }
+  }, { risk: 3, microstructure: 1, capstone: 4, governance: 1, data: 1, calendar: 0, ethics: 1, statistics: 1, economics: 1, financials: 1, valuation: 1, fixedIncome: 1, derivatives: 1 });
+  assert.equal(modules.length, 19);
   assert.equal(modules.find(module => module.id === "replay").percent, 100);
   assert.equal(modules.find(module => module.id === "psychology").complete, true);
   assert.equal(modules.find(module => module.id === "calendar").complete, false);
-  assert.equal(modules.find(module => module.id === "ethics").complete, true);
-  assert.equal(modules.find(module => module.id === "statistics").complete, true);
-  assert.equal(modules.find(module => module.id === "economics").complete, true);
-  assert.equal(modules.find(module => module.id === "financials").complete, true);
-  assert.equal(modules.find(module => module.id === "valuation").complete, true);
-  assert.equal(modules.find(module => module.id === "fixedIncome").complete, true);
+  for (const id of ["ethics", "statistics", "economics", "financials", "valuation", "fixedIncome", "derivatives"]) assert.equal(modules.find(module => module.id === id).complete, true);
   assert.equal(modules.find(module => module.id === "fixedIncome").href, "renda-fixa.html");
+  assert.equal(modules.find(module => module.id === "derivatives").href, "derivativos.html");
 });
 
 test("exige aprovação das academias mesmo com todas as aulas concluídas", () => {
   const modules = core.buildModuleProgress({ academy1: { completed: 6, passed: false }, academy2: { completed: 8, passed: false } });
-  const academy1 = modules.find(module => module.id === "academy1");
-  const academy2 = modules.find(module => module.id === "academy2");
-  assert.equal(academy1.percent, 100);
-  assert.equal(academy1.complete, false);
-  assert.equal(academy1.detail, "Avaliação pendente");
-  assert.equal(academy2.complete, false);
+  const academy1 = modules.find(module => module.id === "academy1"), academy2 = modules.find(module => module.id === "academy2");
+  assert.equal(academy1.percent, 100); assert.equal(academy1.complete, false); assert.equal(academy1.detail, "Avaliação pendente"); assert.equal(academy2.complete, false);
 });
 
 test("aceita somente calendário autorizado como evidência", () => {
@@ -76,7 +67,5 @@ test("resume rotina sem usar lucro ou taxa de acerto", () => {
   const state = core.normalizeState({ attendance: ["2026-08-08", "2026-08-09"], weekKey: "2026-08-03", tasks: [{ id: "foundation", completed: true }] }, "2026-08-09");
   const modules = core.buildModuleProgress({}, {});
   const summary = core.summarize({ percent: 25, completedStages: 1, totalStages: 5, pnl: 9999 }, state, modules, "2026-08-09");
-  assert.equal(summary.programPercent, 25);
-  assert.equal(summary.streak, 2);
-  assert.equal(summary.pnl, undefined);
+  assert.equal(summary.programPercent, 25); assert.equal(summary.streak, 2); assert.equal(summary.pnl, undefined);
 });

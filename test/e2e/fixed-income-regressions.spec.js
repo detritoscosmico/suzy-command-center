@@ -66,7 +66,7 @@ test("preserva aprovação E3 antiga depois de mais de sessenta tentativas", asy
   expect(stored.bestAverage).toBe(100);
 });
 
-test("Área do Aluno reconhece Renda Fixa E3 e totaliza dezoito módulos", async ({ page }, testInfo) => {
+test("Área do Aluno reconhece Renda Fixa E3 e totaliza dezenove módulos", async ({ page }, testInfo) => {
   desktopOnly(testInfo);
   const approved = passingHistory();
   expect(fixedIncomeCore.evaluateSession(approved).passed).toBe(true);
@@ -75,5 +75,5 @@ test("Área do Aluno reconhece Renda Fixa E3 e totaliza dezoito módulos", async
   }, approved);
   await page.goto("/alunos.html");
   await expect(page.locator('#studentModules a[href="renda-fixa.html"]')).toContainText("CONCLUÍDO");
-  await expect(page.locator("#kpiModules")).toHaveText("1/18");
+  await expect(page.locator("#kpiModules")).toHaveText("1/19");
 });
