@@ -43,7 +43,7 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 | Demonstrações financeiras | E3 | E1 | E2 | E2 | E2 | Trilha E3 com DRE, balanço, DFC, reconciliação, 12 variantes e rubrica em `financials.html` |
 | Valuation | E3 | E1 | E2 | E2 | E3 | Trilha E3 com DCF simplificado, EV→equity, múltiplos, sensibilidade e 12 variantes em `valuation.html` |
 | Renda fixa | E3 | E1 | E2 | E2 | E2 | Trilha E3 com preço × yield, curva, duration, convexidade, crédito, inflação, marcação a mercado, 13 variantes e rubrica em `renda-fixa.html` |
-| Derivativos | E0 | E0 | E1 | E0 | E0 | Trilha E3 candidata implementada na branch `feat/ciclo8-derivativos-e3` e em validação na PR #62; níveis consolidados não serão promovidos antes dos gates finais e do merge na `main` |
+| Derivativos | E0 | E0 | E1 | E0 | E0 | Trilha E3 integrada na `main` via PR #62, com 18 variantes, rubrica publicada e gates pós-merge verdes; os níveis funcionais permanecem conservadores até existir decisão explícita de mapeamento por função |
 | Investimentos alternativos | E0 | E0 | E1 | E0 | E0 | Não implementados como trilha |
 | Construção e atribuição de portfólio | E0 | E0 | E1 | E0 | E0 | Não implementado |
 | Livro de ofertas e roteamento multi-venue | E0 | E1 | E1 | E1 | E0 | Simulação agregada, sem fila ou venues reais |
@@ -55,11 +55,11 @@ Uma interface pronta não eleva sozinha a competência acima de E1.
 - Dados artificiais permitem repetição, mas não validam fidelidade empírica.
 - Retorno, taxa de acerto ou resultado de um cenário não substituem aderência ao processo.
 - Nenhuma nota autoriza operação financeira, recomendação, gestão de recursos ou representação profissional.
-- A implementação de Derivativos na PR #62 ainda não altera os níveis consolidados desta matriz enquanto Qualidade, CodeQL, revisão e merge não estiverem concluídos.
+- A implementação de Derivativos na PR #62 concluiu Qualidade, CodeQL, revisão e merge; a promoção dos níveis por função continua dependente de critério explícito e evidência correspondente, não ocorrendo automaticamente pelo merge.
 
 ## Bloqueadores para uma alegação forte de padrão profissional
 
-1. Validar e mesclar Derivativos; depois concluir alternativos e construção/atribuição de portfólio do Ciclo 8.
+1. Concluir investimentos alternativos e construção/atribuição de portfólio do Ciclo 8; manter o mapeamento funcional de Derivativos conservador até decisão explícita baseada em evidência.
 2. Ampliar ética e regulação para as demais funções somente quando seus escopos forem aprovados.
 3. Calibrar simuladores com dados licenciados e documentar erro de modelo.
 4. Medir retenção, generalização e consistência entre avaliadores.
