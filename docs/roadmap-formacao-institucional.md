@@ -116,7 +116,7 @@ Os critérios, os bloqueadores e a ordem de evolução estão documentados em `d
 
 Objetivo: construir fundamentos que permitam avaliar conduta, evidência e instrumentos sem confundir conteúdo interno com habilitação ou validação de mercado.
 
-Status: em execução. Seis entregas estão concluídas na `main`. A Entrega 7 — Derivativos — está implementada na branch `feat/ciclo8-derivativos-e3` e em validação na PR #62; ainda não está concluída na `main`.
+Status: em execução. Sete entregas estão concluídas na `main`. A Entrega 7 — Derivativos — foi implementada, testada, revisada e mesclada pela PR #62; os gates pós-merge Qualidade #210, CodeQL #128 e Pages #57 concluíram com sucesso no commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`.
 
 - ética e limites regulatórios no Brasil para a função-alvo de execução;
 - estatística, probabilidade e leitura crítica de amostras para Quant/Dados;
@@ -124,9 +124,9 @@ Status: em execução. Seis entregas estão concluídas na `main`. A Entrega 7 �
 - demonstrações financeiras, com reconciliação de DRE, balanço, fluxo de caixa, capital de giro, alavancagem, recorrência e notas explicativas;
 - valuation, com DCF simplificado, valor terminal, reconciliação entre enterprise value e equity value, múltiplos, diluição e sensibilidade;
 - renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3;
-- derivativos — implementado na branch e em validação na PR #62 — com futuros, opções, swaps, payoff, ajuste diário, margem, basis, DI/Índice/Dólar no contexto B3, volatilidade, delta, gamma, theta, vega, exercício, expiração, risco não linear, prática guiada, 18 variantes e rubrica E3 candidata.
+- derivativos — concluído na `main` via PR #62 — com futuros, opções, swaps, payoff, ajuste diário, margem, basis, DI/Índice/Dólar no contexto B3, volatilidade, delta, gamma, theta, vega, exercício, expiração, risco não linear, prática guiada, 18 variantes e rubrica E3.
 
-As entregas de valuation, renda fixa e a candidata de derivativos incluem prática guiada, sessões reproduzíveis, fontes institucionais e rubricas que penalizam falsa precisão, confusão de mecanismos e conclusões determinísticas quando a evidência é insuficiente. A Entrega 7 só poderá ser classificada como concluída após gates da PR #62 e merge na `main`.
+As entregas de valuation, renda fixa e derivativos incluem prática guiada, sessões reproduzíveis, fontes institucionais e rubricas que penalizam falsa precisão, confusão de mecanismos e conclusões determinísticas quando a evidência é insuficiente.
 
 Investimentos alternativos e construção/atribuição de portfólio permanecem pendentes.
 
