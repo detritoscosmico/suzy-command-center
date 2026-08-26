@@ -13,7 +13,7 @@ A decisão limita o projeto a educação, simulação, gestão de risco, registr
 
 ## Estado da versão e da publicação
 
-A versão declarada no código desta branch é **1.32.0**. A baseline publicada anterior permanece **1.31.0**. A Entrega 7 — Derivativos — está implementada na branch `feat/ciclo8-derivativos-e3` e em validação na PR #62; ainda não está concluída na `main`, não possui tag 1.32.0 e não constitui uma nova GitHub Release ou garantia de funcionamento em produção.
+A versão declarada no código da `main` é **1.32.0**. A Entrega 7 — Derivativos — foi implementada, testada, revisada e mesclada pela PR #62 no commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`. Os gates pós-merge Qualidade #210, CodeQL #128 e Pages #57 concluíram com sucesso nesse SHA. Ainda não existe tag `1.32.0`/`v1.32.0` nem GitHub Release 1.32.0; portanto, versão de código e publicação formal permanecem estados distintos.
 
 O GitHub Pages está habilitado no repositório para a demonstração estática. Habilitação do Pages e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional de cada recurso. O modo local seguro continua fora do GitHub Pages porque depende do servidor Node.js e do SQLite local.
 
