@@ -46,7 +46,7 @@ Gate: os workflows precisam concluir sem falhas e toda lacuna deve permanecer vi
 
 ## Ciclo 8 — Fundamentos profissionais
 
-Status: em execução. A Release 1.31.0 é a baseline publicada antes da Entrega 7. A PR #62 implementa Derivativos em branch separada e alinha a versão de código da proposta para 1.32.0; isso não cria tag, GitHub Release nem comprova funcionamento em produção.
+Status: em execução. A versão de código anterior era 1.31.0. A PR #62 implementou Derivativos e foi mesclada na `main`, que agora declara versão de código 1.32.0. No merge commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`, Qualidade #210, CodeQL #128 e Pages #57 concluíram com sucesso. Não há tag `1.32.0`/`v1.32.0` nem GitHub Release 1.32.0 confirmadas; versão de código, deployment estático e release formal são gates separados.
 
 - entrega 1 concluída: ética, conflitos de interesse e limites regulatórios da função-alvo no Brasil, com 12 variantes, fontes oficiais e avaliação E3;
 - entrega 2 concluída: estatística, probabilidade e leitura crítica de amostras, com prática guiada, 12 variantes, fontes metodológicas e avaliação E3 para Quant/Dados;
@@ -54,7 +54,7 @@ Status: em execução. A Release 1.31.0 é a baseline publicada antes da Entrega
 - entrega 4 concluída: demonstrações financeiras, com snapshot guiado, 12 variantes, fontes CVM/CPC/IFRS e avaliação E3 centrada em reconciliação entre DRE, balanço, fluxo de caixa e notas;
 - entrega 5 implementada, mesclada e validada pós-merge na `main` via PR #48: valuation, com DCF simplificado, valor terminal, reconciliação enterprise value → equity value, múltiplos, diluição, sensibilidade e avaliação E3 contra falsa precisão;
 - entrega 6 implementada, testada, validada na PR #60, mesclada na `main` e publicada na baseline 1.31.0: renda fixa, com preço × yield, estrutura a termo, duration, convexidade, crédito, inflação, marcação a mercado, instrumentos brasileiros, prática guiada, 13 variantes e rubrica E3;
-- entrega 7 **implementada na branch e em validação na PR #62, ainda não concluída na `main`**: derivativos, com futuros, opções, swaps, payoff, ajuste diário, margem, basis, vencimento, DI/índice/dólar no contexto B3, valor intrínseco/temporal, volatilidade, delta, gamma, theta, vega, exercício, risco não linear, 18 variantes e rubrica E3;
+- entrega 7 implementada, testada, revisada, mesclada e validada pós-merge na `main` via PR #62: derivativos, com futuros, opções, swaps, payoff, ajuste diário, margem, basis, vencimento, DI/índice/dólar no contexto B3, valor intrínseco/componente temporal, volatilidade, delta, gamma, theta, vega, exercício, risco não linear, 18 variantes e rubrica E3;
 - alternativos e construção/atribuição de portfólio permanecem pendentes.
 
 Fundamentos do ciclo:
