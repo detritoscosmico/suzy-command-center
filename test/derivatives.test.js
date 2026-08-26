@@ -48,6 +48,22 @@ test("snapshot de opção fornece preço e Greeks finitos", () => {
   assert.ok(result.vegaPerVolPoint > 0);
 });
 
+test("preserva componente temporal negativo sob taxa negativa no modelo europeu", () => {
+  const result = core.blackScholesSnapshot({ spot:100, strike:50, annualRatePercent:-100, volatilityPercent:1, days:365, type:"CALL" });
+  assert.equal(result.valid, true);
+  assert.equal(result.price, 0);
+  assert.equal(result.intrinsic, 50);
+  assert.equal(result.timeValue, -50);
+});
+
+test("tolera preço negativo apenas por cancelamento numérico e normaliza para zero", () => {
+  const result = core.blackScholesSnapshot({ spot:1, strike:10, annualRatePercent:0, volatilityPercent:100, days:30, type:"CALL" });
+  assert.equal(result.valid, true);
+  assert.equal(result.price, 0);
+  assert.equal(result.intrinsic, 0);
+  assert.equal(result.timeValue, 0);
+});
+
 test("rejeita entradas de modelo fora dos limites", () => {
   assert.equal(core.blackScholesSnapshot({ spot:0, strike:100, annualRatePercent:10, volatilityPercent:25, days:30, type:"CALL" }).valid, false);
   assert.equal(core.blackScholesSnapshot({ spot:100, strike:100, annualRatePercent:10, volatilityPercent:0, days:30, type:"CALL" }).valid, false);
