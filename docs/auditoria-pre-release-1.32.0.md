@@ -10,7 +10,6 @@ Esta auditoria não declara funcionamento em produção, recomendação financei
 
 - repositório: `detritoscosmico/suzy-command-center`;
 - branch de referência: `main`;
-- branch: `main`;
 - SHA candidato final: `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef`;
 - PR #62: mesclada, merge commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`;
 - PR #64: mesclada, merge commit `0dd9c833e5e5b1df95257c392f29d6be90e11298`;
