@@ -13,7 +13,7 @@ A decisão limita o projeto a educação, simulação, gestão de risco, registr
 
 ## Estado da versão e da publicação
 
-A versão declarada no código da `main` é **1.32.0**. A Entrega 7 — Derivativos — foi implementada, testada, revisada e mesclada pela PR #62 no commit `afcdbc95c6dc82f1163f9243e49959c564466fd1`. Os gates pós-merge Qualidade #210, CodeQL #128 e Pages #57 concluíram com sucesso nesse SHA. Ainda não existe tag `1.32.0`/`v1.32.0` nem GitHub Release 1.32.0; portanto, versão de código e publicação formal permanecem estados distintos.
+A versão declarada no código da `main` é **1.32.0**. A Entrega 7 — Derivativos — foi implementada, testada, revisada e mesclada pela PR #62; a preparação pré-release foi reconciliada pelas PRs #64 e #65. A candidata atual da `main` é o SHA `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef`, no qual Qualidade #216, CodeQL #134 e Pages #59 concluíram com `SUCCESS`. Ainda não existe tag `1.32.0`/`v1.32.0` nem GitHub Release 1.32.0; portanto, versão de código, deployment estático e publicação formal permanecem estados distintos.
 
 O GitHub Pages está habilitado no repositório para a demonstração estática. Habilitação do Pages e merge em `main` não são tratados isoladamente como prova de disponibilidade funcional de cada recurso. O modo local seguro continua fora do GitHub Pages porque depende do servidor Node.js e do SQLite local.
 
@@ -472,11 +472,12 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 
 ## Próximas etapas recomendadas
 
-1. Concluir e mesclar a PR de reconciliação pré-release 1.32.0; depois revalidar Qualidade, CodeQL e Pages no novo SHA da `main`.
-2. Somente após esses gates, decidir explicitamente a criação da tag/GitHub Release 1.32.0; versão de código e deployment estático não criam uma Release formal.
-3. Concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
-4. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
-5. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+1. Restaurar e validar o ruleset `main-professional-protection-v1` para a branch `main`; a API atualmente reporta `protected:false` e zero rulesets ativos.
+2. Após o merge da PR documental que finaliza este gate, capturar o novo SHA da `main` e revalidar Qualidade, CodeQL e Pages exatamente nesse SHA; `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef` é apenas a baseline pré-PR.
+3. Somente depois desses gates, reconfirmar versão 1.32.0, ruleset ativo e ausência de avanço da `main`, e então obter autorização explícita para criar a tag `v1.32.0` e a GitHub Release 1.32.0.
+4. Concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
+5. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+6. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
