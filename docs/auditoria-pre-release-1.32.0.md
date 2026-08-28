@@ -91,7 +91,7 @@ Após a restauração, o ruleset deve ser relido pela API/conector e confirmado 
 
 ## Gate final da candidata
 
-A candidata técnica está consolidada em `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef` com:
+O SHA `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef` é a **baseline pré-PR #66** e possui evidência verde:
 
 1. Qualidade #216 no evento `push` = `SUCCESS`;
 2. CodeQL #134 no evento `push` = `SUCCESS`;
@@ -102,7 +102,20 @@ A candidata técnica está consolidada em `dc8e2acfd987d833922986d09eeb0efcc8c0e
 7. GitHub Release 1.32.0 inexistente;
 8. release notes candidatas e limitações preservadas.
 
-Resta o **gate final administrativo/de governança**: restaurar e validar `main-professional-protection-v1`, reconfirmar que a `main` não mudou e obter autorização explícita antes da criação da tag e da GitHub Release.
+A própria PR #66, ao ser mesclada, produzirá um **novo SHA da `main`**. Portanto, o gate final obrigatório é:
+
+1. restaurar e validar o ruleset `main-professional-protection-v1`;
+2. mesclar a PR #66 somente após seus checks e review estarem verdes;
+3. capturar o novo SHA resultante da `main`;
+4. validar **nesse novo SHA**:
+   - Qualidade no evento `push` = `SUCCESS`;
+   - CodeQL no evento `push` = `SUCCESS`;
+   - Pages build/deployment = `SUCCESS`;
+   - `package.json` continua em `1.32.0`;
+5. reconfirmar que `main-professional-protection-v1` continua ativo e que a `main` não avançou depois desses gates;
+6. obter autorização explícita antes da criação da tag `v1.32.0` e da GitHub Release.
+
+A tag/Release **não deve** apontar para `dc8e2ac...` se a PR #66 tiver sido mesclada; deve apontar para o SHA pós-merge efetivamente revalidado.
 
 ## Release notes candidatas
 
@@ -136,10 +149,13 @@ Limites:
 
 **CANDIDATA TÉCNICA PRONTA PARA O GATE FINAL — ainda não publicar.**
 
-O código, CI, CodeQL, Pages, versionamento e reconciliação documental estão coerentes com a candidata 1.32.0. A publicação permanece bloqueada apenas pelo gate final administrativo/de governança:
+O código, os gates históricos da baseline pré-PR #66, o versionamento e a reconciliação documental estão coerentes com a candidata 1.32.0. A publicação permanece bloqueada pelo gate final:
 
 - restaurar e validar o ruleset `main-professional-protection-v1`;
-- reconfirmar que `main` continua exatamente em `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef`;
+- mesclar a PR #66 somente após seus gates verdes;
+- identificar o novo SHA pós-merge da `main`;
+- revalidar Qualidade, CodeQL e Pages exatamente nesse novo SHA;
+- reconfirmar versão 1.32.0, ruleset ativo e ausência de avanço posterior da `main`;
 - obter autorização explícita para criar `v1.32.0` e publicar `Suzy Command Center 1.32.0`.
 
 Até esse gate ser fechado, não criar tag nem GitHub Release.
