@@ -473,10 +473,11 @@ A estratégia está documentada em `docs/testes-multinavegador-acessibilidade.md
 ## Próximas etapas recomendadas
 
 1. Restaurar e validar o ruleset `main-professional-protection-v1` para a branch `main`; a API atualmente reporta `protected:false` e zero rulesets ativos.
-2. Reconfirmar que a candidata 1.32.0 continua exatamente no SHA `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef` e obter autorização explícita antes de criar a tag `v1.32.0` e a GitHub Release 1.32.0.
-3. Concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
-4. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
-5. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
+2. Após o merge da PR documental que finaliza este gate, capturar o novo SHA da `main` e revalidar Qualidade, CodeQL e Pages exatamente nesse SHA; `dc8e2acfd987d833922986d09eeb0efcc8c0e5ef` é apenas a baseline pré-PR.
+3. Somente depois desses gates, reconfirmar versão 1.32.0, ruleset ativo e ausência de avanço da `main`, e então obter autorização explícita para criar a tag `v1.32.0` e a GitHub Release 1.32.0.
+4. Concluir as trilhas pendentes do Ciclo 8: investimentos alternativos e construção/atribuição de portfólio.
+5. Planejar a calibração de mercado do Ciclo 9 com dados autorizados.
+6. Preparar retenção, plataforma hospedada e piloto externo conforme `docs/roadmap-prontidao-institucional.md`.
 
 ## Aviso
 
