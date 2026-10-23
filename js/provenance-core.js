@@ -191,7 +191,9 @@
       duplicateTimestamps,
       periodStart: rows[0]?.timestamp || null,
       periodEnd: rows[rows.length - 1]?.timestamp || null,
-      rows: rows.slice(0, 10)
+      // Only offline, opt-in consumers receive the full validated dataset.
+      // The public UI keeps its original 10-row preview by default.
+      rows: options.includeAllRows === true ? rows : rows.slice(0, 10)
     };
   }
 
