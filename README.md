@@ -39,7 +39,7 @@ Também é possível abrir os arquivos HTML diretamente no navegador.
 
 ## Executar o modo local seguro
 
-Requer Node.js 22 ou superior.
+Requer Node.js >=22.12.0.
 
 ```bash
 npm ci
